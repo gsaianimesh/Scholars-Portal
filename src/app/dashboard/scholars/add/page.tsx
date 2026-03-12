@@ -1,49 +1,64 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Copy, Check, Link as LinkIcon, Share2 } from "lucide-react";
 import Link from "next/link";
 
 export default function AddScholarPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [researchTopic, setResearchTopic] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [inviteCode, setInviteCode] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const supabase = createClient();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  useEffect(() => {
+    async function loadInviteCode() {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) return;
 
-    try {
-      const res = await fetch("/api/scholars", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, researchTopic }),
-      });
+      const { data: appUser } = await supabase
+        .from("users")
+        .select("id, role")
+        .eq("auth_id", authUser.id)
+        .maybeSingle();
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to add scholar");
+      if (appUser?.role === "professor") {
+        const { data: prof } = await supabase
+          .from("professors")
+          .select("invite_code")
+          .eq("user_id", appUser.id)
+          .maybeSingle();
+        if (prof?.invite_code) {
+          setInviteCode(prof.invite_code);
+        }
       }
-
-      router.push("/dashboard/scholars");
-      router.refresh();
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
       setLoading(false);
     }
+    loadInviteCode();
+  }, []);
+
+  function copyToClipboard(text: string, type: "code" | "link") {
+    navigator.clipboard.writeText(text);
+    if (type === "code") {
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    } else {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
+  }
+
+  const inviteLink = inviteCode
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/invite/${inviteCode}`
+    : "";
+
+  if (loading) {
+    return <div className="text-center py-12 text-muted-foreground">Loading...</div>;
   }
 
   return (
@@ -57,68 +72,80 @@ export default function AddScholarPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Add Scholar</h1>
           <p className="text-muted-foreground">
-            Add a new research scholar to your lab
+            Share the invite link or code with scholars to add them to your lab
           </p>
         </div>
       </div>
 
-      <Card>
+      <Card className="border-primary/20">
         <CardHeader>
-          <CardTitle>Scholar Details</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Share2 className="h-5 w-5" />
+            Invite a Scholar
+          </CardTitle>
           <CardDescription>
-            The scholar will receive an invitation email to join the platform.
+            Share the link or code below. Scholars will sign in with Google and automatically join your group.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+        <CardContent className="space-y-5">
+          <div className="space-y-2">
+            <Label>Invite Link</Label>
+            <div className="flex gap-2">
               <Input
-                id="name"
-                placeholder="Scholar's full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
+                value={inviteLink}
+                readOnly
+                className="text-sm"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="scholar@university.edu"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="topic">Research Topic</Label>
-              <Textarea
-                id="topic"
-                placeholder="Describe the research topic..."
-                value={researchTopic}
-                onChange={(e) => setResearchTopic(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-3 pt-2">
-              <Button type="submit" disabled={loading}>
-                {loading ? "Adding..." : "Add Scholar"}
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => copyToClipboard(inviteLink, "link")}
+              >
+                {copiedLink ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
               </Button>
-              <Link href="/dashboard/scholars">
-                <Button type="button" variant="outline">
-                  Cancel
-                </Button>
-              </Link>
             </div>
-          </form>
+            <p className="text-xs text-muted-foreground">
+              Scholars who open this link will be automatically registered under your group.
+            </p>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">or share the code</span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Invite Code</Label>
+            <div className="flex gap-2">
+              <Input
+                value={inviteCode}
+                readOnly
+                className="font-mono text-lg tracking-widest text-center"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => copyToClipboard(inviteCode, "code")}
+              >
+                {copiedCode ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Scholars can enter this code during sign-up to join your group.
+            </p>
+          </div>
         </CardContent>
       </Card>
+
+      <div className="flex justify-end">
+        <Link href="/dashboard/scholars">
+          <Button variant="outline">Back to Scholars</Button>
+        </Link>
+      </div>
     </div>
   );
 }
