@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Copy, Check, Link as LinkIcon } from "lucide-react";
 
 export default function SettingsPage() {
   const [name, setName] = useState("");
@@ -14,9 +15,12 @@ export default function SettingsPage() {
   const [department, setDepartment] = useState("");
   const [institution, setInstitution] = useState("");
   const [role, setRole] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -47,6 +51,7 @@ export default function SettingsPage() {
         if (prof) {
           setDepartment(prof.department || "");
           setInstitution(prof.institution || "");
+          setInviteCode(prof.invite_code || "");
         }
       }
     }
@@ -74,6 +79,21 @@ export default function SettingsPage() {
     }
   }
 
+  function copyToClipboard(text: string, type: "code" | "link") {
+    navigator.clipboard.writeText(text);
+    if (type === "code") {
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    } else {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
+  }
+
+  const inviteLink = inviteCode
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/invite/${inviteCode}`
+    : "";
+
   if (loading) {
     return <div className="text-center py-12 text-muted-foreground">Loading...</div>;
   }
@@ -89,6 +109,60 @@ export default function SettingsPage() {
         <div className="rounded-md bg-primary/10 p-3 text-sm text-primary">
           {message}
         </div>
+      )}
+
+      {/* Invite Section for Professors */}
+      {role === "professor" && inviteCode && (
+        <Card className="border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <LinkIcon className="h-4 w-4" />
+              Scholar Invite
+            </CardTitle>
+            <CardDescription>
+              Share this link or code with scholars to add them to your group
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Invite Code</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={inviteCode}
+                  readOnly
+                  className="font-mono text-lg tracking-widest"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => copyToClipboard(inviteCode, "code")}
+                >
+                  {copiedCode ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Invite Link</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={inviteLink}
+                  readOnly
+                  className="text-sm"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => copyToClipboard(inviteLink, "link")}
+                >
+                  {copiedLink ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Scholars who open this link will be automatically registered under your group.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       <Card>

@@ -30,10 +30,12 @@ CREATE TABLE professors (
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   department TEXT NOT NULL DEFAULT '',
   institution TEXT NOT NULL DEFAULT '',
+  invite_code TEXT NOT NULL UNIQUE DEFAULT upper(substr(md5(random()::text), 1, 8)),
   UNIQUE(user_id)
 );
 
 CREATE INDEX idx_professors_user_id ON professors(user_id);
+CREATE INDEX idx_professors_invite_code ON professors(invite_code);
 
 -- ============================================
 -- SCHOLARS TABLE
