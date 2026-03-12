@@ -42,6 +42,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Not a professor" }, { status: 403 });
   }
 
+  // Fetch participant emails for Google Calendar invites
+  let attendeeEmails: string[] = [];
+  if (participantUserIds?.length) {
+    const { data: participantUsers } = await serviceClient
+      .from("users")
+      .select("email")
+      .in("id", participantUserIds);
+    if (participantUsers) {
+      attendeeEmails = participantUsers.map((u: { email: string }) => u.email);
+    }
+  }
+
   // Try creating a Google Calendar event first (to get the Meet link)
   let calendarEventId: string | null = null;
   let meetLink: string | null = null;
@@ -54,6 +66,7 @@ export async function POST(request: NextRequest) {
         link: link || undefined,
         agenda: agenda || undefined,
         accessToken: googleAccessToken,
+        attendeeEmails,
       });
 
       if (event) {

@@ -12,6 +12,7 @@ export async function createCalendarEvent(params: {
   agenda?: string;
   duration?: number; // minutes, default 60
   accessToken: string; // user's Google OAuth token from Supabase session
+  attendeeEmails?: string[]; // emails to invite via Google Calendar
 }): Promise<CalendarEvent | null> {
   const { accessToken } = params;
   const calendarId = "primary";
@@ -37,6 +38,11 @@ export async function createCalendarEvent(params: {
     },
   };
 
+  // Add attendees so they get email invites
+  if (params.attendeeEmails?.length) {
+    event.attendees = params.attendeeEmails.map((email: string) => ({ email }));
+  }
+
   // If no custom link provided, auto-create a Google Meet conference
   if (!params.link) {
     event.conferenceData = {
@@ -55,6 +61,8 @@ export async function createCalendarEvent(params: {
   );
   // conferenceDataVersion=1 is required to create Google Meet links
   url.searchParams.set("conferenceDataVersion", "1");
+  // Send email invites to all attendees
+  url.searchParams.set("sendUpdates", "all");
 
   const response = await fetch(url.toString(), {
     method: "POST",
