@@ -11,7 +11,7 @@ export async function getCurrentUser(): Promise<User | null> {
     .from("users")
     .select("*")
     .eq("auth_id", authUser.id)
-    .single();
+    .maybeSingle();
 
   return data as User | null;
 }
@@ -22,7 +22,7 @@ export async function getProfessorProfile(userId: string) {
     .from("professors")
     .select("*")
     .eq("user_id", userId)
-    .single();
+    .maybeSingle();
   return data;
 }
 
@@ -32,7 +32,7 @@ export async function getScholarProfile(userId: string) {
     .from("scholars")
     .select("*, professor:professors(*, user:users(*))")
     .eq("user_id", userId)
-    .single();
+    .maybeSingle();
   return data;
 }
 
@@ -42,6 +42,6 @@ export async function getCoSupervisorProfile(userId: string) {
     .from("co_supervisors")
     .select("*, professor:professors(*, user:users(*))")
     .eq("user_id", userId)
-    .single();
+    .maybeSingle();
   return data;
 }

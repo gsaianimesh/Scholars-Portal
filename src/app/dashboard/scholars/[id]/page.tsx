@@ -31,7 +31,7 @@ export default function ScholarProfilePage() {
       .from("scholars")
       .select("*, user:users(*)")
       .eq("id", params.id)
-      .single();
+      .maybeSingle();
 
     if (scholarData) {
       setScholar(scholarData);

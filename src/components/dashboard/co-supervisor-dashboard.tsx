@@ -38,7 +38,7 @@ export function CoSupervisorDashboard({ userId }: CoSupervisorDashboardProps) {
       .from("co_supervisors")
       .select("professor_id")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();
 
     if (!coSup) {
       setLoading(false);

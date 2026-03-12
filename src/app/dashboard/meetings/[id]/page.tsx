@@ -36,11 +36,11 @@ export default function MeetingDetailPage() {
       .from("users")
       .select("*")
       .eq("auth_id", authUser.id)
-      .single();
+      .maybeSingle();
     if (appUser) setUserRole(appUser.role);
 
     const [meetingRes, participantsRes, actionItemsRes] = await Promise.all([
-      supabase.from("meetings").select("*").eq("id", params.id).single(),
+      supabase.from("meetings").select("*").eq("id", params.id).maybeSingle(),
       supabase
         .from("meeting_participants")
         .select("*, user:users(*)")

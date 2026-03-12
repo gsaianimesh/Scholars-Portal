@@ -53,7 +53,7 @@ export function ProfessorDashboard({ userId }: ProfessorDashboardProps) {
       .from("professors")
       .select("id")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();
 
     if (!prof) {
       setLoading(false);

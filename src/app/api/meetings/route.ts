@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient, createServiceRoleClient } from "@/lib/supabase/server";
+import { createCalendarEvent } from "@/lib/services/google-calendar";
 
 export async function POST(request: NextRequest) {
   const supabase = createServerSupabaseClient();
@@ -7,6 +8,10 @@ export async function POST(request: NextRequest) {
   if (!authUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  // Get the user's Google OAuth provider token for Calendar access
+  const { data: { session } } = await supabase.auth.getSession();
+  const googleAccessToken = session?.provider_token || null;
 
   const body = await request.json();
   const { title, date, link, agenda, participantUserIds } = body;
@@ -21,7 +26,7 @@ export async function POST(request: NextRequest) {
     .from("users")
     .select("id")
     .eq("auth_id", authUser.id)
-    .single();
+    .maybeSingle();
 
   if (!currentUser) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -31,11 +36,37 @@ export async function POST(request: NextRequest) {
     .from("professors")
     .select("id")
     .eq("user_id", currentUser.id)
-    .single();
+    .maybeSingle();
 
   if (!prof) {
     return NextResponse.json({ error: "Not a professor" }, { status: 403 });
   }
+
+  // Try creating a Google Calendar event first (to get the Meet link)
+  let calendarEventId: string | null = null;
+  let meetLink: string | null = null;
+
+  if (googleAccessToken) {
+    try {
+      const event = await createCalendarEvent({
+        title,
+        date,
+        link: link || undefined,
+        agenda: agenda || undefined,
+        accessToken: googleAccessToken,
+      });
+
+      if (event) {
+        calendarEventId = event.id;
+        meetLink = event.meetLink || null;
+      }
+    } catch {
+      // Calendar integration is optional — continue without it
+    }
+  }
+
+  // Use the auto-generated Meet link if no custom link was provided
+  const meetingLink = link || meetLink || null;
 
   // Create meeting
   const { data: meeting, error: meetingError } = await serviceClient
@@ -44,8 +75,9 @@ export async function POST(request: NextRequest) {
       professor_id: prof.id,
       meeting_title: title,
       meeting_date: date,
-      meeting_link: link,
+      meeting_link: meetingLink,
       agenda,
+      calendar_event_id: calendarEventId,
     })
     .select()
     .single();
@@ -71,36 +103,6 @@ export async function POST(request: NextRequest) {
   }
 
   await serviceClient.from("meeting_participants").insert(participants);
-
-  // Try creating a Google Calendar event
-  try {
-    const calendarRes = await fetch(
-      `${request.nextUrl.origin}/api/calendar/create-event`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          meetingId: meeting.id,
-          title,
-          date,
-          link,
-          agenda,
-        }),
-      }
-    );
-
-    if (calendarRes.ok) {
-      const calData = await calendarRes.json();
-      if (calData.calendarEventId) {
-        await serviceClient
-          .from("meetings")
-          .update({ calendar_event_id: calData.calendarEventId })
-          .eq("id", meeting.id);
-      }
-    }
-  } catch {
-    // Calendar integration is optional
-  }
 
   // Log activity
   await serviceClient.rpc("log_activity", {

@@ -31,7 +31,7 @@ export default function SettingsPage() {
       .from("users")
       .select("*")
       .eq("auth_id", authUser.id)
-      .single();
+      .maybeSingle();
 
     if (appUser) {
       setName(appUser.name);
@@ -43,7 +43,7 @@ export default function SettingsPage() {
           .from("professors")
           .select("*")
           .eq("user_id", appUser.id)
-          .single();
+          .maybeSingle();
         if (prof) {
           setDepartment(prof.department || "");
           setInstitution(prof.institution || "");

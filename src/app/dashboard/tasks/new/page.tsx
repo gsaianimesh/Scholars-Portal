@@ -38,14 +38,14 @@ export default function NewTaskPage() {
       .from("users")
       .select("id")
       .eq("auth_id", authUser.id)
-      .single();
+      .maybeSingle();
     if (!appUser) return;
 
     const { data: prof } = await supabase
       .from("professors")
       .select("id")
       .eq("user_id", appUser.id)
-      .single();
+      .maybeSingle();
     if (!prof) return;
 
     const { data } = await supabase

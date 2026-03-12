@@ -18,7 +18,7 @@ export async function POST(
     .from("meetings")
     .select("id, fathom_meeting_id")
     .eq("id", params.id)
-    .single();
+    .maybeSingle();
 
   if (!meeting) {
     return NextResponse.json({ error: "Meeting not found" }, { status: 404 });

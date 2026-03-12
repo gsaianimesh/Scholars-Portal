@@ -12,7 +12,7 @@ export async function GET(
     .from("meetings")
     .select("professor_id, meeting_date")
     .eq("id", params.id)
-    .single();
+    .maybeSingle();
 
   if (!meeting) {
     return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
@@ -26,7 +26,7 @@ export async function GET(
     .lt("meeting_date", meeting.meeting_date)
     .order("meeting_date", { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   // Get pending tasks
   const { data: pendingTasks } = await serviceClient

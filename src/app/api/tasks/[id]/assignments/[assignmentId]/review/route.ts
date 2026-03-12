@@ -54,7 +54,7 @@ export async function POST(
     .from("task_assignments")
     .select("scholar:scholars(user_id), task:tasks(title)")
     .eq("id", params.assignmentId)
-    .single();
+    .maybeSingle();
 
   if (assignment?.scholar) {
     const scholarUserId = (assignment.scholar as any).user_id;
@@ -72,7 +72,7 @@ export async function POST(
     .from("users")
     .select("id, name")
     .eq("auth_id", authUser.id)
-    .single();
+    .maybeSingle();
 
   if (currentUser) {
     await serviceClient.rpc("log_activity", {

@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     .from("users")
     .select("id")
     .eq("auth_id", authUser.id)
-    .single();
+    .maybeSingle();
 
   if (!currentUser) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     .from("professors")
     .select("id")
     .eq("user_id", currentUser.id)
-    .single();
+    .maybeSingle();
 
   if (!prof) {
     return NextResponse.json({ error: "Not a professor" }, { status: 403 });

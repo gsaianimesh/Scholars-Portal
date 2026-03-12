@@ -203,17 +203,39 @@ ALTER TABLE action_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
--- Users can read their own data
-CREATE POLICY "Users can view own profile"
+-- ============================================
+-- Users: all authenticated users can view user profiles
+-- (names, emails, roles are not sensitive; needed for joins)
+-- ============================================
+CREATE POLICY "Authenticated users can view users"
   ON users FOR SELECT
-  USING (auth_id = auth.uid());
+  TO authenticated
+  USING (true);
 
--- Users can update their own data
 CREATE POLICY "Users can update own profile"
   ON users FOR UPDATE
   USING (auth_id = auth.uid());
 
--- Professors can view scholars in their lab
+-- ============================================
+-- Professors: all authenticated users can view professor records
+-- (needed by RLS sub-queries on meetings, tasks, scholars, etc.)
+-- ============================================
+CREATE POLICY "Authenticated users can view professors"
+  ON professors FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- ============================================
+-- Co-supervisors: all authenticated users can view
+-- ============================================
+CREATE POLICY "Authenticated users can view co_supervisors"
+  ON co_supervisors FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- ============================================
+-- Scholars: professors and the scholar themselves can view
+-- ============================================
 CREATE POLICY "Professors can view their scholars"
   ON scholars FOR SELECT
   USING (
@@ -225,9 +247,13 @@ CREATE POLICY "Professors can view their scholars"
     OR user_id IN (
       SELECT id FROM users WHERE auth_id = auth.uid()
     )
+    OR professor_id IN (
+      SELECT cs.professor_id FROM co_supervisors cs
+      JOIN users u ON u.id = cs.user_id
+      WHERE u.auth_id = auth.uid()
+    )
   );
 
--- Professors can manage scholars
 CREATE POLICY "Professors can insert scholars"
   ON scholars FOR INSERT
   WITH CHECK (
@@ -238,7 +264,9 @@ CREATE POLICY "Professors can insert scholars"
     )
   );
 
--- Task visibility
+-- ============================================
+-- Tasks: visible to creator, professor, co-supervisors, and assigned scholars
+-- ============================================
 CREATE POLICY "Users can view relevant tasks"
   ON tasks FOR SELECT
   USING (
@@ -253,9 +281,16 @@ CREATE POLICY "Users can view relevant tasks"
       JOIN users u ON u.id = s.user_id
       WHERE u.auth_id = auth.uid()
     )
+    OR professor_id IN (
+      SELECT cs.professor_id FROM co_supervisors cs
+      JOIN users u ON u.id = cs.user_id
+      WHERE u.auth_id = auth.uid()
+    )
   );
 
--- Task assignment visibility
+-- ============================================
+-- Task assignments: visible to the scholar and the task creator/professor
+-- ============================================
 CREATE POLICY "Users can view relevant task assignments"
   ON task_assignments FOR SELECT
   USING (
@@ -268,9 +303,19 @@ CREATE POLICY "Users can view relevant task assignments"
       SELECT t.id FROM tasks t
       WHERE t.created_by IN (SELECT id FROM users WHERE auth_id = auth.uid())
     )
+    OR task_id IN (
+      SELECT t.id FROM tasks t
+      WHERE t.professor_id IN (
+        SELECT p.id FROM professors p
+        JOIN users u ON u.id = p.user_id
+        WHERE u.auth_id = auth.uid()
+      )
+    )
   );
 
--- Meeting visibility
+-- ============================================
+-- Meetings: visible to professor, participants, and co-supervisors
+-- ============================================
 CREATE POLICY "Users can view relevant meetings"
   ON meetings FOR SELECT
   USING (
@@ -284,9 +329,33 @@ CREATE POLICY "Users can view relevant meetings"
       JOIN users u ON u.id = mp.user_id
       WHERE u.auth_id = auth.uid()
     )
+    OR professor_id IN (
+      SELECT cs.professor_id FROM co_supervisors cs
+      JOIN users u ON u.id = cs.user_id
+      WHERE u.auth_id = auth.uid()
+    )
   );
 
--- Notifications are private
+-- ============================================
+-- Meeting participants: all authenticated users can view
+-- (needed by scholars to see their meeting invitations)
+-- ============================================
+CREATE POLICY "Authenticated users can view meeting_participants"
+  ON meeting_participants FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- ============================================
+-- Action items: visible to meeting participants
+-- ============================================
+CREATE POLICY "Authenticated users can view action_items"
+  ON action_items FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- ============================================
+-- Notifications: private to each user
+-- ============================================
 CREATE POLICY "Users can view own notifications"
   ON notifications FOR SELECT
   USING (user_id IN (SELECT id FROM users WHERE auth_id = auth.uid()));
@@ -295,7 +364,9 @@ CREATE POLICY "Users can update own notifications"
   ON notifications FOR UPDATE
   USING (user_id IN (SELECT id FROM users WHERE auth_id = auth.uid()));
 
--- Activity logs visible to relevant users
+-- ============================================
+-- Activity logs: visible to the user and their professor
+-- ============================================
 CREATE POLICY "Users can view relevant activity logs"
   ON activity_logs FOR SELECT
   USING (

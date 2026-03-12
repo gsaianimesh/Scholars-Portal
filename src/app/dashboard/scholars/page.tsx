@@ -29,7 +29,7 @@ export default function ScholarsPage() {
       .from("users")
       .select("id")
       .eq("auth_id", authUser.id)
-      .single();
+      .maybeSingle();
 
     if (!appUser) return;
 
@@ -37,7 +37,7 @@ export default function ScholarsPage() {
       .from("professors")
       .select("id")
       .eq("user_id", appUser.id)
-      .single();
+      .maybeSingle();
 
     if (!prof) {
       // Try co-supervisor
@@ -45,7 +45,7 @@ export default function ScholarsPage() {
         .from("co_supervisors")
         .select("professor_id")
         .eq("user_id", appUser.id)
-        .single();
+        .maybeSingle();
 
       if (coSup) {
         const { data } = await supabase

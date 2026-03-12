@@ -18,7 +18,7 @@ export async function POST(
     .from("meetings")
     .select("id, transcript, agenda, professor_id")
     .eq("id", params.id)
-    .single();
+    .maybeSingle();
 
   if (!meeting) {
     return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
@@ -36,7 +36,7 @@ export async function POST(
     .lt("id", meeting.id)
     .order("meeting_date", { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   try {
     const result = await summarizeMeeting(

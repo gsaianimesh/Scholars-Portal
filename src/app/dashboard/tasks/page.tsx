@@ -31,7 +31,7 @@ export default function TasksPage() {
       .from("users")
       .select("*")
       .eq("auth_id", authUser.id)
-      .single();
+      .maybeSingle();
 
     if (!appUser) return;
     setUserRole(appUser.role);
@@ -42,7 +42,7 @@ export default function TasksPage() {
         .from("scholars")
         .select("id")
         .eq("user_id", appUser.id)
-        .single();
+        .maybeSingle();
 
       if (scholar) {
         const { data } = await supabase
@@ -58,7 +58,7 @@ export default function TasksPage() {
         .from("professors")
         .select("id")
         .eq("user_id", appUser.id)
-        .single();
+        .maybeSingle();
 
       let professorId = prof?.id;
 
@@ -67,7 +67,7 @@ export default function TasksPage() {
           .from("co_supervisors")
           .select("professor_id")
           .eq("user_id", appUser.id)
-          .single();
+          .maybeSingle();
         professorId = coSup?.professor_id;
       }
 

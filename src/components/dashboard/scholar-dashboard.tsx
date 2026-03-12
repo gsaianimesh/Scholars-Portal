@@ -44,7 +44,7 @@ export function ScholarDashboard({ userId }: ScholarDashboardProps) {
       .from("scholars")
       .select("id")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();
 
     if (!scholar) {
       setLoading(false);

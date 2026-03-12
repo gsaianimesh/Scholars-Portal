@@ -29,7 +29,7 @@ export default function SubmissionsPage() {
       .from("users")
       .select("*")
       .eq("auth_id", authUser.id)
-      .single();
+      .maybeSingle();
     if (!appUser) return;
 
     setUserRole(appUser.role);
@@ -39,7 +39,7 @@ export default function SubmissionsPage() {
         .from("scholars")
         .select("id")
         .eq("user_id", appUser.id)
-        .single();
+        .maybeSingle();
       if (scholar) {
         const { data } = await supabase
           .from("task_assignments")
@@ -55,7 +55,7 @@ export default function SubmissionsPage() {
         .from("professors")
         .select("id")
         .eq("user_id", appUser.id)
-        .single();
+        .maybeSingle();
       professorId = prof?.id || null;
 
       if (!professorId) {
@@ -63,7 +63,7 @@ export default function SubmissionsPage() {
           .from("co_supervisors")
           .select("professor_id")
           .eq("user_id", appUser.id)
-          .single();
+          .maybeSingle();
         professorId = coSup?.professor_id || null;
       }
 

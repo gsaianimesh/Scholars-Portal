@@ -36,7 +36,7 @@ export async function PATCH(
     .from("users")
     .select("id, name")
     .eq("auth_id", authUser.id)
-    .single();
+    .maybeSingle();
 
   if (currentUser) {
     const activityType =

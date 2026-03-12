@@ -41,7 +41,7 @@ export default function TaskDetailPage() {
       .from("users")
       .select("*")
       .eq("auth_id", authUser.id)
-      .single();
+      .maybeSingle();
     if (!appUser) return;
 
     setUserRole(appUser.role);
@@ -50,7 +50,7 @@ export default function TaskDetailPage() {
       .from("tasks")
       .select("*")
       .eq("id", params.id)
-      .single();
+      .maybeSingle();
     setTask(taskData);
 
     const { data: assignData } = await supabase
@@ -64,7 +64,7 @@ export default function TaskDetailPage() {
         .from("scholars")
         .select("id")
         .eq("user_id", appUser.id)
-        .single();
+        .maybeSingle();
       if (scholar) {
         setScholarId(scholar.id);
         const mine = assignData?.find((a: any) => a.scholar_id === scholar.id);

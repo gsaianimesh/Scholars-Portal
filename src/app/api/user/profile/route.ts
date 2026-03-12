@@ -17,7 +17,7 @@ export async function PATCH(request: NextRequest) {
     .from("users")
     .select("id, role")
     .eq("auth_id", authUser.id)
-    .single();
+    .maybeSingle();
 
   if (!currentUser) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });

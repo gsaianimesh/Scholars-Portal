@@ -25,7 +25,7 @@ export default function NotificationsPage() {
       .from("users")
       .select("id")
       .eq("auth_id", authUser.id)
-      .single();
+      .maybeSingle();
     if (!appUser) return;
 
     const { data } = await supabase

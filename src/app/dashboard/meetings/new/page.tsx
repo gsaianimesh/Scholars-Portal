@@ -8,24 +8,32 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Video } from "lucide-react";
 import Link from "next/link";
 
 export default function NewMeetingPage() {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
+  const [useCustomLink, setUseCustomLink] = useState(false);
   const [link, setLink] = useState("");
   const [agenda, setAgenda] = useState("");
   const [scholars, setScholars] = useState<any[]>([]);
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [hasGoogleAuth, setHasGoogleAuth] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
     loadScholars();
+    checkGoogleAuth();
   }, []);
+
+  async function checkGoogleAuth() {
+    const { data: { session } } = await supabase.auth.getSession();
+    setHasGoogleAuth(!!session?.provider_token);
+  }
 
   async function loadScholars() {
     const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -35,14 +43,14 @@ export default function NewMeetingPage() {
       .from("users")
       .select("id")
       .eq("auth_id", authUser.id)
-      .single();
+      .maybeSingle();
     if (!appUser) return;
 
     const { data: prof } = await supabase
       .from("professors")
       .select("id")
       .eq("user_id", appUser.id)
-      .single();
+      .maybeSingle();
     if (!prof) return;
 
     const { data } = await supabase
@@ -72,7 +80,7 @@ export default function NewMeetingPage() {
         body: JSON.stringify({
           title,
           date,
-          link: link || null,
+          link: useCustomLink ? link || null : null,
           agenda: agenda || null,
           participantUserIds: selectedParticipants,
         }),
@@ -128,27 +136,65 @@ export default function NewMeetingPage() {
                 required
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="date">Date & Time</Label>
-                <Input
-                  id="date"
-                  type="datetime-local"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  required
+            <div className="space-y-2">
+              <Label htmlFor="date">Date & Time</Label>
+              <Input
+                id="date"
+                type="datetime-local"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Meeting Link Options */}
+            <div className="space-y-3">
+              <Label>Meeting Platform</Label>
+              {hasGoogleAuth && (
+                <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50">
+                  <input
+                    type="radio"
+                    name="linkOption"
+                    checked={!useCustomLink}
+                    onChange={() => { setUseCustomLink(false); setLink(""); }}
+                  />
+                  <Video className="h-4 w-4 text-blue-600" />
+                  <div>
+                    <p className="text-sm font-medium">Auto-create Google Meet</p>
+                    <p className="text-xs text-muted-foreground">
+                      A Meet link will be generated and added to your Google Calendar
+                    </p>
+                  </div>
+                </label>
+              )}
+              <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50">
+                <input
+                  type="radio"
+                  name="linkOption"
+                  checked={useCustomLink}
+                  onChange={() => setUseCustomLink(true)}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="link">Meeting Link</Label>
+                <div>
+                  <p className="text-sm font-medium">
+                    {hasGoogleAuth ? "Use custom meeting link" : "Meeting Link"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Zoom, Teams, or any other link</p>
+                </div>
+              </label>
+              {useCustomLink && (
                 <Input
-                  id="link"
-                  placeholder="https://meet.google.com/..."
+                  placeholder="https://zoom.us/j/... or https://teams.microsoft.com/..."
                   value={link}
                   onChange={(e) => setLink(e.target.value)}
                 />
-              </div>
+              )}
+              {!hasGoogleAuth && !useCustomLink && (
+                <p className="text-xs text-muted-foreground">
+                  Sign in with Google to auto-create Google Meet links and Calendar events.
+                </p>
+              )}
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="agenda">Agenda</Label>
               <Textarea
