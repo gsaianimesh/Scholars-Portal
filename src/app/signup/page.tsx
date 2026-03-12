@@ -1,77 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { GraduationCap } from "lucide-react";
-import Link from "next/link";
 
 export default function SignupPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState<string>("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const router = useRouter();
-
-  async function handleSignup(e: React.FormEvent) {
-    e.preventDefault();
-    if (!role) {
-      setError("Please select a role");
-      return;
-    }
-    setLoading(true);
-    setError("");
-
-    const supabase = createClient();
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { name, role },
-      },
-    });
-
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-      return;
-    }
-
-    if (authData.user) {
-      // Create user record via API
-      const res = await fetch("/api/auth/setup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          authId: authData.user.id,
-          name,
-          email,
-          role,
-        }),
-      });
-
-      if (!res.ok) {
-        setError("Account created but profile setup failed. Please contact admin.");
-        setLoading(false);
-        return;
-      }
-    }
-
-    router.push("/dashboard");
-    router.refresh();
-  }
 
   async function handleGoogleSignup() {
-    setGoogleLoading(true);
+    setLoading(true);
     setError("");
 
     const supabase = createClient();
@@ -89,7 +29,7 @@ export default function SignupPage() {
 
     if (error) {
       setError(error.message);
-      setGoogleLoading(false);
+      setLoading(false);
     }
   }
 
@@ -105,13 +45,16 @@ export default function SignupPage() {
             Join the Research Supervision Platform
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {error && (
+            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
           <Button
-            type="button"
-            variant="outline"
-            className="w-full mb-4"
+            className="w-full"
             onClick={handleGoogleSignup}
-            disabled={googleLoading}
+            disabled={loading}
           >
             <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
               <path
@@ -131,79 +74,12 @@ export default function SignupPage() {
                 fill="#EA4335"
               />
             </svg>
-            {googleLoading ? "Redirecting..." : "Sign up with Google"}
+            {loading ? "Redirecting..." : "Sign up with Google"}
           </Button>
-
-          <div className="relative my-4">
-            <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-xs text-muted-foreground">
-              or continue with email
-            </span>
-          </div>
-
-          <form onSubmit={handleSignup} className="space-y-4">
-            {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Dr. Jane Smith"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@university.edu"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Min 8 characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Role</Label>
-              <Select onValueChange={setRole} value={role}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="professor">Professor</SelectItem>
-                  <SelectItem value="scholar">Scholar</SelectItem>
-                  <SelectItem value="co_supervisor">Co-Supervisor / Lab Manager</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating account..." : "Create Account"}
-            </Button>
-          </form>
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link href="/login" className="text-primary hover:underline">
-              Sign in
-            </Link>
-          </div>
+          <p className="text-center text-xs text-muted-foreground">
+            Your Google account will be used for authentication and Calendar integration.
+            Your role will be set to Professor by default.
+          </p>
         </CardContent>
       </Card>
     </div>

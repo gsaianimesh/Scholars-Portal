@@ -1,47 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { GraduationCap } from "lucide-react";
-import Link from "next/link";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const router = useRouter();
-
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-      return;
-    }
-
-    router.push("/dashboard");
-    router.refresh();
-  }
 
   async function handleGoogleLogin() {
-    setGoogleLoading(true);
+    setLoading(true);
     setError("");
 
     const supabase = createClient();
@@ -59,7 +29,7 @@ export default function LoginPage() {
 
     if (error) {
       setError(error.message);
-      setGoogleLoading(false);
+      setLoading(false);
     }
   }
 
@@ -75,13 +45,16 @@ export default function LoginPage() {
             Research Supervision Management System
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {error && (
+            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
           <Button
-            type="button"
-            variant="outline"
-            className="w-full mb-4"
+            className="w-full"
             onClick={handleGoogleLogin}
-            disabled={googleLoading}
+            disabled={loading}
           >
             <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
               <path
@@ -101,53 +74,12 @@ export default function LoginPage() {
                 fill="#EA4335"
               />
             </svg>
-            {googleLoading ? "Redirecting..." : "Sign in with Google"}
+            {loading ? "Redirecting..." : "Sign in with Google"}
           </Button>
-
-          <div className="relative my-4">
-            <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-xs text-muted-foreground">
-              or continue with email
-            </span>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@university.edu"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
-            </Button>
-          </form>
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-primary hover:underline">
-              Sign up
-            </Link>
-          </div>
+          <p className="text-center text-xs text-muted-foreground">
+            By signing in, you agree to use your Google account for authentication
+            and Google Calendar integration.
+          </p>
         </CardContent>
       </Card>
     </div>

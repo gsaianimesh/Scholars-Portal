@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,8 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { getInitials, formatDateTime, formatDate } from "@/lib/utils";
-import { ArrowLeft, Calendar, Video, FileText, Users, Brain, CheckCircle } from "lucide-react";
+import { ArrowLeft, Calendar, Video, FileText, Users, Brain, CheckCircle, XCircle, CalendarClock } from "lucide-react";
 import Link from "next/link";
 
 export default function MeetingDetailPage() {
@@ -22,6 +25,11 @@ export default function MeetingDetailPage() {
   const [loading, setLoading] = useState(true);
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [userRole, setUserRole] = useState("");
+  const [cancelling, setCancelling] = useState(false);
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [newDate, setNewDate] = useState("");
+  const [rescheduling, setRescheduling] = useState(false);
+  const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
@@ -99,6 +107,40 @@ export default function MeetingDetailPage() {
     loadMeeting();
   }
 
+  async function cancelMeeting() {
+    if (!confirm("Are you sure you want to cancel this meeting? This cannot be undone.")) return;
+    setCancelling(true);
+    try {
+      const res = await fetch(`/api/meetings/${params.id}`, { method: "DELETE" });
+      if (res.ok) {
+        router.push("/dashboard/meetings");
+        router.refresh();
+      }
+    } finally {
+      setCancelling(false);
+    }
+  }
+
+  async function rescheduleMeeting(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newDate) return;
+    setRescheduling(true);
+    try {
+      const res = await fetch(`/api/meetings/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date: newDate }),
+      });
+      if (res.ok) {
+        setShowReschedule(false);
+        setNewDate("");
+        loadMeeting();
+      }
+    } finally {
+      setRescheduling(false);
+    }
+  }
+
   if (loading) {
     return <div className="text-center py-12 text-muted-foreground">Loading...</div>;
   }
@@ -131,15 +173,64 @@ export default function MeetingDetailPage() {
             )}
           </div>
         </div>
-        {meeting.meeting_link && (
-          <a href={meeting.meeting_link} target="_blank" rel="noopener noreferrer">
-            <Button variant="outline">
-              <Video className="h-4 w-4 mr-1" />
-              Join Meeting
-            </Button>
-          </a>
-        )}
+        <div className="flex items-center gap-2">
+          {meeting.meeting_link && (
+            <a href={meeting.meeting_link} target="_blank" rel="noopener noreferrer">
+              <Button variant="outline">
+                <Video className="h-4 w-4 mr-1" />
+                Join Meeting
+              </Button>
+            </a>
+          )}
+          {!isPast && userRole !== "scholar" && (
+            <>
+              <Button variant="outline" size="sm" onClick={() => setShowReschedule(true)}>
+                <CalendarClock className="h-4 w-4 mr-1" />
+                Reschedule
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={cancelMeeting}
+                disabled={cancelling}
+              >
+                <XCircle className="h-4 w-4 mr-1" />
+                {cancelling ? "Cancelling..." : "Cancel"}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
+
+      {/* Reschedule Dialog */}
+      <Dialog open={showReschedule} onOpenChange={setShowReschedule}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reschedule Meeting</DialogTitle>
+            <DialogDescription>Pick a new date and time for this meeting.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={rescheduleMeeting} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="newDate">New Date & Time</Label>
+              <Input
+                id="newDate"
+                type="datetime-local"
+                value={newDate}
+                onChange={(e) => setNewDate(e.target.value)}
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setShowReschedule(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={rescheduling}>
+                {rescheduling ? "Rescheduling..." : "Reschedule"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Pre-meeting context (for upcoming meetings) */}
       {!isPast && preMeetingContext && (

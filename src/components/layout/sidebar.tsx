@@ -14,6 +14,7 @@ import {
   Settings,
   GraduationCap,
   ClipboardList,
+  Megaphone,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -26,6 +27,7 @@ const professorLinks = [
   { href: "/dashboard/scholars", label: "Scholars", icon: Users },
   { href: "/dashboard/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/dashboard/meetings", label: "Meetings", icon: Calendar },
+  { href: "/dashboard/announcements", label: "Announcements", icon: Megaphone },
   { href: "/dashboard/submissions", label: "Submissions", icon: FileText },
   { href: "/dashboard/activity", label: "Activity", icon: Activity },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
@@ -35,6 +37,7 @@ const scholarLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/tasks", label: "My Tasks", icon: CheckSquare },
   { href: "/dashboard/meetings", label: "Meetings", icon: Calendar },
+  { href: "/dashboard/announcements", label: "Announcements", icon: Megaphone },
   { href: "/dashboard/submissions", label: "My Submissions", icon: FileText },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
@@ -44,6 +47,7 @@ const coSupervisorLinks = [
   { href: "/dashboard/scholars", label: "Scholars", icon: Users },
   { href: "/dashboard/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/dashboard/meetings", label: "Meetings", icon: Calendar },
+  { href: "/dashboard/announcements", label: "Announcements", icon: Megaphone },
   { href: "/dashboard/submissions", label: "Submissions", icon: FileText },
   { href: "/dashboard/activity", label: "Activity", icon: Activity },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },

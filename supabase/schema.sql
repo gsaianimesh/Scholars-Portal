@@ -188,6 +188,37 @@ CREATE INDEX idx_notifications_read ON notifications(read);
 CREATE INDEX idx_notifications_created_at ON notifications(created_at DESC);
 
 -- ============================================
+-- ANNOUNCEMENTS TABLE
+-- ============================================
+CREATE TABLE announcements (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  professor_id UUID NOT NULL REFERENCES professors(id) ON DELETE CASCADE,
+  author_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_announcements_professor_id ON announcements(professor_id);
+CREATE INDEX idx_announcements_created_at ON announcements(created_at DESC);
+
+-- ============================================
+-- ANNOUNCEMENT REACTIONS TABLE
+-- ============================================
+CREATE TABLE announcement_reactions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  announcement_id UUID NOT NULL REFERENCES announcements(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  emoji TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(announcement_id, user_id, emoji)
+);
+
+CREATE INDEX idx_announcement_reactions_announcement_id ON announcement_reactions(announcement_id);
+CREATE INDEX idx_announcement_reactions_user_id ON announcement_reactions(user_id);
+
+-- ============================================
 -- ROW LEVEL SECURITY POLICIES
 -- ============================================
 
@@ -202,6 +233,8 @@ ALTER TABLE meeting_participants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE action_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE announcement_reactions ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
 -- Users: all authenticated users can view user profiles
@@ -380,6 +413,37 @@ CREATE POLICY "Users can view relevant activity logs"
       )
     )
   );
+
+-- ============================================
+-- Announcements: visible to professor, their scholars, and co-supervisors
+-- ============================================
+CREATE POLICY "Users can view relevant announcements"
+  ON announcements FOR SELECT
+  USING (
+    professor_id IN (
+      SELECT p.id FROM professors p
+      JOIN users u ON u.id = p.user_id
+      WHERE u.auth_id = auth.uid()
+    )
+    OR professor_id IN (
+      SELECT s.professor_id FROM scholars s
+      JOIN users u ON u.id = s.user_id
+      WHERE u.auth_id = auth.uid()
+    )
+    OR professor_id IN (
+      SELECT cs.professor_id FROM co_supervisors cs
+      JOIN users u ON u.id = cs.user_id
+      WHERE u.auth_id = auth.uid()
+    )
+  );
+
+-- ============================================
+-- Announcement reactions: visible to anyone who can see the announcement
+-- ============================================
+CREATE POLICY "Users can view announcement reactions"
+  ON announcement_reactions FOR SELECT
+  TO authenticated
+  USING (true);
 
 -- Service role bypass for API routes
 -- Note: API routes use the service role key which bypasses RLS
