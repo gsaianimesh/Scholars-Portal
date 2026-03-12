@@ -33,6 +33,7 @@ export async function updateSession(request: NextRequest) {
   const isPublicPath = publicPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );
+  const isHomePage = request.nextUrl.pathname === "/";
 
   // Onboarding requires auth but should not redirect to dashboard
   const isOnboarding = request.nextUrl.pathname.startsWith("/onboarding");
@@ -40,7 +41,7 @@ export async function updateSession(request: NextRequest) {
   // Admin routes require auth + is_admin (checked in admin layout)
   const isAdminPath = request.nextUrl.pathname.startsWith("/admin") || request.nextUrl.pathname.startsWith("/api/admin");
 
-  if (!user && !isPublicPath && !isOnboarding) {
+  if (!user && !isPublicPath && !isOnboarding && !isHomePage) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
@@ -52,7 +53,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && isPublicPath && !request.nextUrl.pathname.startsWith("/api/invite")) {
+  if (user && isPublicPath && !isHomePage && !request.nextUrl.pathname.startsWith("/api/invite")) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);

@@ -151,7 +151,7 @@ export default function NewMeetingPage() {
             <div className="space-y-3">
               <Label>Meeting Platform</Label>
               {hasGoogleAuth && (
-                <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50">
+                <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-accent">
                   <input
                     type="radio"
                     name="linkOption"
@@ -167,7 +167,7 @@ export default function NewMeetingPage() {
                   </div>
                 </label>
               )}
-              <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50">
+              <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-accent">
                 <input
                   type="radio"
                   name="linkOption"
@@ -221,7 +221,7 @@ export default function NewMeetingPage() {
                 {scholars.map((scholar) => (
                   <label
                     key={scholar.id}
-                    className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50"
+                    className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-accent"
                   >
                     <input
                       type="checkbox"

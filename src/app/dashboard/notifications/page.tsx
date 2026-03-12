@@ -95,7 +95,7 @@ export default function NotificationsPage() {
                 <div className="flex items-start gap-3">
                   <div
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                      notification.read ? "bg-gray-100" : "bg-primary/10"
+                      notification.read ? "bg-muted" : "bg-primary/10"
                     }`}
                   >
                     <Bell

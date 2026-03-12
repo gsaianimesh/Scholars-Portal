@@ -257,7 +257,7 @@ export function ProfessorDashboard({ userId }: ProfessorDashboardProps) {
                   <Link
                     key={scholar.id}
                     href={`/dashboard/scholars/${scholar.id}`}
-                    className="flex items-center gap-3 p-3 rounded-lg border hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 p-3 rounded-lg border hover:bg-accent transition-colors"
                   >
                     <Avatar className="h-8 w-8">
                       <AvatarFallback className="text-xs bg-primary/10 text-primary">
@@ -302,7 +302,7 @@ export function ProfessorDashboard({ userId }: ProfessorDashboardProps) {
             <div className="space-y-3">
               {data.recentActivity.map((activity: any) => (
                 <div key={activity.id} className="flex items-start gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 mt-0.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted mt-0.5">
                     <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
                   </div>
                   <div className="flex-1">

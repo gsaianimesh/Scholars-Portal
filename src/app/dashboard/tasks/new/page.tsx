@@ -242,7 +242,7 @@ export default function NewTaskPage() {
                 {scholars.map((scholar) => (
                   <label
                     key={scholar.id}
-                    className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50"
+                    className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-accent"
                   >
                     <input
                       type="checkbox"

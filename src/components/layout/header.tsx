@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Bell, LogOut, Settings, Menu, ShieldCheck } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { getInitials } from "@/lib/utils";
 import type { User } from "@/lib/types";
 import Link from "next/link";
@@ -32,7 +33,7 @@ export function Header({ user }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-white">
+    <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-md">
       <div className="flex h-16 items-center justify-between px-6">
         {/* Mobile menu */}
         <Button variant="ghost" size="icon" className="md:hidden">
@@ -42,6 +43,9 @@ export function Header({ user }: HeaderProps) {
         <div className="flex-1" />
 
         <div className="flex items-center gap-3">
+          {/* Theme toggle */}
+          <ThemeToggle />
+
           {/* Notifications */}
           <Link href="/dashboard/notifications">
             <Button variant="ghost" size="icon" className="relative">

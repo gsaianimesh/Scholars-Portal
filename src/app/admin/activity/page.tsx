@@ -164,8 +164,8 @@ export default function AdminActivityPage() {
               {filtered.map((log) => {
                 const Icon = activityIcons[log.activity_type] || activityIcons.default;
                 return (
-                  <div key={log.id} className="flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100">
+                  <div key={log.id} className="flex items-start gap-3 p-4 hover:bg-accent transition-colors">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted">
                       <Icon className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -196,7 +196,7 @@ export default function AdminActivityPage() {
                         )}
                       </div>
                       {log.metadata && Object.keys(log.metadata).length > 0 && (
-                        <pre className="text-[10px] text-muted-foreground mt-1 bg-gray-50 p-1.5 rounded overflow-x-auto">
+                        <pre className="text-[10px] text-muted-foreground mt-1 bg-muted p-1.5 rounded overflow-x-auto">
                           {JSON.stringify(log.metadata, null, 2)}
                         </pre>
                       )}

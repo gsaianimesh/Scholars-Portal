@@ -65,7 +65,7 @@ export function Sidebar({ role }: SidebarProps) {
 
   return (
     <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
-      <div className="flex flex-col flex-grow border-r bg-white">
+      <div className="flex flex-col flex-grow border-r bg-card">
         {/* Logo */}
         <div className="flex items-center gap-2 px-6 py-5 border-b">
           <GraduationCap className="h-6 w-6 text-primary" />
@@ -87,7 +87,7 @@ export function Sidebar({ role }: SidebarProps) {
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     isActive
                       ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-gray-100 hover:text-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   )}
                 >
                   <link.icon className="h-4 w-4" />

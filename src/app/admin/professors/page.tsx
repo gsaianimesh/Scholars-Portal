@@ -115,7 +115,7 @@ export default function AdminProfessorsPage() {
             <Card key={prof.id} className="overflow-hidden">
               {/* Professor Header */}
               <CardHeader
-                className="cursor-pointer hover:bg-gray-50 transition-colors"
+                className="cursor-pointer hover:bg-accent transition-colors"
                 onClick={() => toggle(prof.id)}
               >
                 <div className="flex items-center justify-between">
@@ -170,7 +170,7 @@ export default function AdminProfessorsPage() {
 
               {/* Expanded Details */}
               {expanded[prof.id] && (
-                <CardContent className="border-t bg-gray-50/50 space-y-6">
+                <CardContent className="border-t bg-muted/30 space-y-6">
                   {/* Professor Info */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
@@ -204,7 +204,7 @@ export default function AdminProfessorsPage() {
                     ) : (
                       <div className="grid gap-2">
                         {prof.scholars.map((s) => (
-                          <div key={s.id} className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                          <div key={s.id} className="flex items-center justify-between p-3 bg-card rounded-lg border">
                             <div className="flex items-center gap-3">
                               <Avatar className="h-8 w-8">
                                 <AvatarFallback className="text-xs bg-green-100 text-green-700">
@@ -249,7 +249,7 @@ export default function AdminProfessorsPage() {
                     ) : (
                       <div className="space-y-2">
                         {prof.meetings.slice(0, 10).map((m) => (
-                          <div key={m.id} className="p-3 bg-white rounded-lg border">
+                          <div key={m.id} className="p-3 bg-card rounded-lg border">
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-sm font-medium">{m.meeting_title}</p>
@@ -322,7 +322,7 @@ export default function AdminProfessorsPage() {
                     ) : (
                       <div className="space-y-2">
                         {prof.tasks.slice(0, 10).map((t) => (
-                          <div key={t.id} className="p-3 bg-white rounded-lg border">
+                          <div key={t.id} className="p-3 bg-card rounded-lg border">
                             <div className="flex items-center justify-between">
                               <p className="text-sm font-medium">{t.title}</p>
                               <Badge
@@ -352,7 +352,7 @@ export default function AdminProfessorsPage() {
                             {t.assignments.length > 0 && (
                               <div className="mt-2 space-y-1">
                                 {t.assignments.map((a, i) => (
-                                  <div key={i} className="flex items-center justify-between text-xs bg-gray-50 p-2 rounded">
+                                  <div key={i} className="flex items-center justify-between text-xs bg-muted p-2 rounded">
                                     <span>{a.scholar.user.name} ({a.scholar.user.email})</span>
                                     <div className="flex gap-2">
                                       <Badge variant="outline" className="text-[10px]">

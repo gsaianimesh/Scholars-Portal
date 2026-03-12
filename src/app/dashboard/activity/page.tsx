@@ -72,7 +72,7 @@ export default function ActivityPage() {
                   const Icon = activityIcons[log.activity_type] || activityIcons.default;
                   return (
                     <div key={log.id} className="flex gap-4 relative">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 z-10">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted z-10">
                         <Icon className="h-4 w-4 text-muted-foreground" />
                       </div>
                       <div className="flex-1 pt-1">

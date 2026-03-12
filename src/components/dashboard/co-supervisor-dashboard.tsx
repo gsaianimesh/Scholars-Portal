@@ -144,7 +144,7 @@ export function CoSupervisorDashboard({ userId }: CoSupervisorDashboardProps) {
                 <Link
                   key={scholar.id}
                   href={`/dashboard/scholars/${scholar.id}`}
-                  className="flex items-center gap-3 p-3 rounded-lg border hover:bg-gray-50"
+                  className="flex items-center gap-3 p-3 rounded-lg border hover:bg-accent"
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarFallback className="text-xs bg-primary/10 text-primary">
@@ -170,7 +170,7 @@ export function CoSupervisorDashboard({ userId }: CoSupervisorDashboardProps) {
             <div className="space-y-3">
               {data.activity.map((a: any) => (
                 <div key={a.id} className="flex items-start gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 mt-0.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted mt-0.5">
                     <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
                   </div>
                   <div>

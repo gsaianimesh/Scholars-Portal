@@ -312,7 +312,7 @@ function ReactionPicker({
         +
       </button>
       {open && (
-        <div className="absolute bottom-full mb-1 left-0 bg-white border rounded-lg shadow-lg p-1.5 flex gap-1 z-50">
+        <div className="absolute bottom-full mb-1 left-0 bg-card border rounded-lg shadow-lg p-1.5 flex gap-1 z-50">
           {REACTION_EMOJIS.map((emoji) => (
             <button
               key={emoji}

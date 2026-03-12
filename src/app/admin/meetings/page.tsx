@@ -223,7 +223,7 @@ function MeetingCard({ meeting: m }: { meeting: Meeting }) {
         </div>
 
         {m.agenda && (
-          <p className="text-xs text-muted-foreground mt-2 bg-gray-50 p-2 rounded line-clamp-2">
+          <p className="text-xs text-muted-foreground mt-2 bg-muted p-2 rounded line-clamp-2">
             {m.agenda}
           </p>
         )}
