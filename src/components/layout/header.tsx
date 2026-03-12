@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, LogOut, Settings, Menu } from "lucide-react";
+import { Bell, LogOut, Settings, Menu, ShieldCheck } from "lucide-react";
 import { getInitials } from "@/lib/utils";
 import type { User } from "@/lib/types";
 import Link from "next/link";
@@ -68,6 +68,14 @@ export function Header({ user }: HeaderProps) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              {user.is_admin && (
+                <DropdownMenuItem asChild>
+                  <Link href="/admin" className="cursor-pointer">
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    Admin Panel
+                  </Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/settings" className="cursor-pointer">
                   <Settings className="mr-2 h-4 w-4" />

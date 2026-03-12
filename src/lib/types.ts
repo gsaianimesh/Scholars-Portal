@@ -10,6 +10,7 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  is_admin?: boolean;
   created_at: string;
 }
 

@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createServerSupabaseClient, createServiceRoleClient } from "@/lib/supabase/server";
 import type { User } from "@/lib/types";
 
 export async function getCurrentUser(): Promise<User | null> {
@@ -7,7 +7,8 @@ export async function getCurrentUser(): Promise<User | null> {
 
   if (!authUser) return null;
 
-  const { data } = await supabase
+  const serviceClient = createServiceRoleClient();
+  const { data } = await serviceClient
     .from("users")
     .select("*")
     .eq("auth_id", authUser.id)

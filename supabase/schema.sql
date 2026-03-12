@@ -14,6 +14,7 @@ CREATE TABLE users (
   name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
   role TEXT NOT NULL CHECK (role IN ('professor', 'scholar', 'co_supervisor')),
+  is_admin BOOLEAN DEFAULT FALSE,
   auth_id UUID UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
