@@ -5,6 +5,7 @@
 
 -- 1. Replace restrictive users SELECT policy with permissive one
 DROP POLICY IF EXISTS "Users can view own profile" ON users;
+DROP POLICY IF EXISTS "Authenticated users can view users" ON users;
 CREATE POLICY "Authenticated users can view users"
   ON users FOR SELECT
   TO authenticated
@@ -28,6 +29,7 @@ CREATE POLICY "Authenticated users can view co_supervisors"
 DROP POLICY IF EXISTS "Professors can view their scholars" ON scholars;
 CREATE POLICY "Professors can view their scholars"
   ON scholars FOR SELECT
+  TO authenticated
   USING (
     professor_id IN (
       SELECT p.id FROM professors p
@@ -48,6 +50,7 @@ CREATE POLICY "Professors can view their scholars"
 DROP POLICY IF EXISTS "Users can view relevant tasks" ON tasks;
 CREATE POLICY "Users can view relevant tasks"
   ON tasks FOR SELECT
+  TO authenticated
   USING (
     created_by IN (SELECT id FROM users WHERE auth_id = auth.uid())
     OR professor_id IN (
@@ -71,6 +74,7 @@ CREATE POLICY "Users can view relevant tasks"
 DROP POLICY IF EXISTS "Users can view relevant task assignments" ON task_assignments;
 CREATE POLICY "Users can view relevant task assignments"
   ON task_assignments FOR SELECT
+  TO authenticated
   USING (
     scholar_id IN (
       SELECT s.id FROM scholars s
@@ -95,6 +99,7 @@ CREATE POLICY "Users can view relevant task assignments"
 DROP POLICY IF EXISTS "Users can view relevant meetings" ON meetings;
 CREATE POLICY "Users can view relevant meetings"
   ON meetings FOR SELECT
+  TO authenticated
   USING (
     professor_id IN (
       SELECT p.id FROM professors p

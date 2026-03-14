@@ -9,16 +9,11 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;
 -- Grant admin to specific user
 UPDATE users SET is_admin = TRUE WHERE auth_id = 'a917ceb5-c3ad-43c3-beab-f70774225b24';
 
--- RLS: admins can read everything
 CREATE POLICY "admins_read_all_users" ON users
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM users u WHERE u.auth_id = auth.uid() AND u.is_admin = TRUE)
   );
 
-CREATE POLICY "admins_read_all_professors" ON professors
-  FOR SELECT USING (
-    EXISTS (SELECT 1 FROM users u WHERE u.auth_id = auth.uid() AND u.is_admin = TRUE)
-  );
 
 CREATE POLICY "admins_read_all_scholars" ON scholars
   FOR SELECT USING (
