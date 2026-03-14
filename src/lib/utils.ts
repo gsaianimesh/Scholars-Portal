@@ -14,12 +14,14 @@ export function formatDate(date: string | Date) {
 }
 
 export function formatDateTime(date: string | Date) {
-  return new Date(date).toLocaleDateString("en-US", {
+  // Use toLocaleString for proper date/time formatting with user's local timezone
+  return new Date(date).toLocaleString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    timeZoneName: "short",
   });
 }
 

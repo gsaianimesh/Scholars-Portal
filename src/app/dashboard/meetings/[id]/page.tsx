@@ -126,10 +126,18 @@ export default function MeetingDetailPage() {
     if (!newDate) return;
     setRescheduling(true);
     try {
+      // Create date object explicitly from local parts to avoid browser parsing ambiguity
+      // "2024-03-14T21:18" -> [2024, 03, 14, 21, 18]
+      const [y, m, d, h, min] = newDate.split(/[-T:]/).map(Number);
+      const localDate = new Date(y, m - 1, d, h, min);
+      
+      const isoDate = localDate.toISOString();
+      console.log("Rescheduling to:", { input: newDate, local: localDate.toString(), iso: isoDate });
+      
       const res = await fetch(`/api/meetings/${params.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: newDate }),
+        body: JSON.stringify({ date: isoDate }),
       });
       if (res.ok) {
         setShowReschedule(false);

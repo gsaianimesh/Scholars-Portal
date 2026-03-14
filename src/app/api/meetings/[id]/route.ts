@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient, createServiceRoleClient } from "@/lib/supabase/server";
+import { deleteCalendarEvent, updateCalendarEvent } from "@/lib/services/google-calendar";
 
 // DELETE — cancel a meeting
 export async function DELETE(
@@ -7,7 +8,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   const supabase = createServerSupabaseClient();
+  const { data: { session } } = await supabase.auth.getSession();
   const { data: { user: authUser } } = await supabase.auth.getUser();
+
   if (!authUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -19,6 +22,7 @@ export async function DELETE(
     .select("id")
     .eq("auth_id", authUser.id)
     .maybeSingle();
+
   if (!currentUser) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
@@ -29,9 +33,12 @@ export async function DELETE(
     .select("id")
     .eq("user_id", currentUser.id)
     .maybeSingle();
+
   if (!prof) {
     return NextResponse.json({ error: "Not a professor" }, { status: 403 });
   }
+
+  console.log(`[Meeting API DELETE] Checking ownership for Meeting: ${params.id}, Prof: ${prof.id}`);
 
   const { data: meeting } = await serviceClient
     .from("meetings")
@@ -39,28 +46,25 @@ export async function DELETE(
     .eq("id", params.id)
     .maybeSingle();
 
-  if (!meeting || meeting.professor_id !== prof.id) {
-    return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
+  if (!meeting) {
+     console.error(`[Meeting API DELETE] Meeting ${params.id} NOT FOUND in DB`);
+     return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
   }
 
-  // Try to delete from Google Calendar if there's a calendar event
-  if (meeting.calendar_event_id) {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.provider_token;
-      if (token) {
-        const calendarId = process.env.GOOGLE_CALENDAR_ID || "primary";
-        await fetch(
-          `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(meeting.calendar_event_id)}`,
-          { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
-        );
-      }
-    } catch {
-      // Calendar deletion is best-effort
-    }
+  if (meeting.professor_id !== prof.id) {
+     console.error(`[Meeting API DELETE] Ownership Mismatch! Meeting Owner: ${meeting.professor_id}, Current Prof: ${prof.id}`);
+     return NextResponse.json({ error: "Not authorized to modify this meeting" }, { status: 403 });
   }
 
-  // Notify participants before deleting
+  // Delete from Google Calendar if linked
+  if (meeting.calendar_event_id && session?.provider_token) {
+    await deleteCalendarEvent({
+      eventId: meeting.calendar_event_id,
+      accessToken: session.provider_token,
+    });
+  }
+
+  // Notify participants before deleting from DB
   const { data: participants } = await serviceClient
     .from("meeting_participants")
     .select("user_id")
@@ -78,8 +82,11 @@ export async function DELETE(
     }
   }
 
-  // Delete meeting (cascades to participants & action_items)
-  await serviceClient.from("meetings").delete().eq("id", params.id);
+  // Delete meeting (cascades to participants & action_items via DB constraints)
+  const { error } = await serviceClient.from("meetings").delete().eq("id", params.id);
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
   return NextResponse.json({ success: true });
 }
@@ -90,7 +97,9 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   const supabase = createServerSupabaseClient();
+  const { data: { session } } = await supabase.auth.getSession();
   const { data: { user: authUser } } = await supabase.auth.getUser();
+
   if (!authUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -108,6 +117,7 @@ export async function PATCH(
     .select("id")
     .eq("auth_id", authUser.id)
     .maybeSingle();
+
   if (!currentUser) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
@@ -117,9 +127,12 @@ export async function PATCH(
     .select("id")
     .eq("user_id", currentUser.id)
     .maybeSingle();
+
   if (!prof) {
     return NextResponse.json({ error: "Not a professor" }, { status: 403 });
   }
+
+  console.log(`[Meeting API PATCH] Rescheduling Meeting: ${params.id}, Prof: ${prof.id}`);
 
   const { data: meeting } = await serviceClient
     .from("meetings")
@@ -127,36 +140,28 @@ export async function PATCH(
     .eq("id", params.id)
     .maybeSingle();
 
-  if (!meeting || meeting.professor_id !== prof.id) {
-    return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
+  if (!meeting) {
+     console.error(`[Meeting API PATCH] Meeting ${params.id} NOT FOUND`);
+     return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
+  }
+
+  if (meeting.professor_id !== prof.id) {
+     console.error(`[Meeting API PATCH] Ownership Mismatch! Meeting Owner: ${meeting.professor_id}, Current Prof: ${prof.id}`);
+     // Returning 404 to avoid leaking existence, or 403
+     return NextResponse.json({ error: "Meeting not found or unauthorized" }, { status: 404 }); 
   }
 
   // Update Google Calendar event if present
-  if (meeting.calendar_event_id) {
+  if (meeting.calendar_event_id && session?.provider_token) {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.provider_token;
-      if (token) {
-        const calendarId = process.env.GOOGLE_CALENDAR_ID || "primary";
-        const startTime = new Date(date).toISOString();
-        const endTime = new Date(new Date(date).getTime() + 60 * 60 * 1000).toISOString();
-        await fetch(
-          `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(meeting.calendar_event_id)}`,
-          {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              start: { dateTime: startTime, timeZone: "UTC" },
-              end: { dateTime: endTime, timeZone: "UTC" },
-            }),
-          }
-        );
-      }
-    } catch {
-      // Calendar update is best-effort
+      await updateCalendarEvent({
+        eventId: meeting.calendar_event_id,
+        accessToken: session.provider_token,
+        date: date,
+        duration: 60, // Default duration since DB doesn't store it yet
+      });
+    } catch (calError: any) {
+      console.error("Google Calendar update failed:", calError);
     }
   }
 
@@ -180,11 +185,12 @@ export async function PATCH(
     .neq("user_id", currentUser.id);
 
   if (participants?.length) {
+    const formattedDate = new Date(date).toLocaleString();
     for (const p of participants) {
       await serviceClient.rpc("create_notification", {
         p_user_id: p.user_id,
         p_title: "Meeting Rescheduled",
-        p_message: `The meeting "${meeting.meeting_title}" has been rescheduled.`,
+        p_message: `The meeting "${meeting.meeting_title}" has been moved to ${formattedDate}.`,
         p_type: "meeting_rescheduled",
       });
     }

@@ -74,12 +74,26 @@ export default function NewMeetingPage() {
     setError("");
 
     try {
+      // Create date object explicitly from local parts
+      const [y, m, d, h, min] = date.split(/[-T:]/).map(Number);
+      // NOTE: new Date(y, m, ...) uses the browser's local timezone
+      const localDate = new Date(y, m - 1, d, h, min);
+      // toISOString always returns UTC (Z)
+      const isoDate = localDate.toISOString();
+
+      console.log("[New Meeting] Form debugging:", {
+        inputDate: date,
+        parsedParts: [y, m, d, h, min],
+        localDateString: localDate.toString(),
+        isoDateToSend: isoDate
+      });
+
       const res = await fetch("/api/meetings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
-          date,
+          date: isoDate, // Sending properly formatted UTC ISO string
           link: useCustomLink ? link || null : null,
           agenda: agenda || null,
           participantUserIds: selectedParticipants,

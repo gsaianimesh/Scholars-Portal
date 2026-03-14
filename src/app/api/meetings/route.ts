@@ -14,6 +14,9 @@ export async function POST(request: NextRequest) {
   const googleAccessToken = session?.provider_token || null;
 
   const body = await request.json();
+  // LOG THE BODY
+  console.log(`[POST /api/meetings] Received body:`, body);
+  
   const { title, date, link, agenda, participantUserIds } = body;
 
   if (!title || !date) {

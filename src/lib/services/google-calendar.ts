@@ -89,3 +89,80 @@ export async function createCalendarEvent(params: {
     )?.uri,
   };
 }
+
+export async function deleteCalendarEvent(params: {
+  eventId: string;
+  accessToken: string;
+}): Promise<boolean> {
+  const { eventId, accessToken } = params;
+  const calendarId = "primary";
+
+  if (!accessToken || !eventId) return false;
+
+  const url = new URL(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`
+  );
+  // Send email notifications to attendees
+  url.searchParams.set("sendUpdates", "all");
+
+  const response = await fetch(url.toString(), {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  if (!response.ok) {
+    if (response.status === 410) return true; // Already deleted
+    console.error(`Failed to delete Google Calendar event: ${response.status}`);
+    return false;
+  }
+
+  return true;
+}
+
+export async function updateCalendarEvent(params: {
+  eventId: string;
+  accessToken: string;
+  title?: string;
+  date?: string;
+  duration?: number;
+  agenda?: string;
+}): Promise<boolean> {
+  const { eventId, accessToken } = params;
+  const calendarId = "primary";
+
+  if (!accessToken || !eventId) return false;
+
+  const patchBody: any = {};
+  if (params.title) patchBody.summary = params.title;
+  if (params.agenda) patchBody.description = params.agenda;
+  
+  if (params.date) {
+    const startDate = new Date(params.date);
+    const endDate = new Date(startDate.getTime() + (params.duration || 60) * 60 * 1000);
+    patchBody.start = { dateTime: startDate.toISOString() };
+    patchBody.end = { dateTime: endDate.toISOString() };
+  }
+
+  const url = new URL(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`
+  );
+  // Send email notifications to attendees for updates
+  url.searchParams.set("sendUpdates", "all");
+
+  const response = await fetch(url.toString(), {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(patchBody),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    console.error(`Failed to update Google Calendar event: ${response.status} ${err}`);
+    return false;
+  }
+
+  return true;
+}
