@@ -17,7 +17,8 @@ export async function POST(request: NextRequest) {
   // LOG THE BODY
   console.log(`[POST /api/meetings] Received body:`, body);
   
-  const { title, date, link, agenda, participantUserIds } = body;
+  const { title, date, duration, link, agenda, participantUserIds } = body;
+  const durationInMinutes = duration || 60;
 
   if (!title || !date) {
     return NextResponse.json({ error: "Title and date are required" }, { status: 400 });
@@ -66,6 +67,7 @@ export async function POST(request: NextRequest) {
       const event = await createCalendarEvent({
         title,
         date,
+        duration: durationInMinutes,
         link: link || undefined,
         agenda: agenda || undefined,
         accessToken: googleAccessToken,
@@ -91,6 +93,7 @@ export async function POST(request: NextRequest) {
       professor_id: prof.id,
       meeting_title: title,
       meeting_date: date,
+      duration_minutes: durationInMinutes,
       meeting_link: meetingLink,
       agenda,
       calendar_event_id: calendarEventId,

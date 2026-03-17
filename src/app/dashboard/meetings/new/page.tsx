@@ -14,6 +14,7 @@ import Link from "next/link";
 export default function NewMeetingPage() {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
+  const [duration, setDuration] = useState("60");
   const [useCustomLink, setUseCustomLink] = useState(false);
   const [link, setLink] = useState("");
   const [agenda, setAgenda] = useState("");
@@ -94,6 +95,7 @@ export default function NewMeetingPage() {
         body: JSON.stringify({
           title,
           date: isoDate, // Sending properly formatted UTC ISO string
+          duration: parseInt(duration) || 60,
           link: useCustomLink ? link || null : null,
           agenda: agenda || null,
           participantUserIds: selectedParticipants,
@@ -112,6 +114,16 @@ export default function NewMeetingPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function reconnectGoogle() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        scopes: "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events",
+        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard/meetings/new`,
+      },
+    });
   }
 
   return (
@@ -161,6 +173,19 @@ export default function NewMeetingPage() {
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="duration">Duration (minutes)</Label>
+              <Input
+                id="duration"
+                type="number"
+                min="15"
+                step="15"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                required
+              />
+            </div>
+
             {/* Meeting Link Options */}
             <div className="space-y-3">
               <Label>Meeting Platform</Label>
@@ -181,6 +206,28 @@ export default function NewMeetingPage() {
                   </div>
                 </label>
               )}
+              {/* Option to reconnect Google if session expired */}
+              {!hasGoogleAuth && (
+                 <label className="flex items-center gap-3 p-3 rounded-lg border border-dashed border-primary/50 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors">
+                  <input
+                    type="radio"
+                    name="linkOption"
+                    value="google-reconnect"
+                    onChange={reconnectGoogle}
+                  />
+                  <Video className="h-4 w-4 text-blue-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-primary">Connect Google Calendar</p>
+                    <p className="text-xs text-muted-foreground">
+                      Sign in again to enable Google Meet & Calendar sync
+                    </p>
+                  </div>
+                  <Button type="button" variant="outline" size="sm" onClick={reconnectGoogle}>
+                    Sign In
+                  </Button>
+                </label>
+              )}
+
               <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-accent">
                 <input
                   type="radio"
@@ -190,9 +237,9 @@ export default function NewMeetingPage() {
                 />
                 <div>
                   <p className="text-sm font-medium">
-                    {hasGoogleAuth ? "Use custom meeting link" : "Meeting Link"}
+                    {hasGoogleAuth ? "Use custom meeting link" : "Meeting Link (Zoom, Teams, etc.)"}
                   </p>
-                  <p className="text-xs text-muted-foreground">Zoom, Teams, or any other link</p>
+                  <p className="text-xs text-muted-foreground">Manually enter a meeting URL</p>
                 </div>
               </label>
               {useCustomLink && (

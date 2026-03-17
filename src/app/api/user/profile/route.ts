@@ -9,7 +9,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { name, department, institution } = body;
+  const { name, department, institution, fathomApiKey } = body;
 
   const serviceClient = createServiceRoleClient();
 
@@ -33,12 +33,18 @@ export async function PATCH(request: NextRequest) {
     const updates: any = {};
     if (department !== undefined) updates.department = department;
     if (institution !== undefined) updates.institution = institution;
+    if (fathomApiKey !== undefined) updates.fathom_api_key = fathomApiKey;
 
     if (Object.keys(updates).length > 0) {
-      await serviceClient
+      const { error } = await serviceClient
         .from("professors")
         .update(updates)
         .eq("user_id", currentUser.id);
+        
+      if (error) {
+        console.error("Profile update error:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
     }
   }
 

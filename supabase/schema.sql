@@ -117,6 +117,7 @@ CREATE TABLE meetings (
   meeting_date TIMESTAMPTZ NOT NULL,
   meeting_link TEXT,
   agenda TEXT,
+  duration_minutes INTEGER DEFAULT 60,
   calendar_event_id TEXT,
   fathom_meeting_id TEXT,
   transcript TEXT,

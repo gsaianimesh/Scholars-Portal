@@ -16,6 +16,7 @@ export default function SettingsPage() {
   const [institution, setInstitution] = useState("");
   const [role, setRole] = useState("");
   const [inviteCode, setInviteCode] = useState("");
+  const [fathomApiKey, setFathomApiKey] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -52,6 +53,7 @@ export default function SettingsPage() {
           setDepartment(prof.department || "");
           setInstitution(prof.institution || "");
           setInviteCode(prof.invite_code || "");
+          setFathomApiKey(prof.fathom_api_key || "");
         }
       }
     }
@@ -66,7 +68,7 @@ export default function SettingsPage() {
       const res = await fetch("/api/user/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, department, institution }),
+        body: JSON.stringify({ name, department, institution, fathomApiKey }),
       });
 
       if (res.ok) {
@@ -211,6 +213,43 @@ export default function SettingsPage() {
                   value={institution}
                   onChange={(e) => setInstitution(e.target.value)}
                 />
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <h3 className="font-medium">Fathom AI Integration</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Connect Fathom to automatically transcribe and summarize your meetings.
+                  </p>
+                </div>
+
+                <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800 border border-blue-100">
+                  <p className="font-semibold mb-2">Setup Instructions:</p>
+                  <ol className="list-decimal list-inside space-y-1">
+                    <li>Create a free account at <a href="https://fathom.video" target="_blank" rel="noreferrer" className="underline hover:text-blue-900">fathom.video</a>.</li>
+                    <li>Go to <a href="https://fathom.video/customize/api" target="_blank" rel="noreferrer" className="underline font-medium hover:text-blue-900">Developer Settings</a> to generate an API Key.</li>
+                    <li>Copy the secret token and paste it below.</li> 
+                  </ol>
+                  <p className="mt-2 text-xs">
+                    * Ensure you use the Fathom desktop app or Zoom integration during meetings.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="fathomKey">Fathom API Key</Label>
+                  <Input
+                    id="fathomKey"
+                    type="password"
+                    placeholder="sk_..."
+                    value={fathomApiKey}
+                    onChange={(e) => setFathomApiKey(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                   Your key is encrypted and stored securely.
+                  </p>
+                </div>
               </div>
             </>
           )}

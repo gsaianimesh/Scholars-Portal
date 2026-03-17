@@ -136,7 +136,7 @@ export async function PATCH(
 
   const { data: meeting } = await serviceClient
     .from("meetings")
-    .select("id, professor_id, meeting_title, calendar_event_id")
+    .select("id, professor_id, meeting_title, calendar_event_id, duration_minutes")
     .eq("id", params.id)
     .maybeSingle();
 
@@ -158,7 +158,7 @@ export async function PATCH(
         eventId: meeting.calendar_event_id,
         accessToken: session.provider_token,
         date: date,
-        duration: 60, // Default duration since DB doesn't store it yet
+        duration: meeting.duration_minutes || 60,
       });
     } catch (calError: any) {
       console.error("Google Calendar update failed:", calError);

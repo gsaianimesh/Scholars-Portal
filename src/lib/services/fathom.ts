@@ -7,11 +7,12 @@ export interface FathomTranscript {
 }
 
 export async function fetchFathomTranscript(
-  fathomMeetingId: string
+  fathomMeetingId: string,
+  overrideApiKey?: string
 ): Promise<FathomTranscript> {
-  const apiKey = process.env.FATHOM_API_KEY;
+  const apiKey = overrideApiKey || process.env.FATHOM_API_KEY;
   if (!apiKey) {
-    throw new Error("FATHOM_API_KEY is not configured");
+    throw new Error("FATHOM_API_KEY is not configured and no override provided");
   }
 
   const response = await fetch(
@@ -41,16 +42,17 @@ export async function fetchFathomTranscript(
 }
 
 export async function listFathomMeetings(
-  after?: string
+  after?: string,
+  overrideApiKey?: string
 ): Promise<FathomTranscript[]> {
-  const apiKey = process.env.FATHOM_API_KEY;
+  const apiKey = overrideApiKey || process.env.FATHOM_API_KEY;
   if (!apiKey) {
-    throw new Error("FATHOM_API_KEY is not configured");
+    throw new Error("FATHOM_API_KEY is not configured and no override provided");
   }
 
   const url = new URL("https://api.fathom.video/v1/calls");
   if (after) {
-    url.searchParams.set("after", after);
+    url.searchParams.set("started_at[gt]", after); // Fathom API filter
   }
 
   const response = await fetch(url.toString(), {

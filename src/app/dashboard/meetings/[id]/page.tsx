@@ -29,6 +29,7 @@ export default function MeetingDetailPage() {
   const [showReschedule, setShowReschedule] = useState(false);
   const [newDate, setNewDate] = useState("");
   const [rescheduling, setRescheduling] = useState(false);
+  const [fathomError, setFathomError] = useState("");
   const router = useRouter();
   const supabase = createClient();
 
@@ -90,11 +91,22 @@ export default function MeetingDetailPage() {
   }
 
   async function fetchTranscript() {
-    const res = await fetch(`/api/meetings/${params.id}/transcript`, {
-      method: "POST",
-    });
-    if (res.ok) {
-      loadMeeting();
+    setFathomError("");
+    setLoading(true); // Using loading (or specific loading state)
+    try {
+      const res = await fetch(`/api/meetings/${params.id}/transcript`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        loadMeeting();
+      } else {
+        const data = await res.json();
+        setFathomError(data.error || "Failed to fetch transcript");
+      }
+    } catch (err: any) {
+      setFathomError(err.message || "Failed to fetch transcript");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -310,22 +322,34 @@ export default function MeetingDetailPage() {
               )}
 
               {isPast && userRole !== "scholar" && (
-                <div className="flex gap-2">
-                  {!meeting.transcript && meeting.fathom_meeting_id && (
-                    <Button variant="outline" size="sm" onClick={fetchTranscript}>
-                      <FileText className="h-4 w-4 mr-1" />
-                      Fetch Transcript
-                    </Button>
-                  )}
-                  {meeting.transcript && !meeting.summary && (
-                    <Button
-                      size="sm"
-                      onClick={generateSummary}
-                      disabled={generatingSummary}
-                    >
-                      <Brain className="h-4 w-4 mr-1" />
-                      {generatingSummary ? "Generating..." : "Generate AI Summary"}
-                    </Button>
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    {!meeting.transcript && (
+                      <Button variant="outline" size="sm" onClick={fetchTranscript}>
+                        <FileText className="h-4 w-4 mr-1" />
+                        Fetch Transcript (Fathom)
+                      </Button>
+                    )}
+                    {meeting.transcript && (
+                      <Button
+                        size="sm"
+                        onClick={generateSummary}
+                        disabled={generatingSummary}
+                      >
+                        <Brain className="h-4 w-4 mr-1" />
+                        {generatingSummary ? "Generating..." : "Generate AI Summary"}
+                      </Button>
+                    )}
+                  </div>
+                  {fathomError && (
+                    <div className="p-3 bg-destructive/10 text-destructive text-sm rounded-md flex flex-col gap-1">
+                      <p>{fathomError}</p> 
+                      {fathomError.includes("API Key") && (
+                        <Link href="/dashboard/settings" className="underline font-medium hover:text-destructive/80">
+                          Go to Settings to configure Fathom API Key
+                        </Link>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
