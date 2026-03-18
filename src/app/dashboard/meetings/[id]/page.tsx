@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { getInitials, formatDateTime, formatDate } from "@/lib/utils";
 import { ArrowLeft, Calendar, Video, FileText, Users, Brain, CheckCircle, XCircle, CalendarClock } from "lucide-react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
 
 export default function MeetingDetailPage() {
   const params = useParams();
@@ -415,8 +416,8 @@ export default function MeetingDetailPage() {
           <TabsContent value="summary" className="mt-4">
             <Card>
               <CardContent className="p-6">
-                <div className="prose prose-sm max-w-none whitespace-pre-wrap">
-                  {meeting.summary}
+                <div className="prose prose-sm dark:prose-invert max-w-none">
+                  <ReactMarkdown>{meeting.summary}</ReactMarkdown>
                 </div>
               </CardContent>
             </Card>
