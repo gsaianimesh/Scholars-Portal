@@ -112,7 +112,6 @@ export default function MeetingDetailPage() {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function fetchTranscript() {
     setFathomError("");
     setLoading(true); // Using loading (or specific loading state)
@@ -346,12 +345,22 @@ export default function MeetingDetailPage() {
 
               {isPast && userRole !== "scholar" && (
                 <div className="flex flex-col gap-2">
-                  <div className="flex gap-2 items-center">
+                  <div className="flex gap-2 items-center flex-wrap">
                     {!meeting.transcript && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
-                        <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                        Waiting for Fathom to process transcript & summary...
-                      </div>
+                      <>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
+                          <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                          Waiting for Fathom to process transcript & summary...
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={fetchTranscript}
+                          disabled={loading}
+                        >
+                          {loading ? "Fetching..." : "Fetch Manually"}
+                        </Button>
+                      </>
                     )}
                     {meeting.transcript && !meeting.summary && (
                       <Button
