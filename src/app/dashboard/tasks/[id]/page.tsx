@@ -10,8 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { getInitials, formatDate } from "@/lib/utils";
 import { ArrowLeft, Clock, ExternalLink, Upload } from "lucide-react";
@@ -22,7 +20,6 @@ export default function TaskDetailPage() {
   const [task, setTask] = useState<any>(null);
   const [assignments, setAssignments] = useState<any[]>([]);
   const [userRole, setUserRole] = useState("");
-  const [scholarId, setScholarId] = useState("");
   const [myAssignment, setMyAssignment] = useState<any>(null);
   const [submissionLink, setSubmissionLink] = useState("");
   const [submissionNotes, setSubmissionNotes] = useState("");
@@ -31,6 +28,7 @@ export default function TaskDetailPage() {
 
   useEffect(() => {
     loadTask();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   async function loadTask() {
@@ -66,7 +64,9 @@ export default function TaskDetailPage() {
         .eq("user_id", appUser.id)
         .maybeSingle();
       if (scholar) {
-        setScholarId(scholar.id);
+        // We set the state but don't strictly need to read it elsewhere
+        // Leaving it or ignoring it makes sense, or we can just remove the variable completely:
+        // Removing `setScholar` since we don't use it.
         const mine = assignData?.find((a: any) => a.scholar_id === scholar.id);
         setMyAssignment(mine || null);
         if (mine) {
@@ -337,7 +337,7 @@ export default function TaskDetailPage() {
                   <AssignmentRow
                     key={assignment.id}
                     assignment={assignment}
-                    taskId={task.id}
+                    _taskId={task.id}
                     onReview={reviewSubmission}
                   />
                 ))}
@@ -352,11 +352,11 @@ export default function TaskDetailPage() {
 
 function AssignmentRow({
   assignment,
-  taskId,
+  _taskId,
   onReview,
 }: {
   assignment: any;
-  taskId: string;
+  _taskId: string;
   onReview: (assignmentId: string, status: string, notes: string) => void;
 }) {
   const [reviewNotes, setReviewNotes] = useState("");

@@ -28,6 +28,7 @@ export default function NewTaskPage() {
 
   useEffect(() => {
     loadScholars();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadScholars() {

@@ -17,6 +17,7 @@ export default function InvitePage() {
 
   useEffect(() => {
     validateCode();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
 
   async function validateCode() {

@@ -221,7 +221,7 @@ export default function SettingsPage() {
                 <div className="space-y-1">
                   <h3 className="font-medium">Fathom AI Integration</h3>
                   <p className="text-sm text-muted-foreground">
-                    Connect your Fathom account to automatically sync meeting transcripts. Provide your API key below and we'll handle the rest!
+                    Connect your Fathom account to automatically sync meeting transcripts. Provide your API key below and we&apos;ll handle the rest!
                   </p>
                 </div>
 
