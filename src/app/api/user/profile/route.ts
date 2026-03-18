@@ -44,9 +44,11 @@ export async function PATCH(request: NextRequest) {
           const webhookUrl = `${appUrl}/api/webhooks/fathom`;
           console.log(`Registering Fathom Webhook for ${currentUser.id} at ${webhookUrl}`);
           await registerFathomWebhook(webhookUrl, fathomApiKey);
-        } catch (err) {
+        } catch (err: any) {
           console.error("Failed to register Fathom webhook:", err);
-          // Let it proceed to save the key even if webhook fails (maybe already registered)
+          return NextResponse.json({ 
+            error: `Profile updated, but failed to register Fathom webhook: ${err.message}. Are you on a public URL?` 
+          }, { status: 400 });
         }
       }
     }
