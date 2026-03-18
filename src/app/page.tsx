@@ -259,7 +259,7 @@ export default function LandingPage() {
               Get started in 3 simple steps
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              No complicated setup. Sign in with Google and you're ready to go.
+              No complicated setup. Sign in with Google and you&apos;re ready to go.
             </p>
           </div>
 
@@ -401,7 +401,7 @@ export default function LandingPage() {
           ) : (
             <Link href="/signup">
               <Button size="lg" className="text-base gap-2 h-12 px-8 rounded-xl shadow-lg shadow-primary/25">
-                Get Started — It's Free
+                Get Started — It&apos;s Free
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>

@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     // Default redirect — may be overridden below
-    let redirectTo = `${origin}${next}`;
+    const redirectTo = `${origin}${next}`;
     const response = NextResponse.redirect(redirectTo);
 
     const supabase = createServerClient(

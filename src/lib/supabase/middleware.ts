@@ -39,6 +39,7 @@ export async function updateSession(request: NextRequest) {
   const isOnboarding = request.nextUrl.pathname.startsWith("/onboarding");
 
   // Admin routes require auth + is_admin (checked in admin layout)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isAdminPath = request.nextUrl.pathname.startsWith("/admin") || request.nextUrl.pathname.startsWith("/api/admin");
 
   if (!user && !isPublicPath && !isOnboarding && !isHomePage) {

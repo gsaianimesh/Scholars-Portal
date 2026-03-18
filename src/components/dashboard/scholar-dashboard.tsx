@@ -36,6 +36,7 @@ export function ScholarDashboard({ userId }: ScholarDashboardProps) {
 
   useEffect(() => {
     loadDashboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadDashboard() {

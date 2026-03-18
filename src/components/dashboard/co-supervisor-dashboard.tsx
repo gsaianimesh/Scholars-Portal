@@ -31,6 +31,7 @@ export function CoSupervisorDashboard({ userId }: CoSupervisorDashboardProps) {
 
   useEffect(() => {
     loadDashboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadDashboard() {
