@@ -35,9 +35,31 @@ export default function MeetingDetailPage() {
 
   useEffect(() => {
     loadMeeting();
+
+    // Auto-refresh if we're waiting for Fathom transcript (polling every 10 seconds)
+    const intervalId = setInterval(() => {
+      // Only poll if we don't already have the transcript in the frontend state
+      setMeeting(current => {
+        if (!current?.transcript && new Date(current?.meeting_date || Date.now()) < new Date()) {
+          // It's a past meeting missing a transcript, poll for it
+          supabase.from("meetings").select("transcript, summary").eq("id", params.id).maybeSingle()
+            .then(({ data }) => {
+              if (data && data.transcript) {
+                loadMeeting(false); // Reload full data in background
+              }
+            });
+        }
+        return current;
+      });
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
-  async function loadMeeting() {
+  async function loadMeeting(showLoading = true) {
+    if (showLoading) setLoading(true);
+
     const { data: { user: authUser } } = await supabase.auth.getUser();
     if (!authUser) return;
 
