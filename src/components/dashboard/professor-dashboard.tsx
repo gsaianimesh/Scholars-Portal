@@ -69,14 +69,15 @@ export function ProfessorDashboard({ userId }: ProfessorDashboardProps) {
           .eq("professor_id", prof.id)
           .eq("status", "active"),
         supabase
-          .from("tasks")
-          .select("*")
-          .eq("professor_id", prof.id)
+          .from("task_assignments")
+          .select("id, task:tasks!inner(professor_id)")
+          .eq("task.professor_id", prof.id)
           .in("status", ["not_started", "in_progress"]),
         supabase
           .from("task_assignments")
-          .select("*, task:tasks(*), scholar:scholars(*, user:users(*))")
-          .eq("submission_status", "pending"),
+          .select("*, task:tasks!inner(*), scholar:scholars(*, user:users(*))")
+          .eq("task.professor_id", prof.id)
+          .or("submission_status.eq.pending,and(submitted_at.not.is.null,submission_status.is.null)"),
         supabase
           .from("meetings")
           .select("*")

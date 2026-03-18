@@ -92,6 +92,18 @@ export default function TasksPage() {
     }
   };
 
+  const getTaskStatus = (task: any) => {
+    if (!task.assignments || task.assignments.length === 0) return task.status;
+    const allCompleted = task.assignments.every((a: any) => a.status === 'completed');
+    const allNotStarted = task.assignments.every((a: any) => a.status === 'not_started');
+    const allSubmittedOrCompleted = task.assignments.every((a: any) => a.status === 'submitted' || a.status === 'completed');
+    
+    if (allNotStarted) return 'not_started';
+    if (allCompleted) return 'completed';
+    if (allSubmittedOrCompleted) return 'submitted';
+    return 'in_progress';
+  };
+
   const filteredTasks = tasks.filter((t) =>
     t.title?.toLowerCase().includes(search.toLowerCase())
   );
@@ -247,8 +259,8 @@ export default function TasksPage() {
                       <div className="flex-1 min-w-0 mr-4">
                         <div className="flex items-center gap-2">
                           <p className="font-medium truncate">{task.title}</p>
-                          <Badge variant={statusVariant(task.status)}>
-                            {task.status.replace("_", " ")}
+                          <Badge variant={statusVariant(getTaskStatus(task))}>
+                            {getTaskStatus(task).replace("_", " ")}
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground mt-1 line-clamp-1">

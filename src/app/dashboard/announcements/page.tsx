@@ -217,7 +217,17 @@ function AnnouncementCard({
   const author = announcement.author;
   const reactions: any[] = announcement.reactions || [];
   const isAuthor = announcement.author_id === currentUserId;
-  const timeAgo = getTimeAgo(new Date(announcement.created_at));
+  
+  const dateObj = new Date(announcement.created_at);
+  const timeAgo = getTimeAgo(dateObj);
+  const formattedDate = dateObj.toLocaleString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 
   // Group reactions by emoji
   const grouped: Record<string, { count: number; userReacted: boolean; users: string[] }> = {};
@@ -241,10 +251,17 @@ function AnnouncementCard({
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-sm font-medium">{author?.name}</span>
-                <span className="text-xs text-muted-foreground ml-2">{timeAgo}</span>
+            <div className="flex items-start justify-between">
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{author?.name}</span>
+                  <span className="text-xs text-muted-foreground">{timeAgo}</span>
+                </div>
+                <div className="mt-1">
+                  <span className="inline-flex items-center text-[11px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                    {formattedDate}
+                  </span>
+                </div>
               </div>
               {isAuthor && (
                 <Button

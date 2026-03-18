@@ -45,7 +45,7 @@ export default function SubmissionsPage() {
           .from("task_assignments")
           .select("*, task:tasks(*), scholar:scholars(*, user:users(*))")
           .eq("scholar_id", scholar.id)
-          .eq("status", "submitted")
+          .not("submitted_at", "is", null)
           .order("submitted_at", { ascending: false });
         setSubmissions(data || []);
       }
@@ -71,7 +71,7 @@ export default function SubmissionsPage() {
         const { data } = await supabase
           .from("task_assignments")
           .select("*, task:tasks(*), scholar:scholars(*, user:users(*))")
-          .in("status", ["submitted"])
+          .not("submitted_at", "is", null)
           .order("submitted_at", { ascending: false });
         setSubmissions(data || []);
       }

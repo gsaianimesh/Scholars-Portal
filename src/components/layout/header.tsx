@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,43 @@ interface HeaderProps {
 export function Header({ user }: HeaderProps) {
   const router = useRouter();
   const supabase = createClient();
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    async function checkNotifications() {
+      const { data } = await supabase
+        .from("notifications")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("read", false)
+        .limit(1);
+      
+      setHasUnread(data && data.length > 0);
+    }
+
+    checkNotifications();
+
+    // Subscribe to new notifications
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          setHasUnread(true);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user.id, supabase]);
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -48,8 +86,14 @@ export function Header({ user }: HeaderProps) {
 
           {/* Notifications */}
           <Link href="/dashboard/notifications">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative" onClick={() => setHasUnread(false)}>
               <Bell className="h-5 w-5" />
+              {hasUnread && (
+                <span className="absolute right-2 top-2 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive border-2 border-background"></span>
+                </span>
+              )}
             </Button>
           </Link>
 
