@@ -78,7 +78,22 @@ export async function fetchFathomSummary(
   }
 
   const data = await response.json();
-  return data.summary || "";
+  
+  if (data.summary) {
+    if (typeof data.summary === 'object') {
+      return data.summary.markdown_formatted || data.summary.text || JSON.stringify(data.summary);
+    }
+    if (typeof data.summary === 'string') {
+      try {
+        const parsed = JSON.parse(data.summary);
+        return parsed.markdown_formatted || parsed.text || data.summary;
+      } catch {
+        return data.summary;
+      }
+    }
+  }
+  
+  return "";
 }
 
 export async function fetchFathomRecordingData(

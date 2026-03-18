@@ -106,8 +106,19 @@ export async function POST(request: NextRequest) {
         .join("\n");
     }
 
-    if (payload.default_summary?.text) {
-      summary = payload.default_summary.text;
+    if (payload.default_summary) {
+      // Handle the object structure if it exists: { text: "...", markdown_formatted: "..." }
+      if (typeof payload.default_summary === 'object' && payload.default_summary !== null) {
+        summary = (payload.default_summary as any).markdown_formatted || (payload.default_summary as any).text || JSON.stringify(payload.default_summary);
+      } else if (typeof payload.default_summary === 'string') {
+        // Just in case it's stringified JSON
+        try {
+          const parsed = JSON.parse(payload.default_summary);
+          summary = parsed.markdown_formatted || parsed.text || payload.default_summary;
+        } catch {
+          summary = payload.default_summary;
+        }
+      }
     }
 
     // If not in payload, fetch from API
