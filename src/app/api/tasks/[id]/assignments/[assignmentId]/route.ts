@@ -85,9 +85,9 @@ export async function PATCH(
     .eq("task_id", params.id);
 
   if (assignments && assignments.length > 0) {
-    const allCompleted = assignments.every(a => a.status === 'completed');
-    const allNotStarted = assignments.every(a => a.status === 'not_started');
-    const allSubmittedOrCompleted = assignments.every(a => a.status === 'submitted' || a.status === 'completed');
+    const allCompleted = assignments.every((a: { status: string }) => a.status === 'completed');
+    const allNotStarted = assignments.every((a: { status: string }) => a.status === 'not_started');
+    const allSubmittedOrCompleted = assignments.every((a: { status: string }) => a.status === 'submitted' || a.status === 'completed');
 
     let newTaskStatus = 'in_progress';
     if (allNotStarted) newTaskStatus = 'not_started';

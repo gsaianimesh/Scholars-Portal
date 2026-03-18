@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     if (meetings.length > 1) {
       // Try to match by title
       const titleMatch = meetings.find(
-        (m) =>
+        (m: { meeting_title?: string }) =>
           m.meeting_title?.toLowerCase().includes(payload.title.toLowerCase()) ||
           payload.title.toLowerCase().includes(m.meeting_title?.toLowerCase() || "")
       );

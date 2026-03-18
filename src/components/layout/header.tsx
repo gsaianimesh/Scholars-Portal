@@ -37,7 +37,7 @@ export function Header({ user }: HeaderProps) {
         .eq("read", false)
         .limit(1);
       
-      setHasUnread(data && data.length > 0);
+      setHasUnread(!!(data && data.length > 0));
     }
 
     checkNotifications();
