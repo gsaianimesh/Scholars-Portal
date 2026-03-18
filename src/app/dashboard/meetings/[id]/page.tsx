@@ -39,7 +39,7 @@ export default function MeetingDetailPage() {
     // Auto-refresh if we're waiting for Fathom transcript (polling every 10 seconds)
     const intervalId = setInterval(() => {
       // Only poll if we don't already have the transcript in the frontend state
-      setMeeting(current => {
+      setMeeting((current: any) => {
         if (!current?.transcript && new Date(current?.meeting_date || Date.now()) < new Date()) {
           // It's a past meeting missing a transcript, poll for it
           supabase.from("meetings").select("transcript, summary").eq("id", params.id).maybeSingle()
