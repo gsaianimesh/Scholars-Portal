@@ -325,12 +325,12 @@ export default function MeetingDetailPage() {
                 <div className="flex flex-col gap-2">
                   <div className="flex gap-2">
                     {!meeting.transcript && (
-                      <Button variant="outline" size="sm" onClick={fetchTranscript}>
+                      <Button variant="outline" size="sm" onClick={fetchTranscript} disabled={loading}>
                         <FileText className="h-4 w-4 mr-1" />
-                        Fetch Transcript (Fathom)
+                        {loading ? "Fetching..." : "Fetch Recording (Fathom)"}
                       </Button>
                     )}
-                    {meeting.transcript && (
+                    {meeting.transcript && !meeting.summary && (
                       <Button
                         size="sm"
                         onClick={generateSummary}
@@ -343,7 +343,7 @@ export default function MeetingDetailPage() {
                   </div>
                   {fathomError && (
                     <div className="p-3 bg-destructive/10 text-destructive text-sm rounded-md flex flex-col gap-1">
-                      <p>{fathomError}</p> 
+                      <p>{fathomError}</p>
                       {fathomError.includes("API Key") && (
                         <Link href="/dashboard/settings" className="underline font-medium hover:text-destructive/80">
                           Go to Settings to configure Fathom API Key

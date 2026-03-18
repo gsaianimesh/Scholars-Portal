@@ -50,7 +50,7 @@ export async function summarizeMeeting(
   const baseUrl = isGroq
     ? "https://api.groq.com/openai/v1"
     : "https://api.openai.com/v1";
-  const model = isGroq ? "llama-3.1-70b-versatile" : "gpt-4o-mini";
+  const model = isGroq ? "llama-3.3-70b-versatile" : "gpt-4o-mini";
 
   let userContent = "";
   if (agenda) {

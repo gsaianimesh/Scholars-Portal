@@ -1,25 +1,37 @@
-export interface FathomTranscript {
+const FATHOM_API_BASE = "https://api.fathom.ai/external/v1";
+
+export interface FathomMeeting {
   id: string;
   title: string;
   transcript: string;
+  summary: string;
   duration: number;
   date: string;
 }
 
+export interface FathomTranscriptItem {
+  speaker: {
+    display_name: string;
+    matched_calendar_invitee_email?: string;
+  };
+  text: string;
+  timestamp: string;
+}
+
 export async function fetchFathomTranscript(
-  fathomMeetingId: string,
+  recordingId: string,
   overrideApiKey?: string
-): Promise<FathomTranscript> {
+): Promise<string> {
   const apiKey = overrideApiKey || process.env.FATHOM_API_KEY;
   if (!apiKey) {
     throw new Error("FATHOM_API_KEY is not configured and no override provided");
   }
 
   const response = await fetch(
-    `https://api.fathom.video/v1/calls/${encodeURIComponent(fathomMeetingId)}`,
+    `${FATHOM_API_BASE}/recordings/${encodeURIComponent(recordingId)}/transcript`,
     {
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        "X-Api-Key": apiKey,
         "Content-Type": "application/json",
       },
     }
@@ -32,32 +44,75 @@ export async function fetchFathomTranscript(
 
   const data = await response.json();
 
-  return {
-    id: data.id,
-    title: data.title || "",
-    transcript: data.transcript || "",
-    duration: data.duration || 0,
-    date: data.date || "",
-  };
+  // Convert transcript array to a readable string
+  const transcriptItems: FathomTranscriptItem[] = data.transcript || [];
+  const transcriptText = transcriptItems
+    .map((item) => `[${item.timestamp}] ${item.speaker.display_name}: ${item.text}`)
+    .join("\n");
+
+  return transcriptText;
 }
 
-export async function listFathomMeetings(
-  after?: string,
+export async function fetchFathomSummary(
+  recordingId: string,
   overrideApiKey?: string
-): Promise<FathomTranscript[]> {
+): Promise<string> {
   const apiKey = overrideApiKey || process.env.FATHOM_API_KEY;
   if (!apiKey) {
     throw new Error("FATHOM_API_KEY is not configured and no override provided");
   }
 
-  const url = new URL("https://api.fathom.video/v1/calls");
-  if (after) {
-    url.searchParams.set("started_at[gt]", after); // Fathom API filter
+  const response = await fetch(
+    `${FATHOM_API_BASE}/recordings/${encodeURIComponent(recordingId)}/summary`,
+    {
+      headers: {
+        "X-Api-Key": apiKey,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Fathom API error: ${response.status} - ${errText}`);
   }
+
+  const data = await response.json();
+  return data.summary || "";
+}
+
+export async function fetchFathomRecordingData(
+  recordingId: string,
+  overrideApiKey?: string
+): Promise<{ transcript: string; summary: string }> {
+  // Fetch both transcript and summary in parallel
+  const [transcript, summary] = await Promise.all([
+    fetchFathomTranscript(recordingId, overrideApiKey),
+    fetchFathomSummary(recordingId, overrideApiKey),
+  ]);
+
+  return { transcript, summary };
+}
+
+export async function listFathomMeetings(
+  after?: string,
+  overrideApiKey?: string
+): Promise<FathomMeeting[]> {
+  const apiKey = overrideApiKey || process.env.FATHOM_API_KEY;
+  if (!apiKey) {
+    throw new Error("FATHOM_API_KEY is not configured and no override provided");
+  }
+
+  const url = new URL(`${FATHOM_API_BASE}/meetings`);
+  if (after) {
+    url.searchParams.set("created_after", after);
+  }
+  // Include transcript so we can access it if needed
+  url.searchParams.set("include_transcript", "false");
 
   const response = await fetch(url.toString(), {
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      "X-Api-Key": apiKey,
       "Content-Type": "application/json",
     },
   });
@@ -68,11 +123,14 @@ export async function listFathomMeetings(
   }
 
   const data = await response.json();
-  return (data.calls || []).map((call: any) => ({
-    id: call.id,
-    title: call.title || "",
-    transcript: call.transcript || "",
-    duration: call.duration || 0,
-    date: call.date || "",
+  return (data.items || []).map((meeting: any) => ({
+    id: String(meeting.recording_id),
+    title: meeting.title || meeting.meeting_title || "",
+    transcript: "",
+    duration: 0,
+    date: meeting.recording_start_time || meeting.created_at || "",
   }));
 }
+
+// Keep the old type name as an alias for backwards compatibility
+export type FathomTranscript = FathomMeeting;
