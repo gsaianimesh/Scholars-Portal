@@ -184,6 +184,24 @@ export default function MeetingDetailPage() {
     }
   }
 
+  function getParsedSummary(rawSummary: string): string {
+    if (!rawSummary) return "";
+    
+    // First, check if it's strictly a JSON string (like Fathom webhook sometimes returns directly)
+    if (rawSummary.startsWith("{") && rawSummary.endsWith("}")) {
+      try {
+        const parsed = JSON.parse(rawSummary);
+        if (parsed.markdown_formatted) return parsed.markdown_formatted;
+        if (parsed.summary) return parsed.summary;
+        if (parsed.text) return parsed.text;
+      } catch (e) {
+        // If JSON.parse fails, just fall back to raw
+      }
+    }
+    
+    return rawSummary;
+  }
+
   if (loading) {
     return <div className="text-center py-12 text-muted-foreground">Loading...</div>;
   }
@@ -417,7 +435,9 @@ export default function MeetingDetailPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="prose prose-sm dark:prose-invert max-w-none">
-                  <ReactMarkdown>{meeting.summary}</ReactMarkdown>
+                  <ReactMarkdown>
+                    {getParsedSummary(meeting.summary)}
+                  </ReactMarkdown>
                 </div>
               </CardContent>
             </Card>
