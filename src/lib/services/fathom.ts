@@ -140,6 +140,18 @@ export async function registerFathomWebhook(
   webhookUrl: string,
   apiKey: string
 ): Promise<{ id: string; url: string }> {
+  // Try to list existing webhooks to avoid duplicates
+  try {
+    const existingWebhooks = await listFathomWebhooks(apiKey);
+    const existing = existingWebhooks.find((wh: any) => wh.url === webhookUrl || wh.destination_url === webhookUrl);
+    if (existing) {
+      console.log(`[Fathom Service] Webhook already exists for ${webhookUrl}`);
+      return { id: existing.id, url: existing.url || existing.destination_url };
+    }
+  } catch (err) {
+    console.warn("[Fathom Service] Failed to check existing webhooks, proceeding with registration", err);
+  }
+
   const response = await fetch(`${FATHOM_API_BASE}/webhooks`, {
     method: "POST",
     headers: {
@@ -147,8 +159,16 @@ export async function registerFathomWebhook(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      url: webhookUrl,
-      events: ["newMeeting"],
+      destination_url: webhookUrl,
+      triggered_for: [
+        "my_recordings",
+        "my_shared_with_team_recordings",
+        "shared_external_recordings"
+      ],
+      include_transcript: true,
+      include_summary: true,
+      include_action_items: false,
+      include_crm_matches: false,
     }),
   });
 
@@ -158,7 +178,7 @@ export async function registerFathomWebhook(
   }
 
   const data = await response.json();
-  return { id: data.id, url: data.url };
+  return { id: data.id, url: data.url || data.destination_url };
 }
 
 export async function deleteFathomWebhook(
@@ -180,7 +200,7 @@ export async function deleteFathomWebhook(
 
 export async function listFathomWebhooks(
   apiKey: string
-): Promise<{ id: string; url: string }[]> {
+): Promise<any[]> {
   const response = await fetch(`${FATHOM_API_BASE}/webhooks`, {
     headers: {
       "X-Api-Key": apiKey,
@@ -193,5 +213,5 @@ export async function listFathomWebhooks(
   }
 
   const data = await response.json();
-  return data.items || [];
+  return data.items || data || [];
 }
