@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { fetchFathomRecordingData, listFathomMeetings, FathomMeeting } from "@/lib/services/fathom";
+import { summarizeMeeting } from "@/lib/services/ai-summarization";
 
 export async function POST(
   request: NextRequest,
@@ -97,12 +98,28 @@ export async function POST(
     const { transcript, summary } = await fetchFathomRecordingData(fathomMeetingId, apiKey);
     console.log(`[Transcript API] Successfully fetched transcript and summary`);
 
+    const finalSummary = summary;
+    let extractedActionItems: any[] = [];
+
+    // Optionally extract action items using Groq if they don't exist yet
+    if (transcript) {
+      try {
+        console.log(`[Transcript API] Extracting action items using Groq AI...`);
+        const aiResult = await summarizeMeeting(transcript, meeting.agenda);
+        if (aiResult.actionItems?.length) {
+          extractedActionItems = aiResult.actionItems;
+        }
+      } catch (err) {
+        console.error("[Transcript API] Failed to extract AI action items:", err);
+      }
+    }
+
     // Save both transcript and summary to meeting
     const { error: updateError } = await serviceClient
       .from("meetings")
       .update({
         transcript,
-        summary
+        summary: finalSummary
       })
       .eq("id", id);
 
@@ -114,9 +131,24 @@ export async function POST(
       );
     }
 
+    // Save action items to DB if any
+    if (extractedActionItems.length > 0) {
+      const itemsToInsert = extractedActionItems.map((item) => ({
+        meeting_id: id,
+        title: item.title,
+        description: item.description,
+        assignee_name: item.assignee,
+        due_date: item.dueDate || null,
+        status: "pending"
+      }));
+
+      await serviceClient.from("action_items").insert(itemsToInsert);
+    }
+
     return NextResponse.json({
       transcript,
-      summary,
+      summary: finalSummary,
+      actionItems: extractedActionItems
     });
   } catch (error: any) {
     console.error(`[Transcript API] Error:`, error);
