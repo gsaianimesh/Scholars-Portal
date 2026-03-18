@@ -24,6 +24,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Title and date are required" }, { status: 400 });
   }
 
+  if (!googleAccessToken && !link) {
+    return NextResponse.json(
+      { error: "You must connect Google Calendar or provide a manual meeting link." },
+      { status: 400 }
+    );
+  }
+
   const serviceClient = createServiceRoleClient();
 
   const { data: currentUser } = await serviceClient

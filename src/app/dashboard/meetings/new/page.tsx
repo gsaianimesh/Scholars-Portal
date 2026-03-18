@@ -74,6 +74,19 @@ export default function NewMeetingPage() {
     setLoading(true);
     setError("");
 
+    // Validate meeting link requirement
+    if (!hasGoogleAuth && !useCustomLink) {
+      setError("Please connect your Google Calendar to auto-generate a meeting link, or select 'Meeting Link' and provide a manual URL.");
+      setLoading(false);
+      return;
+    }
+
+    if (useCustomLink && !link.trim()) {
+      setError("Please provide a valid manual meeting link.");
+      setLoading(false);
+      return;
+    }
+
     try {
       // Create date object explicitly from local parts
       const [y, m, d, h, min] = date.split(/[-T:]/).map(Number);
