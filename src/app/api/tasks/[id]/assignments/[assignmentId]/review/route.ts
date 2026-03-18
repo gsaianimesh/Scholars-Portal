@@ -82,5 +82,27 @@ export async function POST(
     });
   }
 
+  // Sync task status
+  const { data: assignments } = await serviceClient
+    .from("task_assignments")
+    .select("status")
+    .eq("task_id", params.id);
+
+  if (assignments && assignments.length > 0) {
+    const allCompleted = assignments.every(a => a.status === 'completed');
+    const allNotStarted = assignments.every(a => a.status === 'not_started');
+    const allSubmittedOrCompleted = assignments.every(a => a.status === 'submitted' || a.status === 'completed');
+
+    let newTaskStatus = 'in_progress';
+    if (allNotStarted) newTaskStatus = 'not_started';
+    else if (allCompleted) newTaskStatus = 'completed';
+    else if (allSubmittedOrCompleted) newTaskStatus = 'submitted';
+
+    await serviceClient
+      .from("tasks")
+      .update({ status: newTaskStatus })
+      .eq("id", params.id);
+  }
+
   return NextResponse.json({ success: true });
 }

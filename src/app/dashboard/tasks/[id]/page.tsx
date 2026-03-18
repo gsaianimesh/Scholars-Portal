@@ -91,6 +91,7 @@ export default function TaskDetailPage() {
 
   async function submitWork() {
     if (!myAssignment) return;
+    if (!submissionLink.trim()) return;
     await fetch(`/api/tasks/${params.id}/assignments/${myAssignment.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -111,6 +112,29 @@ export default function TaskDetailPage() {
     });
     loadTask();
   }
+
+  const getTaskStatus = () => {
+    if (!assignments || assignments.length === 0) return task?.status || 'not_started';
+    const allCompleted = assignments.every(a => a.status === 'completed');
+    const allNotStarted = assignments.every(a => a.status === 'not_started');
+    const allSubmittedOrCompleted = assignments.every(a => a.status === 'submitted' || a.status === 'completed');
+    
+    if (allNotStarted) return 'not_started';
+    if (allCompleted) return 'completed';
+    if (allSubmittedOrCompleted) return 'submitted';
+    return 'in_progress';
+  };
+
+  const computedStatus = getTaskStatus();
+
+  const isValidUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   if (loading) {
     return <div className="text-center py-12 text-muted-foreground">Loading...</div>;
@@ -133,14 +157,14 @@ export default function TaskDetailPage() {
           <div className="flex items-center gap-3 mt-1">
             <Badge
               variant={
-                task.status === "completed" || task.status === "submitted"
+                computedStatus === "completed" || computedStatus === "submitted"
                   ? "success"
-                  : task.status === "in_progress"
+                  : computedStatus === "in_progress"
                   ? "info"
                   : "secondary"
               }
             >
-              {task.status.replace("_", " ")}
+              {computedStatus.replace("_", " ")}
             </Badge>
             {task.deadline && (
               <span className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -216,10 +240,14 @@ export default function TaskDetailPage() {
                       <div className="space-y-2">
                         <Label>Submission Link (Google Drive / GitHub)</Label>
                         <Input
+                          type="url"
                           placeholder="https://drive.google.com/... or https://github.com/..."
                           value={submissionLink}
                           onChange={(e) => setSubmissionLink(e.target.value)}
                         />
+                        {submissionLink.trim() && !isValidUrl(submissionLink) && (
+                          <p className="text-[10px] text-destructive">Please enter a valid URL including http:// or https://</p>
+                        )}
                       </div>
                       <div className="space-y-2">
                         <Label>Notes</Label>
@@ -234,9 +262,19 @@ export default function TaskDetailPage() {
                       <DialogClose asChild>
                         <Button variant="outline">Cancel</Button>
                       </DialogClose>
-                      <DialogClose asChild>
-                        <Button onClick={submitWork}>Submit</Button>
-                      </DialogClose>
+                      {!submissionLink.trim() ? (
+                        <div title="Please provide a submission link to submit">
+                          <Button disabled>Submit</Button>
+                        </div>
+                      ) : !isValidUrl(submissionLink) ? (
+                        <div title="Please provide a valid URL (e.g. https://...)">
+                          <Button disabled>Submit</Button>
+                        </div>
+                      ) : (
+                        <DialogClose asChild>
+                          <Button onClick={submitWork}>Submit</Button>
+                        </DialogClose>
+                      )}
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
@@ -372,7 +410,7 @@ function AssignmentRow({
           </a>
         )}
       </div>
-      {assignment.status === "submitted" && !assignment.submission_status && (
+      {(assignment.status === "submitted" && (!assignment.submission_status || assignment.submission_status === "pending")) && (
         <Dialog>
           <DialogTrigger asChild>
             <Button size="sm" variant="outline">

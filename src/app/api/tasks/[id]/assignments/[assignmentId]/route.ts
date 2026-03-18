@@ -14,13 +14,20 @@ export async function PATCH(
   const body = await request.json();
   const { status, submissionLink, notes } = body;
 
+  if (status === "submitted" && (!submissionLink || !submissionLink.trim())) {
+    return NextResponse.json({ error: "Submission link is required" }, { status: 400 });
+  }
+
   const serviceClient = createServiceRoleClient();
 
   const updateData: any = {};
   if (status) updateData.status = status;
   if (submissionLink !== undefined) updateData.submission_link = submissionLink;
   if (notes !== undefined) updateData.notes = notes;
-  if (status === "submitted") updateData.submitted_at = new Date().toISOString();
+  if (status === "submitted") {
+    updateData.submitted_at = new Date().toISOString();
+    updateData.submission_status = "pending";
+  }
 
   const { error } = await serviceClient
     .from("task_assignments")
@@ -46,6 +53,51 @@ export async function PATCH(
       p_activity_type: activityType,
       p_description: `${currentUser.name} ${status === "submitted" ? "submitted work for" : "updated status of"} a task`,
     });
+
+    if (status === "submitted") {
+      // Notify the professor
+      const { data: assignment } = await serviceClient
+        .from("task_assignments")
+        .select(`
+          task:tasks(title, professor:professors(user_id))
+        `)
+        .eq("id", params.assignmentId)
+        .maybeSingle();
+
+      const professorUserId = (assignment?.task as any)?.professor?.user_id;
+      const taskTitle = (assignment?.task as any)?.title || "a task";
+
+      if (professorUserId) {
+        await serviceClient.rpc("create_notification", {
+          p_user_id: professorUserId,
+          p_title: "Task Submitted",
+          p_message: `${currentUser.name} submitted work for "${taskTitle}"`,
+          p_type: "task_submitted",
+        });
+      }
+    }
+  }
+
+  // Sync task status
+  const { data: assignments } = await serviceClient
+    .from("task_assignments")
+    .select("status")
+    .eq("task_id", params.id);
+
+  if (assignments && assignments.length > 0) {
+    const allCompleted = assignments.every(a => a.status === 'completed');
+    const allNotStarted = assignments.every(a => a.status === 'not_started');
+    const allSubmittedOrCompleted = assignments.every(a => a.status === 'submitted' || a.status === 'completed');
+
+    let newTaskStatus = 'in_progress';
+    if (allNotStarted) newTaskStatus = 'not_started';
+    else if (allCompleted) newTaskStatus = 'completed';
+    else if (allSubmittedOrCompleted) newTaskStatus = 'submitted';
+
+    await serviceClient
+      .from("tasks")
+      .update({ status: newTaskStatus })
+      .eq("id", params.id);
   }
 
   return NextResponse.json({ success: true });
