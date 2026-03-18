@@ -18,11 +18,13 @@ export async function GET(
     return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
   }
 
-  // Get previous meeting summary
+  // Get previous meeting summary (that actually has a summary)
   const { data: previousMeeting } = await serviceClient
     .from("meetings")
     .select("summary, meeting_title, meeting_date")
     .eq("professor_id", meeting.professor_id)
+    .not("summary", "is", null)
+    .neq("summary", "")
     .lt("meeting_date", meeting.meeting_date)
     .order("meeting_date", { ascending: false })
     .limit(1)

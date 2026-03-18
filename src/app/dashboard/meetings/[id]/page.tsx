@@ -235,13 +235,18 @@ export default function MeetingDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {meeting.meeting_link && (
+          {meeting.meeting_link ? (
             <a href={meeting.meeting_link} target="_blank" rel="noopener noreferrer">
               <Button variant="outline">
                 <Video className="h-4 w-4 mr-1" />
                 Join Meeting
               </Button>
             </a>
+          ) : (
+            <Button disabled variant="outline">
+              <Video className="h-4 w-4 mr-1" />
+              Join (No Link Added)
+            </Button>
           )}
           {!isPast && userRole !== "scholar" && (
             <>
@@ -303,7 +308,7 @@ export default function MeetingDetailPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {preMeetingContext.lastMeetingSummary && (
+            {preMeetingContext.lastMeetingSummary ? (
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Last Meeting Summary</p>
                 <div className="prose prose-sm dark:prose-invert max-w-none mt-1">
@@ -311,6 +316,13 @@ export default function MeetingDetailPage() {
                     {getParsedSummary(preMeetingContext.lastMeetingSummary)}
                   </ReactMarkdown>
                 </div>
+              </div>
+            ) : (
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Last Meeting Summary</p>
+                <p className="text-sm text-muted-foreground italic mt-1">
+                  No chronological previous meeting summary found.
+                </p>
               </div>
             )}
             {preMeetingContext.pendingTasks?.length > 0 && (
