@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient, createServiceRoleClient } from "@/lib/supabase/server";
+import { registerFathomWebhook } from "@/lib/services/fathom";
 
 export async function PATCH(request: NextRequest) {
   const supabase = createServerSupabaseClient();
@@ -33,7 +34,22 @@ export async function PATCH(request: NextRequest) {
     const updates: any = {};
     if (department !== undefined) updates.department = department;
     if (institution !== undefined) updates.institution = institution;
-    if (fathomApiKey !== undefined) updates.fathom_api_key = fathomApiKey;
+    if (fathomApiKey !== undefined) {
+      updates.fathom_api_key = fathomApiKey;
+
+      // Automatically register the webhook if they provided an API key
+      if (fathomApiKey.trim() !== "") {
+        try {
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
+          const webhookUrl = `${appUrl}/api/webhooks/fathom`;
+          console.log(`Registering Fathom Webhook for ${currentUser.id} at ${webhookUrl}`);
+          await registerFathomWebhook(webhookUrl, fathomApiKey);
+        } catch (err) {
+          console.error("Failed to register Fathom webhook:", err);
+          // Let it proceed to save the key even if webhook fails (maybe already registered)
+        }
+      }
+    }
 
     if (Object.keys(updates).length > 0) {
       const { error } = await serviceClient

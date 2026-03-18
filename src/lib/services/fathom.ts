@@ -134,3 +134,64 @@ export async function listFathomMeetings(
 
 // Keep the old type name as an alias for backwards compatibility
 export type FathomTranscript = FathomMeeting;
+
+// Webhook management functions
+export async function registerFathomWebhook(
+  webhookUrl: string,
+  apiKey: string
+): Promise<{ id: string; url: string }> {
+  const response = await fetch(`${FATHOM_API_BASE}/webhooks`, {
+    method: "POST",
+    headers: {
+      "X-Api-Key": apiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      url: webhookUrl,
+      events: ["newMeeting"],
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Fathom webhook registration failed: ${response.status} - ${errText}`);
+  }
+
+  const data = await response.json();
+  return { id: data.id, url: data.url };
+}
+
+export async function deleteFathomWebhook(
+  webhookId: string,
+  apiKey: string
+): Promise<void> {
+  const response = await fetch(`${FATHOM_API_BASE}/webhooks/${webhookId}`, {
+    method: "DELETE",
+    headers: {
+      "X-Api-Key": apiKey,
+    },
+  });
+
+  if (!response.ok && response.status !== 404) {
+    const errText = await response.text();
+    throw new Error(`Fathom webhook deletion failed: ${response.status} - ${errText}`);
+  }
+}
+
+export async function listFathomWebhooks(
+  apiKey: string
+): Promise<{ id: string; url: string }[]> {
+  const response = await fetch(`${FATHOM_API_BASE}/webhooks`, {
+    headers: {
+      "X-Api-Key": apiKey,
+    },
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Fathom webhooks list failed: ${response.status} - ${errText}`);
+  }
+
+  const data = await response.json();
+  return data.items || [];
+}

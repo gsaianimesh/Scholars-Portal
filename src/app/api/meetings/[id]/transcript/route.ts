@@ -31,16 +31,21 @@ export async function POST(
       return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
     }
 
-    // Get professor's API key
-    const { data: prof } = await serviceClient
-      .from("professors")
-      .select("fathom_api_key")
-      .eq("id", meeting.professor_id)
-      .maybeSingle();
+    // Fetch professor's API key if available
+    let apiKey = process.env.FATHOM_API_KEY;
+    if (meeting.professor_id) {
+      const { data: prof } = await serviceClient
+        .from("professors")
+        .select("fathom_api_key")
+        .eq("id", meeting.professor_id)
+        .maybeSingle();
+      if (prof?.fathom_api_key) {
+        apiKey = prof.fathom_api_key;
+      }
+    }
 
-    const apiKey = prof?.fathom_api_key;
-    if (!apiKey && !process.env.FATHOM_API_KEY) {
-      return NextResponse.json({ error: "Fathom API Key not configured for this professor" }, { status: 400 });
+    if (!apiKey) {
+      return NextResponse.json({ error: "Fathom API Key is not configured for this environment or user" }, { status: 500 });
     }
 
     let fathomMeetingId = meeting.fathom_meeting_id;

@@ -221,33 +221,31 @@ export default function SettingsPage() {
                 <div className="space-y-1">
                   <h3 className="font-medium">Fathom AI Integration</h3>
                   <p className="text-sm text-muted-foreground">
-                    Connect Fathom to automatically transcribe and summarize your meetings.
-                  </p>
-                </div>
-
-                <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800 border border-blue-100">
-                  <p className="font-semibold mb-2">Setup Instructions:</p>
-                  <ol className="list-decimal list-inside space-y-1">
-                    <li>Create a free account at <a href="https://fathom.video" target="_blank" rel="noreferrer" className="underline hover:text-blue-900">fathom.video</a>.</li>
-                    <li>Go to <a href="https://fathom.video/customize/api" target="_blank" rel="noreferrer" className="underline font-medium hover:text-blue-900">Developer Settings</a> to generate an API Key.</li>
-                    <li>Copy the secret token and paste it below.</li> 
-                  </ol>
-                  <p className="mt-2 text-xs">
-                    * Ensure you use the Fathom desktop app or Zoom integration during meetings.
+                    Connect your Fathom account to automatically sync meeting transcripts. Provide your API key below and we'll handle the rest!
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="fathomKey">Fathom API Key</Label>
+                  <Label htmlFor="fathomApiKey">Fathom API Key</Label>
                   <Input
-                    id="fathomKey"
+                    id="fathomApiKey"
                     type="password"
-                    placeholder="sk_..."
+                    placeholder="Enter your Fathom API key..."
                     value={fathomApiKey}
                     onChange={(e) => setFathomApiKey(e.target.value)}
                   />
-                  <p className="text-xs text-muted-foreground">
-                   Your key is encrypted and stored securely.
+                </div>
+
+                <div className="rounded-md bg-blue-50 p-4 text-sm text-blue-800 border border-blue-100">
+                  <p className="font-semibold mb-2">How it works:</p>
+                  <ol className="list-decimal list-inside space-y-1">
+                    <li>Provide your API key above.</li>
+                    <li>We automatically register a webhook on your account.</li>
+                    <li>Meetings are matched automatically when Fathom processes them.</li>
+                    <li>Transcripts and summaries are fetched using your key.</li>
+                  </ol>
+                  <p className="mt-2 text-xs">
+                    * Ensure you use the Fathom desktop app or Zoom integration during meetings.
                   </p>
                 </div>
               </div>

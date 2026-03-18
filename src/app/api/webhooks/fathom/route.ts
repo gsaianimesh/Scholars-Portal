@@ -82,14 +82,19 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Fathom Webhook] Matched meeting: ${matchedMeeting.id} (${matchedMeeting.meeting_title})`);
 
-    // Get professor's API key for fetching full transcript/summary
-    const { data: prof } = await serviceClient
-      .from("professors")
-      .select("fathom_api_key")
-      .eq("id", matchedMeeting.professor_id)
-      .maybeSingle();
-
-    const apiKey = prof?.fathom_api_key || process.env.FATHOM_API_KEY;
+    // Try to get the professor's API key
+    let apiKey = process.env.FATHOM_API_KEY;
+    if (matchedMeeting.professor_id) {
+      const { data: prof } = await serviceClient
+        .from("professors")
+        .select("fathom_api_key")
+        .eq("id", matchedMeeting.professor_id)
+        .maybeSingle();
+      
+      if (prof?.fathom_api_key) {
+        apiKey = prof.fathom_api_key;
+      }
+    }
 
     let transcript = "";
     let summary = "";
