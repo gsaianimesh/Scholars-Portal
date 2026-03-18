@@ -306,7 +306,11 @@ export default function MeetingDetailPage() {
             {preMeetingContext.lastMeetingSummary && (
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Last Meeting Summary</p>
-                <p className="text-sm mt-1">{preMeetingContext.lastMeetingSummary}</p>
+                <div className="prose prose-sm dark:prose-invert max-w-none mt-1">
+                  <ReactMarkdown>
+                    {getParsedSummary(preMeetingContext.lastMeetingSummary)}
+                  </ReactMarkdown>
+                </div>
               </div>
             )}
             {preMeetingContext.pendingTasks?.length > 0 && (
