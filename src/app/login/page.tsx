@@ -4,11 +4,20 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { GraduationCap, AlertTriangle } from "lucide-react";
 
 export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
 
   async function handleGoogleLogin() {
     setLoading(true);
@@ -53,7 +62,7 @@ export default function LoginPage() {
           )}
           <Button
             className="w-full"
-            onClick={handleGoogleLogin}
+            onClick={() => setShowWarning(true)}
             disabled={loading}
           >
             <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
@@ -82,6 +91,39 @@ export default function LoginPage() {
           </p>
         </CardContent>
       </Card>
+
+      <Dialog open={showWarning} onOpenChange={setShowWarning}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-yellow-500" />
+              App Verification in Progress
+            </DialogTitle>
+            <DialogDescription>
+              Scholar Portal is currently undergoing Google's app verification process. To log in, please follow these steps:
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <ol className="list-decimal pl-5 space-y-3 text-sm">
+              <li>You may see a warning screen saying <strong>"Google hasn't verified this app"</strong>. This is expected.</li>
+              <li>Click on the <strong>Advanced</strong> link at the bottom left.</li>
+              <li>Click on the link to proceed to the portal (e.g., <strong>Go to scholar-portal.com (unsafe)</strong>).</li>
+              <li>Click <strong>Continue</strong> to grant the necessary calendar permissions for scheduling meetings.</li>
+            </ol>
+            <div className="mt-4 p-3 bg-muted rounded-md text-xs text-muted-foreground">
+              We only request access to your calendar to schedule and manage research meetings seamlessly.
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowWarning(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleGoogleLogin} disabled={loading}>
+              {loading ? "Redirecting..." : "I Understand, Proceed"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
