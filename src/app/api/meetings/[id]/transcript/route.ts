@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { fetchFathomRecordingData, listFathomMeetings, FathomMeeting } from "@/lib/services/fathom";
-import { summarizeMeeting } from "@/lib/services/ai-summarization";
+import { extractActionItems } from "@/lib/services/ai-summarization";
 
 export async function POST(
   request: NextRequest,
@@ -102,10 +102,10 @@ export async function POST(
     let extractedActionItems: any[] = [];
 
     // Optionally extract action items using Groq if they don't exist yet
-    if (transcript) {
+    if (transcript || summary) {
       try {
         console.log(`[Transcript API] Extracting action items using Groq AI...`);
-        const aiResult = await summarizeMeeting(transcript, meeting.agenda, null, new Date().toISOString());
+        const aiResult = await extractActionItems(transcript, summary, meeting.agenda, new Date().toISOString());
         if (aiResult.actionItems?.length) {
           extractedActionItems = aiResult.actionItems;
         }
