@@ -100,12 +100,12 @@ export default function SignupPage() {
               App Verification in Progress
             </DialogTitle>
             <DialogDescription>
-              Scholar Portal is currently undergoing Google's app verification process. To sign up, please follow these steps:
+              Scholar Portal is currently undergoing Google&apos;s app verification process. To sign up, please follow these steps:
             </DialogDescription>
           </DialogHeader>
           <div className="py-2">
             <ol className="list-decimal pl-5 space-y-3 text-sm">
-              <li>You may see a warning screen saying <strong>"Google hasn't verified this app"</strong>. This is expected.</li>
+              <li>You may see a warning screen saying <strong>&quot;Google hasn&apos;t verified this app&quot;</strong>. This is expected.</li>
               <li>Click on the <strong>Advanced</strong> link at the bottom left.</li>
               <li>Click on the link to proceed to the portal (e.g., <strong>Go to scholar-portal.com (unsafe)</strong>).</li>
               <li>Click <strong>Continue</strong> to grant the necessary calendar permissions for scheduling meetings.</li>
