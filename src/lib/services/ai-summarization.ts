@@ -9,7 +9,7 @@ You must return a JSON object with the following structure:
       "title": "Short action item title",
       "description": "Detailed description of what needs to be done",
       "assignee": "Name of the person responsible (or 'unassigned')",
-      "dueDate": "YYYY-MM-DD or null if no deadline mentioned"
+      "dueDate": "YYYY-MM-DD or null"
     }
   ],
   "followUpTopics": ["Array of topics to revisit in the next meeting"]
@@ -21,7 +21,7 @@ Guidelines:
 - Note any deadlines or milestones discussed
 - Highlight any concerns or blockers raised
 - Be concise but thorough
-- Infer due dates from context when possible (e.g., "by next week")
+- Very Important: If a specific due date is not mentioned for an action item, you must estimate a realistic due date based on the task's severity and complexity (e.g. 1-2 days for quick tasks, 1 week for normal, 2 weeks for complex research tasks). Calculate this date relative to the Current Date provided in the prompt. Do not leave it null unless absolutely impossible.
 `;
 
 export interface MeetingSummaryResult {
@@ -39,7 +39,8 @@ export interface MeetingSummaryResult {
 export async function summarizeMeeting(
   transcript: string,
   agenda?: string | null,
-  previousSummary?: string | null
+  previousSummary?: string | null,
+  currentDateStr?: string
 ): Promise<MeetingSummaryResult> {
   const apiKey = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -53,6 +54,9 @@ export async function summarizeMeeting(
   const model = isGroq ? "llama-3.3-70b-versatile" : "gpt-4o-mini";
 
   let userContent = "";
+  if (currentDateStr) {
+    userContent += `Current Date: ${currentDateStr}\n\n`;
+  }
   if (agenda) {
     userContent += `Meeting Agenda:\n${agenda}\n\n`;
   }

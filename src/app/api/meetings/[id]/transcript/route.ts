@@ -105,7 +105,7 @@ export async function POST(
     if (transcript) {
       try {
         console.log(`[Transcript API] Extracting action items using Groq AI...`);
-        const aiResult = await summarizeMeeting(transcript, meeting.agenda);
+        const aiResult = await summarizeMeeting(transcript, meeting.agenda, null, new Date().toISOString());
         if (aiResult.actionItems?.length) {
           extractedActionItems = aiResult.actionItems;
         }
@@ -132,6 +132,7 @@ export async function POST(
     }
 
     // Save action items to DB if any
+    let autoCreatedTasks = [];
     if (extractedActionItems.length > 0) {
       const itemsToInsert = extractedActionItems.map((item) => ({
         meeting_id: id,
@@ -143,12 +144,85 @@ export async function POST(
       }));
 
       await serviceClient.from("action_items").insert(itemsToInsert);
+
+      // Auto create Tasks out of them
+      const { data: profData } = await serviceClient
+        .from("professors")
+        .select("user_id")
+        .eq("id", meeting.professor_id)
+        .single();
+      const createdBy = profData?.user_id;
+
+      // Fetch participants to assign to scholars
+      const { data: participants } = await serviceClient
+        .from("meeting_participants")
+        .select("user_id")
+        .eq("meeting_id", id);
+      
+      const userIds = participants?.map(p => p.user_id) || [];
+      let scholarsData = [];
+      if (userIds.length > 0) {
+        const { data: schData } = await serviceClient
+          .from("scholars")
+          .select("id, user_id, users(name)")
+          .in("user_id", userIds);
+        scholarsData = schData || [];
+      }
+
+      if (createdBy) {
+        for (const item of extractedActionItems) {
+          // Prepare the task
+          const taskInsert = {
+            title: item.title || "Untitled Task",
+            description: item.description || "",
+            created_by: createdBy,
+            professor_id: meeting.professor_id,
+            deadline: item.dueDate || null,
+            status: "not_started"
+          };
+          
+          const { data: insertedTask, error: taskErr } = await serviceClient
+            .from("tasks")
+            .insert(taskInsert)
+            .select()
+            .single();
+
+          if (insertedTask && !taskErr) {
+            // Assign to matched scholars, or all scholars in meeting if "unassigned" / cannot determine
+            let assignedScholars = scholarsData;
+            
+            // basic matching attempt:
+            if (item.assignee && item.assignee.toLowerCase() !== 'unassigned') {
+              const matched = scholarsData.filter(s => 
+                s.users?.name?.toLowerCase().includes(item.assignee.toLowerCase())
+              );
+              if (matched.length > 0) {
+                assignedScholars = matched;
+              }
+            }
+
+            for (const sch of assignedScholars) {
+              await serviceClient.from("task_assignments").insert({
+                task_id: insertedTask.id,
+                scholar_id: sch.id,
+                status: "not_started"
+              });
+            }
+
+            autoCreatedTasks.push({
+              ...insertedTask,
+              assignees: assignedScholars.map(s => s.users?.name).join(", ")
+            });
+          }
+        }
+      }
     }
 
     return NextResponse.json({
       transcript,
       summary: finalSummary,
-      actionItems: extractedActionItems
+      actionItems: extractedActionItems,
+      autoCreatedTasks
     });
   } catch (error: any) {
     console.error(`[Transcript API] Error:`, error);

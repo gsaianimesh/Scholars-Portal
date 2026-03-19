@@ -31,6 +31,7 @@ export default function MeetingDetailPage() {
   const [newDate, setNewDate] = useState("");
   const [rescheduling, setRescheduling] = useState(false);
   const [fathomError, setFathomError] = useState("");
+  const [autoTasks, setAutoTasks] = useState<any[]>([]);
   const router = useRouter();
   const supabase = createClient();
 
@@ -121,6 +122,10 @@ export default function MeetingDetailPage() {
         method: "POST",
       });
       if (res.ok) {
+        const data = await res.json();
+        if (data.autoCreatedTasks && data.autoCreatedTasks.length > 0) {
+          setAutoTasks(data.autoCreatedTasks);
+        }
         loadMeeting();
       } else {
         const data = await res.json();
@@ -130,6 +135,13 @@ export default function MeetingDetailPage() {
       setFathomError(err.message || "Failed to fetch transcript");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function deleteAutoTask(taskId: string) {
+    const { error } = await supabase.from("tasks").delete().eq("id", taskId);
+    if (!error) {
+      setAutoTasks(autoTasks.filter(t => t.id !== taskId));
     }
   }
 
@@ -295,6 +307,44 @@ export default function MeetingDetailPage() {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Auto-Created Tasks Dialog */}
+      <Dialog open={autoTasks.length > 0} onOpenChange={(open) => { if (!open) setAutoTasks([]); }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Automated Tasks Created</DialogTitle>
+            <DialogDescription>
+              Based on the transcript's action items, the following tasks have been automatically created and assigned. You can delete any tasks that are unnecessary.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            {autoTasks.map((t) => (
+              <div key={t.id} className="p-3 border rounded-md relative group flex justify-between items-start">
+                <div>
+                  <h4 className="font-semibold text-sm">{t.title}</h4>
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{t.description}</p>
+                  <div className="text-xs text-muted-foreground mt-2 space-y-1">
+                    <p><strong>Deadline:</strong> {t.deadline ? formatDate(t.deadline) : "Not estimated"}</p>
+                    <p><strong>Assigned to:</strong> {t.assignees || "Unassigned"}</p>
+                  </div>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-destructive h-8 w-8 p-0"
+                  onClick={() => deleteAutoTask(t.id)}
+                  title="Delete Task"
+                >
+                  <XCircle className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex justify-end">
+            <Button onClick={() => setAutoTasks([])}>Done</Button>
+          </div>
         </DialogContent>
       </Dialog>
 
