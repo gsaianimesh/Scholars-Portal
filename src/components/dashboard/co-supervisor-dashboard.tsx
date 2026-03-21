@@ -60,11 +60,6 @@ export function CoSupervisorDashboard({ userId }: CoSupervisorDashboardProps) {
       .maybeSingle();
 
     const scholarUserIds = (scholarsRes.data || []).map((s: any) => s.user_id).filter(Boolean);
-    const relevantUserIds = [userId, ...scholarUserIds];
-    if (profRes.data?.user_id) {
-      relevantUserIds.push(profRes.data.user_id);
-    }
-
     const [tasksRes, meetingsRes, activityRes] = await Promise.all([
       supabase
         .from("tasks")
@@ -82,7 +77,7 @@ export function CoSupervisorDashboard({ userId }: CoSupervisorDashboardProps) {
       supabase
         .from("activity_logs")
         .select("*, user:users(*)")
-        .in("user_id", relevantUserIds)
+        .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(10),
     ]);

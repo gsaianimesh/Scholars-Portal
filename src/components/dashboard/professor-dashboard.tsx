@@ -70,8 +70,6 @@ export function ProfessorDashboard({ userId }: ProfessorDashboardProps) {
       .eq("professor_id", prof.id);
 
     const scholarUserIds = (scholarsRes.data || []).map((s: any) => s.user_id).filter(Boolean);
-    const relevantUserIds = [userId, ...scholarUserIds];
-
     const [tasksRes, assignmentsRes, meetingsRes, activityRes] =
       await Promise.all([
         supabase
@@ -93,7 +91,7 @@ export function ProfessorDashboard({ userId }: ProfessorDashboardProps) {
         supabase
           .from("activity_logs")
           .select("*, user:users(*)")
-          .in("user_id", relevantUserIds)
+          .eq("user_id", userId)
           .order("created_at", { ascending: false })
           .limit(10),
       ]);
