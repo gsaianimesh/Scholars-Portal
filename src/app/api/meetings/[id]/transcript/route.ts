@@ -132,7 +132,7 @@ export async function POST(
     }
 
     // Save action items to DB if any
-    let autoCreatedTasks = [];
+    const autoCreatedTasks = [];
     if (extractedActionItems.length > 0) {
       const itemsToInsert = extractedActionItems.map((item) => ({
         meeting_id: id,
@@ -159,7 +159,7 @@ export async function POST(
         .select("user_id")
         .eq("meeting_id", id);
       
-      const userIds = participants?.map(p => p.user_id) || [];
+      const userIds = participants?.map((p: any) => p.user_id) || [];
       let scholarsData = [];
       if (userIds.length > 0) {
         const { data: schData } = await serviceClient
@@ -193,7 +193,7 @@ export async function POST(
             
             // basic matching attempt:
             if (item.assignee && item.assignee.toLowerCase() !== 'unassigned') {
-              const matched = scholarsData.filter(s => 
+              const matched = scholarsData.filter((s: any) => 
                 s.users?.name?.toLowerCase().includes(item.assignee.toLowerCase())
               );
               if (matched.length > 0) {
@@ -211,7 +211,7 @@ export async function POST(
 
             autoCreatedTasks.push({
               ...insertedTask,
-              assignees: assignedScholars.map(s => s.users?.name).join(", ")
+              assignees: assignedScholars.map((s: any) => s.users?.name).join(", ")
             });
           }
         }

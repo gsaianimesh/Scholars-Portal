@@ -316,7 +316,7 @@ export default function MeetingDetailPage() {
           <DialogHeader>
             <DialogTitle>Automated Tasks Created</DialogTitle>
             <DialogDescription>
-              Based on the transcript's action items, the following tasks have been automatically created and assigned. You can delete any tasks that are unnecessary.
+              Based on the transcript&apos;s action items, the following tasks have been automatically created and assigned. You can delete any tasks that are unnecessary.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">

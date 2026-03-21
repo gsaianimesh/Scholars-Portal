@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Copy, Check, Link as LinkIcon, Share2 } from "lucide-react";
+import { ArrowLeft, Copy, Check, Share2 } from "lucide-react";
 import Link from "next/link";
 
 export default function AddScholarPage() {
@@ -40,6 +40,7 @@ export default function AddScholarPage() {
       setLoading(false);
     }
     loadInviteCode();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function copyToClipboard(text: string, type: "code" | "link") {

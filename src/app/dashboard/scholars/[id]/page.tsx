@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -11,7 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { getInitials, formatDate } from "@/lib/utils";
-import { ArrowLeft, Mail, Calendar, BookOpen } from "lucide-react";
+import { ArrowLeft, Mail, Calendar } from "lucide-react";
 import Link from "next/link";
 
 export default function ScholarProfilePage() {
@@ -24,6 +24,7 @@ export default function ScholarProfilePage() {
 
   useEffect(() => {
     loadScholar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   async function loadScholar() {
