@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     .from("tasks")
     .insert({
       title,
-      description,
+      description: description || "",
       created_by: currentUser.id,
       professor_id: prof.id,
       deadline: deadline || null,

@@ -220,7 +220,8 @@ export default function MeetingDetailPage() {
         setNewTaskDeadline("");
         loadMeeting();
       } else {
-         alert("Failed to create task");
+         const errData = await res.json();
+         alert("Failed to create task: " + errData.error);
       }
     } catch (e) {
       alert("Error adding task");

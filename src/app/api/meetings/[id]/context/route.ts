@@ -18,46 +18,108 @@ export async function GET(
     return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
   }
 
-  // Get previous meeting summary (that actually has a summary)
-  const { data: previousMeeting } = await serviceClient
+  // Get participants
+  const { data: participants } = await serviceClient
+    .from("meeting_participants")
+    .select("user_id")
+    .eq("meeting_id", params.id);
+
+  const userIds = participants?.map((p: any) => p.user_id) || [];
+  
+  let scholarIds: string[] = [];
+  if (userIds.length > 0) {
+    const { data: scholars } = await serviceClient
+      .from("scholars")
+      .select("id")
+      .in("user_id", userIds);
+    if (scholars) {
+      scholarIds = scholars.map(s => s.id);
+    }
+  }
+
+  // Get previous meeting summary involving these participants
+  // Since meetings are not directly linked to scholars simply, we get the professor's last meeting 
+  // that had these users. For simplicity, let's just get the last meeting between this professor and these scholars.
+  
+  // Get all previous meetings of this professor
+  const { data: previousMeetings } = await serviceClient
     .from("meetings")
-    .select("summary, meeting_title, meeting_date")
+    .select("id, summary, meeting_title, meeting_date")
     .eq("professor_id", meeting.professor_id)
     .not("summary", "is", null)
     .neq("summary", "")
     .lt("meeting_date", meeting.meeting_date)
-    .order("meeting_date", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .order("meeting_date", { ascending: false });
 
-  // Get pending tasks
-  const { data: pendingTasks } = await serviceClient
-    .from("tasks")
-    .select("id, title, deadline")
-    .eq("professor_id", meeting.professor_id)
-    .in("status", ["not_started", "in_progress"])
-    .limit(10);
+  let previousMeeting = null;
+  
+  // Find the most recent meeting that shares at least one participant
+  if (previousMeetings && previousMeetings.length > 0 && userIds.length > 0) {
+    for (const pm of previousMeetings) {
+      const { data: pmParticipants } = await serviceClient
+        .from("meeting_participants")
+        .select("user_id")
+        .eq("meeting_id", pm.id);
+      
+      const pmUserIds = pmParticipants?.map(p => p.user_id) || [];
+      const hasOverlap = userIds.some(uid => pmUserIds.includes(uid));
+      if (hasOverlap) {
+        previousMeeting = pm;
+        break;
+      }
+    }
+  }
 
-  // Get recent submissions
-  const { data: recentSubmissions } = await serviceClient
-    .from("task_assignments")
-    .select("id, submitted_at, task:tasks(title), scholar:scholars(user:users(name))")
-    .not("submitted_at", "is", null)
-    .order("submitted_at", { ascending: false })
-    .limit(5);
+  // Fallback to the professor's last meeting if no overlap or no participants
+  if (!previousMeeting && previousMeetings && previousMeetings.length > 0) {
+     previousMeeting = previousMeetings[0];
+  }
 
-  const formattedSubmissions = recentSubmissions?.map((s: any) => ({
-    id: s.id,
-    submitted_at: s.submitted_at,
-    task_title: s.task?.title,
-    scholar_name: s.scholar?.user?.name,
-  }));
+  let pendingTasks = [];
+  let recentSubmissions = [];
+
+  // Get pending tasks & submissions for the scholars involved in this meeting
+  if (scholarIds.length > 0) {
+    const { data: assignments } = await serviceClient
+      .from("task_assignments")
+      .select("id, status, submitted_at, task_id, task:tasks(id, title, deadline), scholar:scholars(user:users(name))")
+      .in("scholar_id", scholarIds);
+
+    if (assignments) {
+      const pendingAssignments = assignments.filter(a => a.status === "not_started" || a.status === "in_progress");
+      // Map back to tasks
+      // Group by distinct tasks
+      const taskMap = new Map();
+      for (const a of pendingAssignments) {
+        if (a.task && !taskMap.has(a.task.id)) {
+           taskMap.set(a.task.id, {
+             id: a.task.id,
+             title: a.task.title,
+             deadline: a.task.deadline
+           });
+        }
+      }
+      pendingTasks = Array.from(taskMap.values()).slice(0, 10);
+
+      const submittedAssignments = assignments
+        .filter(a => a.submitted_at !== null)
+        .sort((a, b) => new Date(b.submitted_at).valueOf() - new Date(a.submitted_at).valueOf())
+        .slice(0, 5);
+
+      recentSubmissions = submittedAssignments.map(s => ({
+        id: s.id,
+        submitted_at: s.submitted_at,
+        task_title: s.task?.title,
+        scholar_name: s.scholar?.user?.name,
+      }));
+    }
+  }
 
   return NextResponse.json({
     lastMeetingSummary: previousMeeting?.summary || null,
     lastMeetingTitle: previousMeeting?.meeting_title || null,
     lastMeetingDate: previousMeeting?.meeting_date || null,
     pendingTasks: pendingTasks || [],
-    recentSubmissions: formattedSubmissions || [],
+    recentSubmissions: recentSubmissions || [],
   });
 }
