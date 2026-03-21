@@ -154,14 +154,14 @@ export type FathomTranscript = FathomMeeting;
 export async function registerFathomWebhook(
   webhookUrl: string,
   apiKey: string
-): Promise<{ id: string; url: string }> {
+): Promise<{ id: string; url: string; secret?: string }> {
   // Try to list existing webhooks to avoid duplicates
   try {
     const existingWebhooks = await listFathomWebhooks(apiKey);
     const existing = existingWebhooks.find((wh: any) => wh.url === webhookUrl || wh.destination_url === webhookUrl);
     if (existing) {
       console.log(`[Fathom Service] Webhook already exists for ${webhookUrl}`);
-      return { id: existing.id, url: existing.url || existing.destination_url };
+      return { id: existing.id, url: existing.url || existing.destination_url, secret: existing.secret };
     }
   } catch (err) {
     console.warn("[Fathom Service] Failed to check existing webhooks, proceeding with registration", err);
@@ -176,13 +176,11 @@ export async function registerFathomWebhook(
     body: JSON.stringify({
       destination_url: webhookUrl,
       triggered_for: [
-        "my_recordings",
-        "my_shared_with_team_recordings",
-        "shared_external_recordings"
+        "my_recordings"
       ],
       include_transcript: true,
       include_summary: true,
-      include_action_items: false,
+      include_action_items: true,
       include_crm_matches: false,
     }),
   });
@@ -193,7 +191,7 @@ export async function registerFathomWebhook(
   }
 
   const data = await response.json();
-  return { id: data.id, url: data.url || data.destination_url };
+  return { id: data.id, url: data.url || data.destination_url, secret: data.secret };
 }
 
 export async function deleteFathomWebhook(

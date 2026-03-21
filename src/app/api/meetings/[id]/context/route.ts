@@ -33,7 +33,7 @@ export async function GET(
       .select("id")
       .in("user_id", userIds);
     if (scholars) {
-      scholarIds = scholars.map(s => s.id);
+      scholarIds = scholars.map((s: any) => s.id);
     }
   }
 
@@ -61,8 +61,8 @@ export async function GET(
         .select("user_id")
         .eq("meeting_id", pm.id);
       
-      const pmUserIds = pmParticipants?.map(p => p.user_id) || [];
-      const hasOverlap = userIds.some(uid => pmUserIds.includes(uid));
+      const pmUserIds = pmParticipants?.map((p: any) => p.user_id) || [];
+      const hasOverlap = userIds.some((uid: any) => pmUserIds.includes(uid));
       if (hasOverlap) {
         previousMeeting = pm;
         break;
@@ -86,7 +86,7 @@ export async function GET(
       .in("scholar_id", scholarIds);
 
     if (assignments) {
-      const pendingAssignments = assignments.filter(a => a.status === "not_started" || a.status === "in_progress");
+      const pendingAssignments = assignments.filter((a: any) => a.status === "not_started" || a.status === "in_progress");
       // Map back to tasks
       // Group by distinct tasks
       const taskMap = new Map();
@@ -102,11 +102,11 @@ export async function GET(
       pendingTasks = Array.from(taskMap.values()).slice(0, 10);
 
       const submittedAssignments = assignments
-        .filter(a => a.submitted_at !== null)
-        .sort((a, b) => new Date(b.submitted_at).valueOf() - new Date(a.submitted_at).valueOf())
+        .filter((a: any) => a.submitted_at !== null)
+        .sort((a: any, b: any) => new Date(b.submitted_at).valueOf() - new Date(a.submitted_at).valueOf())
         .slice(0, 5);
 
-      recentSubmissions = submittedAssignments.map(s => ({
+      recentSubmissions = submittedAssignments.map((s: any) => ({
         id: s.id,
         submitted_at: s.submitted_at,
         task_title: s.task?.title,
