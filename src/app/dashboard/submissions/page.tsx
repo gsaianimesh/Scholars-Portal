@@ -49,15 +49,7 @@ export default function SubmissionsPage() {
           .order("submitted_at", { ascending: false });
         setSubmissions(data || []);
       }
-    } else if (appUser.is_admin) {
-      // Admins see all submissions
-      const { data } = await supabase
-        .from("task_assignments")
-        .select("*, task:tasks(*), scholar:scholars(*, user:users(*))")
-        .not("submitted_at", "is", null)
-        .order("submitted_at", { ascending: false });
-      setSubmissions(data || []);
-    } else {
+    } else if (appUser.role === "professor" || appUser.role === "co_supervisor") {
       let validScholarIds: string[] = [];
       
       if (appUser.role === 'professor') {
@@ -85,6 +77,14 @@ export default function SubmissionsPage() {
       } else {
         setSubmissions([]); // No scholars under them, so no submissions to see
       }
+    } else if (appUser.is_admin) {
+      // Admins see all submissions
+      const { data } = await supabase
+        .from("task_assignments")
+        .select("*, task:tasks(*), scholar:scholars(*, user:users(*))")
+        .not("submitted_at", "is", null)
+        .order("submitted_at", { ascending: false });
+      setSubmissions(data || []);
     }
     setLoading(false);
   }
