@@ -55,21 +55,29 @@ export async function POST(
     if (!fathomMeetingId) {
       console.log(`[Transcript API] No Fathom ID for meeting ${meeting.id}. Searching for match...`);
       try {
-        // Look for meetings starting 1 hour before scheduled time
-        const searchAfter = new Date(new Date(meeting.meeting_date).getTime() - 60 * 60 * 1000).toISOString();
+        // Look for meetings starting up to 12 hours before scheduled time
+        const searchAfter = new Date(new Date(meeting.meeting_date).getTime() - 12 * 60 * 60 * 1000).toISOString();
         const calls = await listFathomMeetings(searchAfter, apiKey);
 
         // Find the best match:
-        // 1. Time must be within +/- 30 mins of schedule
-        // 2. Title similarity is a bonus but time is key
+        // Find the Fathom call whose start time is closest to our scheduled start time
         const scheduledTime = new Date(meeting.meeting_date).getTime();
 
-        const bestMatch = calls.find((call: FathomMeeting) => {
+        let bestMatch = null;
+        let smallestDiff = Infinity;
+
+        for (const call of calls) {
           const callTime = new Date(call.date).getTime();
           const timeDiff = Math.abs(callTime - scheduledTime);
-          // 30 minute tolerance window
-          return timeDiff <= 30 * 60 * 1000;
-        });
+          
+          // Allow up to a generous 6-hour window to catch impromptu meetings
+          if (timeDiff <= 6 * 60 * 60 * 1000) {
+            if (timeDiff < smallestDiff) {
+              smallestDiff = timeDiff;
+              bestMatch = call;
+            }
+          }
+        }
 
         if (bestMatch) {
           console.log(`[Transcript API] Found Fathom match: ${bestMatch.id} (${bestMatch.title})`);

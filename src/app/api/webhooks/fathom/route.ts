@@ -49,10 +49,11 @@ export async function POST(request: NextRequest) {
 
     const serviceClient = createServiceRoleClient();
 
-    // Find matching meeting by scheduled time (within 30 min window)
-    const scheduledTime = new Date(payload.scheduled_start_time);
-    const timeWindowStart = new Date(scheduledTime.getTime() - 30 * 60 * 1000).toISOString();
-    const timeWindowEnd = new Date(scheduledTime.getTime() + 30 * 60 * 1000).toISOString();
+    // Find matching meeting by scheduled time (within a generous 6 hour window for impromptu meetings)
+    const baseTime = payload.scheduled_start_time || payload.recording_start_time || payload.created_at;
+    const scheduledTime = new Date(baseTime);
+    const timeWindowStart = new Date(scheduledTime.getTime() - 6 * 60 * 60 * 1000).toISOString();
+    const timeWindowEnd = new Date(scheduledTime.getTime() + 6 * 60 * 60 * 1000).toISOString();
 
     const { data: meetings } = await serviceClient
       .from("meetings")
@@ -63,20 +64,25 @@ export async function POST(request: NextRequest) {
     if (!meetings || meetings.length === 0) {
       console.log("[Fathom Webhook] No matching meeting found in database");
       // Still return 200 to acknowledge receipt
-      return NextResponse.json({ status: "no_match", message: "No matching meeting found" });
+      return NextResponse.json({ status: "no_match", message: "No matching meeting found within 6 hours" });
     }
 
-    // Find the best match (could match by title similarity if multiple meetings)
+    // Find the closest match in time
     let matchedMeeting = meetings[0];
-    if (meetings.length > 1) {
-      // Try to match by title
-      const titleMatch = meetings.find(
-        (m: { meeting_title?: string }) =>
-          m.meeting_title?.toLowerCase().includes(payload.title.toLowerCase()) ||
-          payload.title.toLowerCase().includes(m.meeting_title?.toLowerCase() || "")
-      );
-      if (titleMatch) {
-        matchedMeeting = titleMatch;
+    let smallestTimeDiff = Infinity;
+    
+    for (const m of meetings) {
+      const diff = Math.abs(new Date(m.meeting_date).getTime() - scheduledTime.getTime());
+      
+      // If it's a direct title match, boost its priority drastically by artificially reducing the diff
+      const isTitleMatch = m.meeting_title?.toLowerCase().includes(payload.title.toLowerCase()) || 
+                           payload.title.toLowerCase().includes(m.meeting_title?.toLowerCase() || "");
+                           
+      const finalDiff = isTitleMatch ? diff / 10 : diff;
+      
+      if (finalDiff < smallestTimeDiff) {
+        smallestTimeDiff = finalDiff;
+        matchedMeeting = m;
       }
     }
 
