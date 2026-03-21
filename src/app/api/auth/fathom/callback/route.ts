@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // Exchange code for token
-    const tokenResponse = await fetch("https://api.fathom.ai/external/v1/oauth2/token", {
+    const tokenResponse = await fetch("https://fathom.video/external/v1/oauth2/token", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",

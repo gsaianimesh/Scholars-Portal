@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   // Create state to prevent CSRF, could also embed user details if we want
   const state = user.id;
 
-  const authUrl = `https://api.fathom.ai/external/v1/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=public_api&state=${state}`;
+  const authUrl = `https://fathom.video/external/v1/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=public_api&state=${state}`;
 
   return NextResponse.redirect(authUrl);
 }
