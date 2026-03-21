@@ -173,13 +173,20 @@ export async function POST(
         .eq("meeting_id", id);
       
       const userIds = participants?.map((p: any) => p.user_id) || [];
-      let scholarsData = [];
+      let scholarsData: any[] = [];
       if (userIds.length > 0) {
         const { data: schData } = await serviceClient
           .from("scholars")
           .select("id, user_id, users(name)")
           .in("user_id", userIds);
         scholarsData = schData || [];
+      } else {
+        // Fallback: get all scholars for this professor if no participants mapped yet
+        const { data: allScholars } = await serviceClient
+          .from("scholars")
+          .select("id, user_id, users(name)")
+          .eq("professor_id", meeting.professor_id);
+        scholarsData = allScholars || [];
       }
 
       if (createdBy) {
