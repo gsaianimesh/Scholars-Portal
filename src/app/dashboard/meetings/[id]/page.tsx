@@ -118,6 +118,10 @@ export default function MeetingDetailPage() {
         method: "POST",
       });
       if (res.ok) {
+        const data = await res.json();
+        if (data.autoCreatedTasks && data.autoCreatedTasks.length > 0) {
+          setAutoTasks(data.autoCreatedTasks);
+        }
         loadMeeting();
       }
     } finally {
