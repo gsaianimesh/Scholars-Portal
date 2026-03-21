@@ -9,10 +9,10 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { title, description, deadline, expectedOutputFormat, referenceLinks, scholarIds } = body;
+  const { title, description, deadline, expectedOutputFormat, referenceLinks, scholarIds, meetingId } = body;
 
-  if (!title || !description || !scholarIds?.length) {
-    return NextResponse.json({ error: "Title, description, and at least one scholar are required" }, { status: 400 });
+  if (!title || !scholarIds?.length) {
+    return NextResponse.json({ error: "Title and at least one scholar are required" }, { status: 400 });
   }
 
   const serviceClient = createServiceRoleClient();
@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
       deadline: deadline || null,
       expected_output_format: expectedOutputFormat || null,
       reference_links: referenceLinks || null,
+      meeting_id: meetingId || null,
     })
     .select()
     .single();

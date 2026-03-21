@@ -33,6 +33,16 @@ export default function MeetingDetailPage() {
   const [rescheduling, setRescheduling] = useState(false);
   const [fathomError, setFathomError] = useState("");
   const [autoTasks, setAutoTasks] = useState<any[]>([]);
+  
+  const [showManualUpload, setShowManualUpload] = useState(false);
+  const [manualText, setManualText] = useState("");
+  const [processingManual, setProcessingManual] = useState(false);
+
+  const [isAddingTask, setIsAddingTask] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskDescription, setNewTaskDescription] = useState("");
+  const [newTaskAssignee, setNewTaskAssignee] = useState("");
+  const [newTaskDeadline, setNewTaskDeadline] = useState("");
   const router = useRouter();
   const supabase = createClient();
 
@@ -80,8 +90,8 @@ export default function MeetingDetailPage() {
         .select("*, user:users(*)")
         .eq("meeting_id", params.id),
       supabase
-        .from("action_items")
-        .select("*, assigned_user:users(*)")
+        .from("tasks")
+        .select("*, task_assignments(scholar:scholars(user:users(name)))")
         .eq("meeting_id", params.id),
     ]);
 
@@ -146,12 +156,89 @@ export default function MeetingDetailPage() {
     }
   }
 
+  async function submitManualTranscript() {
+    if (!manualText.trim()) return;
+    setProcessingManual(true);
+    setFathomError("");
+    try {
+      const res = await fetch(`/api/meetings/${params.id}/transcript`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ manualTranscript: manualText }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.autoCreatedTasks && data.autoCreatedTasks.length > 0) {
+          setAutoTasks(data.autoCreatedTasks);
+        }
+        setShowManualUpload(false);
+        setManualText("");
+        loadMeeting();
+      } else {
+        const data = await res.json();
+        setFathomError(data.error || "Failed to process manual transcript");
+      }
+    } catch (err: any) {
+      setFathomError(err.message || "Failed to process transcript");
+    } finally {
+      setProcessingManual(false);
+    }
+  }
+
+  async function handleAddTask(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newTaskTitle.trim() || !newTaskAssignee) return;
+    
+    const { data: scholar } = await supabase.from("scholars").select("id").eq("user_id", newTaskAssignee).maybeSingle();
+    const scholarIds: string[] = [];
+    if (scholar) {
+      scholarIds.push(scholar.id);
+    }
+    
+    if (scholarIds.length === 0) {
+      alert("Invalid assignee");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newTaskTitle,
+          description: newTaskDescription,
+          scholarIds,
+          meetingId: params.id,
+          deadline: newTaskDeadline || undefined,
+        }),
+      });
+      if (res.ok) {
+        setIsAddingTask(false);
+        setNewTaskTitle("");
+        setNewTaskDescription("");
+        setNewTaskAssignee("");
+        setNewTaskDeadline("");
+        loadMeeting();
+      } else {
+         alert("Failed to create task");
+      }
+    } catch (e) {
+      alert("Error adding task");
+    }
+  }
+
   async function toggleActionItem(itemId: string, currentStatus: string) {
-    const newStatus = currentStatus === "pending" ? "completed" : "pending";
+    const newStatus = currentStatus !== "completed" ? "completed" : "not_started";
     await supabase
-      .from("action_items")
+      .from("tasks")
       .update({ status: newStatus })
       .eq("id", itemId);
+    loadMeeting();
+  }
+
+  async function removeActionItem(itemId: string) {
+    if (!confirm("Are you sure you want to remove this task?")) return;
+    await supabase.from("tasks").delete().eq("id", itemId);
     loadMeeting();
   }
 
@@ -461,18 +548,30 @@ export default function MeetingDetailPage() {
                       <>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
                           <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                          Waiting for Fathom to process transcript & summary...
+                          Waiting for Fathom...
                         </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={fetchTranscript}
-                          disabled={loading}
-                        >
+                        <Button size="sm" variant="outline" onClick={fetchTranscript} disabled={loading}>
                           {loading ? "Fetching..." : "Fetch Manually"}
+                        </Button>
+                        <Button size="sm" variant="secondary" onClick={() => setShowManualUpload(!showManualUpload)}>
+                          Manual Transcript
                         </Button>
                       </>
                     )}
+                  {showManualUpload && !meeting.transcript && (
+                    <div className="mt-4 flex flex-col gap-2">
+                       <p className="text-sm text-muted-foreground font-medium">Paste Meeting Transcript</p>
+                       <textarea 
+                          value={manualText}
+                          onChange={(e) => setManualText(e.target.value)}
+                          className="w-full h-40 p-3 text-sm border rounded-md"
+                          placeholder="Paste transcript or minutes here to generate summary & tasks..."
+                       />
+                       <Button size="sm" onClick={submitManualTranscript} disabled={processingManual}>
+                          {processingManual ? "Processing..." : "Generate AI Summary & Tasks"}
+                       </Button>
+                    </div>
+                  )}
                     {meeting.transcript && !meeting.summary && (
                       <Button
                         size="sm"
@@ -550,15 +649,55 @@ export default function MeetingDetailPage() {
 
         <TabsContent value="actions" className="mt-4">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-6 space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-medium">Meeting Tasks</h3>
+                {userRole !== "scholar" && (
+                  <Button size="sm" onClick={() => setIsAddingTask(!isAddingTask)}>
+                    {isAddingTask ? "Cancel" : "Add Task"}
+                  </Button>
+                )}
+              </div>
+
+              {isAddingTask && (
+                <form onSubmit={handleAddTask} className="space-y-3 border p-4 rounded-md bg-muted/20">
+                  <div className="space-y-1">
+                    <Label htmlFor="taskTitle">Task Title</Label>
+                    <Input id="taskTitle" value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)} required placeholder="Quick description..." />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="taskDesc">Details (Optional)</Label>
+                    <textarea id="taskDesc" className="w-full text-sm p-2 border rounded-md" value={newTaskDescription} onChange={e => setNewTaskDescription(e.target.value)} rows={2} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <Label htmlFor="taskAssignee">Assign To</Label>
+                      <select id="taskAssignee" className="w-full text-sm p-2 border rounded-md" value={newTaskAssignee} onChange={e => setNewTaskAssignee(e.target.value)} required>
+                        <option value="" disabled>Select scholar...</option>
+                        {participants.filter(p => p.user?.role === "scholar").map(p => (
+                           <option key={p.user_id} value={p.user_id}>{p.user?.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="taskDeadline">Due Date (Optional)</Label>
+                      <Input id="taskDeadline" type="date" value={newTaskDeadline} onChange={e => setNewTaskDeadline(e.target.value)} />
+                    </div>
+                  </div>
+                  <Button type="submit" size="sm">Create Task</Button>
+                </form>
+              )}
+
               {actionItems.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No action items yet</p>
+                <p className="text-sm text-muted-foreground">No tasks have been created yet.</p>
               ) : (
                 <div className="space-y-3">
-                  {actionItems.map((item) => (
+                  {actionItems.map((item) => {
+                    const assigneeName = item.task_assignments?.[0]?.scholar?.user?.name || "Unknown";
+                    return (
                     <div
                       key={item.id}
-                      className="flex items-start gap-3 p-3 rounded-lg border"
+                      className="flex items-start gap-3 p-3 rounded-lg border group"
                     >
                       <button
                         onClick={() => toggleActionItem(item.id, item.status)}
@@ -573,22 +712,42 @@ export default function MeetingDetailPage() {
                         />
                       </button>
                       <div className="flex-1">
-                        <p className={`text-sm ${item.status === "completed" ? "line-through text-muted-foreground" : ""}`}>
-                          {item.description}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-muted-foreground">
-                            Assigned to: {item.assigned_user?.name || "Unknown"}
-                          </span>
-                          {item.deadline && (
-                            <span className="text-xs text-muted-foreground">
-                              · Due {formatDate(item.deadline)}
+                        <div className="flex items-center gap-2">
+                           <p className={`text-sm font-medium ${item.status === "completed" ? "line-through text-muted-foreground" : ""}`}>
+                             {item.title}
+                           </p>
+                           {item.is_auto_generated && (
+                             <span className="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Auto-generated</span>
+                           )}
+                        </div>
+                        {item.description && (
+                           <p className={`text-xs mt-1 ${item.status === "completed" ? "text-muted-foreground/50" : "text-muted-foreground"}`}>
+                              {item.description}
+                           </p>
+                        )}
+                        <div className="flex justify-between items-center mt-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground font-medium">
+                              Assigned to: {assigneeName}
                             </span>
+                            {item.deadline && (
+                              <span className="text-xs text-muted-foreground">
+                                · Due {formatDate(item.deadline)}
+                              </span>
+                            )}
+                          </div>
+                          {userRole !== "scholar" && (
+                            <button 
+                              onClick={() => removeActionItem(item.id)}
+                              className="text-xs text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              Remove
+                            </button>
                           )}
                         </div>
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
             </CardContent>
