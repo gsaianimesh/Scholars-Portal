@@ -187,7 +187,8 @@ export async function registerFathomWebhook(
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`Fathom webhook registration failed: ${response.status} - ${errText}`);
+    const cleanError = errText.includes('<!DOCTYPE html>') ? 'Fathom API Endpoint Not Found' : errText.slice(0, 100);
+    throw new Error(`Fathom webhook registration failed: ${response.status} - ${cleanError}`);
   }
 
   const data = await response.json();
@@ -222,7 +223,8 @@ export async function listFathomWebhooks(
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`Fathom webhooks list failed: ${response.status} - ${errText}`);
+    const cleanError = errText.includes('<!DOCTYPE html>') ? 'Fathom API Endpoint Not Found Configuration Error' : errText.slice(0, 100);
+    throw new Error(`Fathom webhooks list failed: ${response.status} - ${cleanError}`);
   }
 
   const data = await response.json();

@@ -45,10 +45,8 @@ export async function PATCH(request: NextRequest) {
           console.log(`Registering Fathom Webhook for ${currentUser.id} at ${webhookUrl}`);
           await registerFathomWebhook(webhookUrl, fathomApiKey);
         } catch (err: any) {
-          console.error("Failed to register Fathom webhook:", err);
-          return NextResponse.json({ 
-            error: `Profile updated, but failed to register Fathom webhook: ${err.message}. Are you on a public URL?` 
-          }, { status: 400 });
+          console.error("[Profile Update] Failed to auto-register Fathom webhook, continuing with save:", err.message);
+          // Don't block profile updates if Fathom's webhook API is unavailable (e.g. requires Team plan)
         }
       }
     }
