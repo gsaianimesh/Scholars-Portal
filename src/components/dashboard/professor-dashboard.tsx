@@ -83,7 +83,7 @@ export function ProfessorDashboard({ userId }: ProfessorDashboardProps) {
           .from("meetings")
           .select("*")
           .eq("professor_id", prof.id)
-          .gte("meeting_date", new Date().toISOString())
+          .gte("meeting_date", new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString())
           .order("meeting_date", { ascending: true })
           .limit(5),
         supabase
@@ -93,11 +93,19 @@ export function ProfessorDashboard({ userId }: ProfessorDashboardProps) {
           .limit(10),
       ]);
 
+    const nowTime = new Date().getTime();
+    const activeMeetings = (meetingsRes.data || []).filter((m: any) => {
+      if (m.status === "completed") return false;
+      const startTime = new Date(m.meeting_date).getTime();
+      const duration = m.duration_minutes || 60;
+      return nowTime < (startTime + duration * 60 * 1000);
+    }).slice(0, 5);
+
     setData({
       scholarCount: scholarsRes.data?.length || 0,
       pendingTasks: tasksRes.data?.length || 0,
       pendingSubmissions: assignmentsRes.data?.length || 0,
-      upcomingMeetings: meetingsRes.data || [],
+      upcomingMeetings: activeMeetings,
       recentActivity: activityRes.data || [],
       scholars: scholarsRes.data || [],
     });

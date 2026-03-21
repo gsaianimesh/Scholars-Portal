@@ -105,9 +105,9 @@ export async function PATCH(
   }
 
   const body = await request.json();
-  const { date } = body;
-  if (!date) {
-    return NextResponse.json({ error: "New date is required" }, { status: 400 });
+  const { date, status } = body;
+  if (!date && !status) {
+    return NextResponse.json({ error: "No fields to update provided" }, { status: 400 });
   }
 
   const serviceClient = createServiceRoleClient();
@@ -151,8 +151,8 @@ export async function PATCH(
      return NextResponse.json({ error: "Meeting not found or unauthorized" }, { status: 404 }); 
   }
 
-  // Update Google Calendar event if present
-  if (meeting.calendar_event_id && session?.provider_token) {
+  // Update Google Calendar event if present and date is updated
+  if (date && meeting.calendar_event_id && session?.provider_token) {
     try {
       await updateCalendarEvent({
         eventId: meeting.calendar_event_id,
@@ -166,9 +166,13 @@ export async function PATCH(
   }
 
   // Update DB
+  const updatePayload: any = {};
+  if (date) updatePayload.meeting_date = date;
+  if (status) updatePayload.status = status;
+
   const { data: updated, error: updateError } = await serviceClient
     .from("meetings")
-    .update({ meeting_date: date })
+    .update(updatePayload)
     .eq("id", params.id)
     .select()
     .single();
@@ -177,22 +181,24 @@ export async function PATCH(
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
-  // Notify participants about reschedule
-  const { data: participants } = await serviceClient
-    .from("meeting_participants")
-    .select("user_id")
-    .eq("meeting_id", params.id)
-    .neq("user_id", currentUser.id);
+  if (date) {
+    // Notify participants about reschedule
+    const { data: participants } = await serviceClient
+      .from("meeting_participants")
+      .select("user_id")
+      .eq("meeting_id", params.id)
+      .neq("user_id", currentUser.id);
 
-  if (participants?.length) {
-    const formattedDate = new Date(date).toLocaleString();
-    for (const p of participants) {
-      await serviceClient.rpc("create_notification", {
-        p_user_id: p.user_id,
-        p_title: "Meeting Rescheduled",
-        p_message: `The meeting "${meeting.meeting_title}" has been moved to ${formattedDate}.`,
-        p_type: "meeting_rescheduled",
-      });
+    if (participants?.length) {
+      const formattedDate = new Date(date).toLocaleString();
+      for (const p of participants) {
+        await serviceClient.rpc("create_notification", {
+          p_user_id: p.user_id,
+          p_title: "Meeting Rescheduled",
+          p_message: `The meeting "${meeting.meeting_title}" has been moved to ${formattedDate}.`,
+          p_type: "meeting_rescheduled",
+        });
+      }
     }
   }
 

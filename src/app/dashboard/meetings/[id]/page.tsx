@@ -27,6 +27,7 @@ export default function MeetingDetailPage() {
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [userRole, setUserRole] = useState("");
   const [cancelling, setCancelling] = useState(false);
+  const [completing, setCompleting] = useState(false);
   const [showReschedule, setShowReschedule] = useState(false);
   const [newDate, setNewDate] = useState("");
   const [rescheduling, setRescheduling] = useState(false);
@@ -168,6 +169,24 @@ export default function MeetingDetailPage() {
     }
   }
 
+  async function markCompleted() {
+    if (!confirm("Are you sure you want to mark this meeting as completed?")) return;
+    setCompleting(true);
+    try {
+      const res = await fetch(`/api/meetings/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "completed" }),
+      });
+      if (res.ok) {
+        setMeeting({ ...meeting, status: "completed" });
+        router.refresh();
+      }
+    } finally {
+      setCompleting(false);
+    }
+  }
+
   async function rescheduleMeeting(e: React.FormEvent) {
     e.preventDefault();
     if (!newDate) return;
@@ -222,7 +241,10 @@ export default function MeetingDetailPage() {
     return <div className="text-center py-12 text-muted-foreground">Meeting not found</div>;
   }
 
-  const isPast = new Date(meeting.meeting_date) < new Date();
+  const now = new Date().getTime();
+  const startTime = new Date(meeting.meeting_date).getTime();
+  const duration = meeting.duration_minutes || 60;
+  const isPast = meeting.status === "completed" || now >= (startTime + duration * 60 * 1000);
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -262,6 +284,10 @@ export default function MeetingDetailPage() {
           )}
           {!isPast && userRole !== "scholar" && (
             <>
+              <Button variant="outline" size="sm" onClick={markCompleted} disabled={completing}>
+                <CheckCircle className="h-4 w-4 mr-1" />
+                {completing ? "Completing..." : "Mark Done"}
+              </Button>
               <Button variant="outline" size="sm" onClick={() => setShowReschedule(true)}>
                 <CalendarClock className="h-4 w-4 mr-1" />
                 Reschedule

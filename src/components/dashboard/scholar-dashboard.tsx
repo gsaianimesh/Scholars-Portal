@@ -62,9 +62,9 @@ export function ScholarDashboard({ userId }: ScholarDashboardProps) {
         .from("meeting_participants")
         .select("*, meeting:meetings(*)")
         .eq("user_id", userId)
-        .gte("meeting.meeting_date", new Date().toISOString())
+        .gte("meeting.meeting_date", new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString())
         .order("meeting(meeting_date)", { ascending: true })
-        .limit(5),
+        .limit(10),
       supabase
         .from("task_assignments")
         .select("*, task:tasks(*)")
@@ -74,8 +74,19 @@ export function ScholarDashboard({ userId }: ScholarDashboardProps) {
         .limit(5),
     ]);
 
+    const nowTime = new Date().getTime();
+    const activeMeetings = (meetingsRes.data || [])
+      .filter((m: any) => m.meeting)
+      .filter((m: any) => {
+        if (m.meeting.status === "completed") return false;
+        const startTime = new Date(m.meeting.meeting_date).getTime();
+        const duration = m.meeting.duration_minutes || 60;
+        return nowTime < (startTime + duration * 60 * 1000);
+      })
+      .slice(0, 5);
+
     setTasks(tasksRes.data || []);
-    setMeetings(meetingsRes.data?.filter((m: any) => m.meeting) || []);
+    setMeetings(activeMeetings);
     setSubmissions(submissionsRes.data || []);
     setLoading(false);
   }

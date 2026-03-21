@@ -72,6 +72,8 @@ export interface Meeting {
   professor_id: string;
   meeting_title: string;
   meeting_date: string;
+  duration_minutes?: number;
+  status?: string;
   meeting_link?: string;
   agenda?: string;
   calendar_event_id?: string;

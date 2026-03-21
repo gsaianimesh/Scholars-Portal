@@ -73,8 +73,17 @@ export default function MeetingsPage() {
   }
 
   const now = new Date();
-  const upcoming = meetings.filter((m) => new Date(m.meeting_date) >= now);
-  const past = meetings.filter((m) => new Date(m.meeting_date) < now);
+  
+  const isPastMeeting = (m: any) => {
+    if (m.status === "completed") return true;
+    const startTime = new Date(m.meeting_date).getTime();
+    const duration = m.duration_minutes || 60;
+    const endTime = startTime + duration * 60 * 1000;
+    return now.getTime() >= endTime;
+  };
+
+  const upcoming = meetings.filter((m) => !isPastMeeting(m));
+  const past = meetings.filter((m) => isPastMeeting(m));
 
   return (
     <div className="space-y-6">
