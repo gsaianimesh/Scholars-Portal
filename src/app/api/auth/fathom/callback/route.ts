@@ -4,7 +4,9 @@ import { registerFathomWebhook } from "@/lib/services/fathom";
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
-  const state = request.nextUrl.searchParams.get("state"); // This is user.id from login
+  const stateParam = request.nextUrl.searchParams.get("state") || "";
+  const [state, returnTo] = stateParam.includes('::') ? stateParam.split('::') : [stateParam, null];
+
 
   if (!code || !state) {
     return NextResponse.redirect(new URL("/dashboard/settings?error=missing_code", request.url));
@@ -82,6 +84,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Redirect to settings page with success message
+    if (returnTo) {
+      return NextResponse.redirect(new URL(returnTo, request.url));
+    }
+    if (returnTo) {
+      return NextResponse.redirect(new URL(returnTo, request.url));
+    }
     return NextResponse.redirect(new URL("/dashboard/settings?success=fathom_connected", request.url));
 
   } catch (error: any) {

@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
   const redirectUri = `${appUrl}/api/auth/fathom/callback`;
   
   // Create state to prevent CSRF, could also embed user details if we want
-  const state = user.id;
+  const returnTo = request.nextUrl.searchParams.get('returnTo');
+  const state = returnTo ? `${user.id}::${returnTo}` : user.id;
 
   const authUrl = `https://fathom.video/external/v1/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=public_api&state=${state}`;
 
