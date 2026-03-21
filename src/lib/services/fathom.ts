@@ -164,7 +164,7 @@ export async function registerFathomWebhook(
       return { id: existing.id, url: existing.url || existing.destination_url, secret: existing.secret };
     }
   } catch (err) {
-    console.warn("[Fathom Service] Failed to check existing webhooks, proceeding with registration", err);
+    console.warn("[Fathom Service] Failed to check existing webhooks, proceeding with registration: " + (err instanceof Error ? err.message : String(err)));
   }
 
   const response = await fetch(`${FATHOM_API_BASE}/webhooks`, {
