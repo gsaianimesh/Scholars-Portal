@@ -29,7 +29,7 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   // Public routes that don't require auth
-  const publicPaths = ["/login", "/signup", "/auth/callback", "/invite", "/api/invite"];
+  const publicPaths = ["/login", "/signup", "/auth/callback", "/invite", "/api/invite", "/api/auth/fathom", "/api/webhooks"];
   const isPublicPath = publicPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );
@@ -54,7 +54,8 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && isPublicPath && !isHomePage && !request.nextUrl.pathname.startsWith("/api/invite")) {
+  const isApiWhitelisted = ["/api/invite", "/api/auth/fathom", "/api/webhooks"].some(p => request.nextUrl.pathname.startsWith(p));
+  if (user && isPublicPath && !isHomePage && !isApiWhitelisted) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
