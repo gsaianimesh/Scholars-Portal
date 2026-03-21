@@ -3,6 +3,9 @@ import { createServerSupabaseClient, createServiceRoleClient } from "@/lib/supab
 import { registerFathomWebhook } from "@/lib/services/fathom";
 
 export async function PATCH(request: NextRequest) {
+  let webhookFailed = false;
+  let manualWebhookUrl = "";
+  
   const supabase = createServerSupabaseClient();
   const { data: { user: authUser } } = await supabase.auth.getUser();
   if (!authUser) {
@@ -34,19 +37,28 @@ export async function PATCH(request: NextRequest) {
     const updates: any = {};
     if (department !== undefined) updates.department = department;
     if (institution !== undefined) updates.institution = institution;
+    
+
     if (fathomApiKey !== undefined) {
       updates.fathom_api_key = fathomApiKey;
 
-      // Automatically register the webhook if they provided an API key
       if (fathomApiKey.trim() !== "") {
-        try {
+        const { data: profData } = await serviceClient.from("professors").select("id").eq("user_id", currentUser.id).single();
+        if (profData) {
           const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
-          const webhookUrl = `${appUrl}/api/webhooks/fathom`;
-          console.log(`Registering Fathom Webhook for ${currentUser.id} at ${webhookUrl}`);
-          await registerFathomWebhook(webhookUrl, fathomApiKey);
-        } catch (err: any) {
-          console.error("[Profile Update] Failed to auto-register Fathom webhook, continuing with save:", err.message);
-          // Don't block profile updates if Fathom's webhook API is unavailable (e.g. requires Team plan)
+          const webhookUrl = `${appUrl}/api/webhooks/fathom?prof_id=${profData.id}`;
+          manualWebhookUrl = webhookUrl;
+          console.log(`Registering Fathom Webhook for ${profData.id} at ${webhookUrl}`);
+          
+          try {
+            const result = await registerFathomWebhook(webhookUrl, fathomApiKey);
+            if (result.secret) {
+              updates.fathom_webhook_secret = result.secret;
+            }
+          } catch (err: any) {
+            console.error("[Profile Update] Failed to auto-register Fathom webhook:", err.message);
+            webhookFailed = true;
+          }
         }
       }
     }
@@ -64,5 +76,5 @@ export async function PATCH(request: NextRequest) {
     }
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, webhookFailed: webhookFailed, manualWebhookUrl: manualWebhookUrl });
 }

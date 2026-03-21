@@ -73,7 +73,12 @@ export default function SettingsPage() {
       });
 
       if (res.ok) {
-        setMessage("Settings saved successfully");
+        const data = await res.json();
+        if (data.webhookFailed && data.manualWebhookUrl) {
+          setMessage(`Key Saved! But auto-configuring webhook failed (Fathom Team plan is required for APIs). To fix: In Fathom settings, go to Webhooks and manually add this URL to sync recordings: ${data.manualWebhookUrl}`);
+        } else {
+          setMessage("Settings saved successfully");
+        }
       } else {
         setMessage("Failed to save settings");
       }
