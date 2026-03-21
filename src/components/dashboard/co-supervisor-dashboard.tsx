@@ -46,12 +46,26 @@ export function CoSupervisorDashboard({ userId }: CoSupervisorDashboardProps) {
       return;
     }
 
-    const [scholarsRes, tasksRes, meetingsRes, activityRes] = await Promise.all([
-      supabase
-        .from("scholars")
-        .select("*, user:users(*)")
-        .eq("professor_id", coSup.professor_id)
-        .eq("status", "active"),
+        // Fetch scholars first to filter activity
+    const scholarsRes = await supabase
+      .from("scholars")
+      .select("*, user:users(*)")
+      .eq("professor_id", coSup.professor_id)
+      .eq("status", "active");
+
+    const profRes = await supabase
+      .from("professors")
+      .select("user_id")
+      .eq("id", coSup.professor_id)
+      .maybeSingle();
+
+    const scholarUserIds = (scholarsRes.data || []).map((s: any) => s.user_id).filter(Boolean);
+    const relevantUserIds = [userId, ...scholarUserIds];
+    if (profRes.data?.user_id) {
+      relevantUserIds.push(profRes.data.user_id);
+    }
+
+    const [tasksRes, meetingsRes, activityRes] = await Promise.all([
       supabase
         .from("tasks")
         .select("*")
@@ -68,6 +82,7 @@ export function CoSupervisorDashboard({ userId }: CoSupervisorDashboardProps) {
       supabase
         .from("activity_logs")
         .select("*, user:users(*)")
+        .in("user_id", relevantUserIds)
         .order("created_at", { ascending: false })
         .limit(10),
     ]);

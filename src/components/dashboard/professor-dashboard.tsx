@@ -62,21 +62,25 @@ export function ProfessorDashboard({ userId }: ProfessorDashboardProps) {
     }
 
     // Parallel data fetches
-    const [scholarsRes, tasksRes, assignmentsRes, meetingsRes, activityRes] =
+    
+    // Fetch scholars first so we can filter activity logs
+    const scholarsRes = await supabase
+      .from("scholars")
+      .select("*, user:users(*)")
+      .eq("professor_id", prof.id);
+
+    const scholarUserIds = (scholarsRes.data || []).map((s: any) => s.user_id).filter(Boolean);
+    const relevantUserIds = [userId, ...scholarUserIds];
+
+    const [tasksRes, assignmentsRes, meetingsRes, activityRes] =
       await Promise.all([
         supabase
-          .from("scholars")
-          .select("*, user:users(*)")
-          .eq("professor_id", prof.id)
-          .eq("status", "active"),
+          .from("tasks")
+          .select("*")
+          .eq("professor_id", prof.id),
         supabase
           .from("task_assignments")
-          .select("id, task:tasks!inner(professor_id)")
-          .eq("task.professor_id", prof.id)
-          .in("status", ["not_started", "in_progress"]),
-        supabase
-          .from("task_assignments")
-          .select("*, task:tasks!inner(*), scholar:scholars(*, user:users(*))")
+          .select("*, task:tasks(*), scholar:scholars(*, user:users(*))")
           .eq("task.professor_id", prof.id)
           .or("submission_status.eq.pending,and(submitted_at.not.is.null,submission_status.is.null)"),
         supabase
@@ -89,9 +93,11 @@ export function ProfessorDashboard({ userId }: ProfessorDashboardProps) {
         supabase
           .from("activity_logs")
           .select("*, user:users(*)")
+          .in("user_id", relevantUserIds)
           .order("created_at", { ascending: false })
           .limit(10),
       ]);
+
 
     const nowTime = new Date().getTime();
     const activeMeetings = (meetingsRes.data || []).filter((m: any) => {
