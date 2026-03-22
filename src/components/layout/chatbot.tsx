@@ -83,14 +83,14 @@ export function Chatbot() {
     <>
       {/* Floating Button with Hover Effect & Blinking Indicator */}
       {!isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-end gap-3 flex-row-reverse">
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
           {/* Help Bubble */}
           {showBubble && (
-            <div className="relative animate-in slide-in-from-right-2 duration-300 mb-2">
-              <div className="bg-background border shadow-lg rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[200px]">
+            <div className="relative animate-in slide-in-from-bottom-2 duration-300">
+              <div className="bg-background border shadow-lg rounded-2xl px-4 py-2.5 max-w-[200px]">
                 <button
                   onClick={() => setShowBubble(false)}
-                  className="absolute -top-1.5 -left-1.5 h-5 w-5 bg-muted hover:bg-destructive hover:text-destructive-foreground rounded-full flex items-center justify-center text-muted-foreground transition-colors"
+                  className="absolute -top-1.5 -right-1.5 h-5 w-5 bg-muted hover:bg-destructive hover:text-destructive-foreground rounded-full flex items-center justify-center text-muted-foreground transition-colors"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -98,8 +98,8 @@ export function Chatbot() {
                   Hey there! 👋 I&apos;m here if you need any help!
                 </p>
               </div>
-              {/* Pointer */}
-              <div className="absolute -bottom-1 right-4 w-3 h-3 bg-background border-l border-b -rotate-45 transform"></div>
+              {/* Pointer - pointing down at the bot */}
+              <div className="absolute -bottom-1.5 right-6 w-3 h-3 bg-background border-r border-b rotate-45 transform"></div>
             </div>
           )}
 
