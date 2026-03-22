@@ -32,6 +32,7 @@ export default function MeetingDetailPage() {
   const [newDate, setNewDate] = useState("");
   const [rescheduling, setRescheduling] = useState(false);
   const [fathomError, setFathomError] = useState("");
+  const [fathomConnected, setFathomConnected] = useState(true);
   const [autoTasks, setAutoTasks] = useState<any[]>([]);
   
   const [showManualUpload, setShowManualUpload] = useState(false);
@@ -98,6 +99,14 @@ export default function MeetingDetailPage() {
     setMeeting(meetingRes.data);
     setParticipants(participantsRes.data || []);
     setActionItems(actionItemsRes.data || []);
+
+    if (appUser && appUser.role === 'professor') {
+       const { data: profData } = await supabase.from('professors').select('fathom_api_key, fathom_access_token').eq('user_id', appUser.id).maybeSingle();
+       if (profData) {
+          const hasFathom = !!profData.fathom_api_key || !!profData.fathom_access_token;
+          setFathomConnected(hasFathom);
+       }
+    }
 
     // Load pre-meeting context
     if (meetingRes.data) {
@@ -546,6 +555,23 @@ export default function MeetingDetailPage() {
                 <Separator />
               )}
 
+              {isPast && userRole !== "scholar" && !meeting.transcript && !fathomConnected && (
+                <div className="mt-2 mb-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded-md p-4 space-y-2">
+                  <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 flex items-center gap-2">
+                     <Brain className="w-4 h-4" /> Connect Fathom for AI Transcripts
+                  </h4>
+                  <p className="text-sm text-blue-800 dark:text-blue-300">
+                    Connect Fathom to automatically get your meeting summaries, action items, and task assignments directly processed into this portal post-call.
+                  </p>
+                  <Button 
+                    size="sm" 
+                    className="mt-1" 
+                    onClick={() => { window.location.href = '/api/auth/fathom/login?returnTo=/dashboard/meetings/' + params.id }}
+                  >
+                    Connect Fathom
+                  </Button>
+                </div>
+              )}
               {isPast && userRole !== "scholar" && (
                 <div className="flex flex-col gap-2">
                   <div className="flex gap-2 items-center flex-wrap">
