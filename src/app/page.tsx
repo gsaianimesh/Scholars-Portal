@@ -23,7 +23,9 @@ import {
   History,
   CheckCircle2,
   Copy,
-  ShieldCheck
+  ShieldCheck,
+  MessageSquare,
+  Settings2
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -144,6 +146,104 @@ export default function LandingPage() {
                 allowFullScreen={true}
                 className="absolute top-0 left-0 w-full h-full"
               ></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Meet Lumi AI - Omnipresent Assistant */}
+      <section className="py-24 relative overflow-hidden bg-background">
+        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-gradient-to-br from-violet-500/10 via-fuchsia-500/10 to-transparent blur-[100px] rounded-full mix-blend-screen -z-10" />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Visual Chat / Lumi Representation */}
+            <div className="relative order-2 lg:order-2">
+              <div className="relative mx-auto max-w-lg">
+                <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-[2.5rem] blur-xl opacity-20 animate-pulse duration-[4000ms]" />
+                <div className="relative bg-card/90 backdrop-blur-xl border border-border shadow-2xl rounded-[2rem] p-6 lg:p-8 overflow-hidden">
+                  
+                  {/* Floating Bot Button Mockup */}
+                  <div className="absolute top-6 right-6 h-12 w-12 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-full shadow-lg flex items-center justify-center animate-bounce duration-[3000ms]">
+                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full border-2 border-white"></span>
+                    <Bot className="h-6 w-6 text-white" />
+                  </div>
+
+                  {/* Fake Chat Window Elements */}
+                  <div className="flex items-center gap-3 mb-8 pb-4 border-b border-border/50 pr-16">
+                    <div className="h-10 w-10 rounded-full bg-violet-500/10 flex items-center justify-center">
+                       <Bot className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-foreground leading-none flex items-center gap-2">
+                        Lumi <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded font-black tracking-widest uppercase border border-primary/20">AI</span>
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-1">Always active & ready</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-5">
+                    <div className="w-[85%] rounded-2xl bg-muted/60 p-4 border border-border/50 rounded-tl-sm transform transition-all hover:scale-[1.02]">
+                       <p className="text-sm font-medium text-foreground">&quot;Hey there! 👋 I&apos;m Lumi. I&apos;ve analyzed your last meeting with Alex about the dataset.&quot;</p>
+                    </div>
+                    <div className="w-[85%] ml-auto rounded-2xl bg-primary text-primary-foreground p-4 border border-primary-foreground/10 shadow-lg rounded-tr-sm transform transition-all hover:scale-[1.02]">
+                       <p className="text-sm font-medium">&quot;What were the pending action items from it?&quot;</p>
+                    </div>
+                    <div className="w-[95%] rounded-2xl bg-muted/60 p-4 border border-border/50 rounded-tl-sm transform transition-all hover:scale-[1.02]">
+                       <p className="text-sm font-medium text-foreground mb-3">&quot;Alex needs to finalize the data cleaning script by Friday. I&apos;ve already generated the task and sent a reminder!&quot;</p>
+                       <div className="flex flex-wrap gap-2">
+                          <span className="flex items-center gap-1.5 bg-background px-3 py-1.5 rounded-md text-xs font-bold shadow-sm border border-border"><CheckSquare className="h-3.5 w-3.5 text-emerald-500"/> Task Created</span>
+                          <span className="flex items-center gap-1.5 bg-background px-3 py-1.5 rounded-md text-xs font-bold shadow-sm border border-border"><Mail className="h-3.5 w-3.5 text-blue-500"/> Reminder Sent</span>
+                       </div>
+                    </div>
+                  </div>
+                  
+                  {/* Floating Toggle elements */}
+                  <div className="absolute -left-6 bottom-8 bg-background border shadow-xl rounded-xl p-3 flex items-center gap-3 transform -rotate-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 pointer-events-none">
+                     <BrainCircuit className="h-5 w-5 text-purple-500" />
+                     <div className="text-xs pr-2">
+                       <p className="font-bold">AI Tasks</p>
+                       <p className="text-muted-foreground scale-90 origin-left">Auto-Generate</p>
+                     </div>
+                     <div className="w-8 h-4 rounded-full bg-primary relative">
+                        <div className="absolute right-0.5 top-[1.5px] w-3 h-3 rounded-full bg-white shadow-sm" />
+                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Text Content */}
+            <div className="space-y-8 order-1 lg:order-1">
+              <div className="inline-flex items-center gap-2 rounded-full bg-violet-500/10 px-4 py-1.5 text-sm font-medium text-violet-600 dark:text-violet-400 border border-violet-500/20 shadow-sm">
+                <Sparkles className="h-4 w-4" /> Say Hello to Lumi
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight">
+                Your Omnipresent <br/>Lab Co-Pilot.
+              </h2>
+              <p className="text-xl text-muted-foreground leading-relaxed">
+                Available everywhere via a floating bubble, Lumi is an interactive AI that perfectly understands your entire lab&apos;s context. Ask about pending student tasks, past meeting discussions, or scholar progress, and get instant, intelligent answers.
+              </p>
+              
+              <div className="space-y-6 pt-4">
+                <div className="flex gap-4">
+                  <div className="h-12 w-12 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0">
+                    <MessageSquare className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <div>
+                    <strong className="block text-foreground font-bold mb-1 text-lg">Conversational Intelligence</strong>
+                    <span className="text-muted-foreground leading-relaxed">Lumi isn&apos;t just a script—it actually researches your existing database to answer personalized queries about your workflow.</span>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
+                    <Settings2 className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div>
+                    <strong className="block text-foreground font-bold mb-1 text-lg">Total Automation Control</strong>
+                    <span className="text-muted-foreground leading-relaxed">You stay entirely in control. Toggle automatic meeting syncing, AI task generation, or email notifications explicitly on or off from your settings.</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
