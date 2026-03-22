@@ -95,7 +95,7 @@ export function Chatbot() {
                   <X className="h-3 w-3" />
                 </button>
                 <p className="text-xs font-medium text-foreground">
-                  Hey there! 👋 I'm here if you need any help!
+                  Hey there! 👋 I&apos;m here if you need any help!
                 </p>
               </div>
               {/* Pointer */}
