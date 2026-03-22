@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Copy, Check, Link as LinkIcon } from "lucide-react";
+import { Copy, Check, Link as LinkIcon, Zap, Brain, ListChecks, Bell } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
 export default function SettingsPage() {
@@ -299,6 +299,96 @@ export default function SettingsPage() {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Automation Settings for Professors */}
+      {role === "professor" && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Zap className="h-4 w-4 text-yellow-500" />
+              Automation Settings
+            </CardTitle>
+            <CardDescription>
+              Configure automated features powered by Lumi AI
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-start gap-3">
+                <Brain className="h-5 w-5 text-purple-500 mt-0.5" />
+                <div>
+                  <Label className="font-medium">AI Meeting Insights</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Generate pre-meeting briefings and talking points automatically
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={aiInsights}
+                onCheckedChange={setAiInsights}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-start gap-3">
+                <ListChecks className="h-5 w-5 text-green-500 mt-0.5" />
+                <div>
+                  <Label className="font-medium">Auto-Generate Tasks</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Automatically create tasks from meeting action items
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={autoTaskGen}
+                onCheckedChange={setAutoTaskGen}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-start gap-3">
+                <LinkIcon className="h-5 w-5 text-blue-500 mt-0.5" />
+                <div>
+                  <Label className="font-medium">Auto Meeting Sync</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Automatically sync meetings from Fathom when available
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={autoMeetingSync}
+                onCheckedChange={setAutoMeetingSync}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-start gap-3">
+                <Bell className="h-5 w-5 text-orange-500 mt-0.5" />
+                <div>
+                  <Label className="font-medium">Email Notifications</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Receive email updates about tasks and meetings
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={emailNotifs}
+                onCheckedChange={setEmailNotifs}
+              />
+            </div>
+
+            <div className="rounded-md bg-purple-50 dark:bg-purple-900/20 p-4 text-sm text-purple-800 dark:text-purple-200 border border-purple-100 dark:border-purple-800">
+              <p className="font-semibold mb-1 flex items-center gap-1.5">
+                <Zap className="h-4 w-4" /> Powered by Lumi AI
+              </p>
+              <p className="text-purple-700 dark:text-purple-300">
+                These features use AI to help you manage your research lab more efficiently.
+                Automation settings are saved automatically.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

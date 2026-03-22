@@ -55,20 +55,153 @@ export async function POST(req: Request) {
       }
     }
 
+    const isProfessor = appUser.role === "professor";
+
+    // Different system prompts for professors vs scholars
     const systemPrompt = {
       role: "system",
-      content: `You are Lumi, a brilliant and friendly AI lab assistant for Researchify.
-You have tools to BOTH create AND retrieve data. Use them appropriately:
-- When user asks to CREATE a task or schedule a meeting: use create_task or schedule_meeting tools.
-- When user asks about their EXISTING meetings, schedule, or calendar: use get_meetings tool.
-- When user asks about their EXISTING tasks, assignments, or to-dos: use get_tasks tool.
+      content: isProfessor
+        ? `You are Lumi, a brilliant and friendly AI lab assistant for Researchify.
 
-IMPORTANT: Always use the appropriate tool instead of guessing or saying you don't have access. If the user asks "show my meetings" or "what meetings do I have", you MUST call get_meetings.
+You help professors manage their research lab. You have tools to create AND retrieve data.
 
-For professors, you can assign tasks to scholars using their IDs. Available Scholars:\n${scholarOptionsStr || "None"}.
-For scholars, the task or meeting is assigned to themselves or their professor.
-Be extremely brief. Confirm success via text after any tool is called.`
+CREATING TASKS:
+When a professor wants to create a task, ALWAYS ask for these details BEFORE creating:
+1. Task title (required)
+2. Description/details (ask what the task involves)
+3. Who to assign it to (show available scholars: ${scholarOptionsStr || "None"})
+4. Deadline (optional but recommended)
+
+Only call create_task AFTER you have gathered sufficient information. Don't create tasks with just a title.
+
+CREATING MEETINGS:
+When scheduling a meeting, ask for:
+1. Meeting title
+2. Date and time
+3. Duration (default 60 mins)
+4. Agenda (optional)
+
+RETRIEVING DATA:
+- Use get_meetings when they ask about their schedule/meetings
+- Use get_tasks when they ask about tasks/assignments
+
+Available Scholars: ${scholarOptionsStr || "None"}
+
+Be friendly, helpful, and confirm actions after completing them.`
+        : `You are Lumi, a friendly AI assistant for Researchify.
+
+You help scholars track their work. You can ONLY view information - you cannot create tasks or meetings.
+
+When a scholar asks to create a task or meeting, politely explain that only professors can create tasks and meetings. Suggest they contact their professor instead.
+
+WHAT YOU CAN DO:
+- Use get_meetings to show their upcoming meetings
+- Use get_tasks to show their assigned tasks and deadlines
+- Answer questions about their schedule and workload
+
+Be supportive and helpful!`
     };
+
+    // Define tools based on user role
+    const scholarTools = [
+      {
+        type: "function",
+        function: {
+          name: "get_meetings",
+          description: "Retrieves upcoming meetings the scholar is invited to.",
+          parameters: {
+            type: "object",
+            properties: {
+              limit: { type: "number", description: "Maximum number of meetings to return (default 5)" }
+            },
+            required: []
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "get_tasks",
+          description: "Retrieves tasks assigned to the scholar.",
+          parameters: {
+            type: "object",
+            properties: {
+              status: { type: "string", description: "Filter by status: not_started, in_progress, completed, submitted (optional)" },
+              limit: { type: "number", description: "Maximum number of tasks to return (default 10)" }
+            },
+            required: []
+          }
+        }
+      }
+    ];
+
+    const professorTools = [
+      {
+        type: "function",
+        function: {
+          name: "create_task",
+          description: "Creates a new task. Only call this after gathering all details from the professor.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "The title of the task" },
+              description: { type: "string", description: "Detailed task description" },
+              scholar_id: { type: "string", description: "The ID of the scholar to assign this to" },
+              deadline: { type: "string", description: "Deadline in ISO format (optional)" }
+            },
+            required: ["title", "description"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "schedule_meeting",
+          description: "Creates a new meeting. Only call this after gathering all details.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Title of the meeting" },
+              date: { type: "string", description: "Date/Time in ISO format" },
+              duration_minutes: { type: "number", description: "Duration in minutes (default 60)" },
+              agenda: { type: "string", description: "Meeting agenda" }
+            },
+            required: ["title", "date"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "get_meetings",
+          description: "Retrieves upcoming meetings from the database.",
+          parameters: {
+            type: "object",
+            properties: {
+              limit: { type: "number", description: "Maximum number of meetings to return (default 5)" }
+            },
+            required: []
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "get_tasks",
+          description: "Retrieves tasks from the database.",
+          parameters: {
+            type: "object",
+            properties: {
+              status: { type: "string", description: "Filter by status: not_started, in_progress, completed, submitted (optional)" },
+              limit: { type: "number", description: "Maximum number of tasks to return (default 10)" }
+            },
+            required: []
+          }
+        }
+      }
+    ];
+
+    const tools = isProfessor ? professorTools : scholarTools;
 
     const apiKey = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY;
     const isGroq = !!process.env.GROQ_API_KEY;
@@ -88,70 +221,7 @@ Be extremely brief. Confirm success via text after any tool is called.`
         messages: [systemPrompt, ...messages],
         temperature: 0.5,
         max_tokens: 500,
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "create_task",
-              description: "Creates a new task in the database.",
-              parameters: {
-                type: "object",
-                properties: {
-                  title: { type: "string", description: "The title of the task" },
-                  description: { type: "string", description: "Task details" },
-                  scholar_id: { type: "string", description: "The ID of the scholar this belongs to. If scholar, leave empty (auto resolved)" }
-                },
-                required: ["title"]
-              }
-            }
-          },
-          {
-            type: "function",
-            function: {
-              name: "schedule_meeting",
-              description: "Creates a new meeting.",
-              parameters: {
-                type: "object",
-                properties: {
-                  title: { type: "string", description: "Title of the meeting" },
-                  date: { type: "string", description: "Date/Time in ISO format" },
-                  duration_minutes: { type: "number", description: "Duration in minutes (default 60)" },
-                  agenda: { type: "string", description: "Meeting agenda (optional)" }
-                },
-                required: ["title", "date"]
-              }
-            }
-          },
-          {
-            type: "function",
-            function: {
-              name: "get_meetings",
-              description: "Retrieves upcoming meetings from the database. Use this when user asks about their meetings, schedule, or calendar.",
-              parameters: {
-                type: "object",
-                properties: {
-                  limit: { type: "number", description: "Maximum number of meetings to return (default 5)" }
-                },
-                required: []
-              }
-            }
-          },
-          {
-            type: "function",
-            function: {
-              name: "get_tasks",
-              description: "Retrieves tasks from the database. Use this when user asks about their tasks, assignments, or to-dos.",
-              parameters: {
-                type: "object",
-                properties: {
-                  status: { type: "string", description: "Filter by status: not_started, in_progress, completed, submitted (optional)" },
-                  limit: { type: "number", description: "Maximum number of tasks to return (default 10)" }
-                },
-                required: []
-              }
-            }
-          }
-        ],
+        tools,
         tool_choice: "auto"
       }),
     });
@@ -163,25 +233,46 @@ Be extremely brief. Confirm success via text after any tool is called.`
       let responseText = "Action completed successfully!";
       for (const toolCall of msg.tool_calls) {
         if (toolCall.function.name === "create_task") {
+          // Only professors can create tasks
+          if (!isProfessor) {
+            responseText = "Sorry, only professors can create tasks. Please contact your professor to create tasks for you.";
+            continue;
+          }
+
           const args = JSON.parse(toolCall.function.arguments);
-          const targetScholarId = args.scholar_id || scholarId;
-          
+          const targetScholarId = args.scholar_id || null;
+
           if (profId) {
-            const { data: tData } = await supabase.from("tasks").insert({
+            const taskData: any = {
                title: args.title,
                description: args.description || "",
                professor_id: profId,
                created_by: appUser.id
-            }).select().single();
-            
-            if (tData && targetScholarId) {
+            };
+
+            // Add deadline if provided
+            if (args.deadline) {
+              taskData.deadline = new Date(args.deadline).toISOString();
+            }
+
+            const { data: tData, error } = await supabase.from("tasks").insert(taskData).select().single();
+
+            if (error) {
+              responseText = `Sorry, I couldn't create the task: ${error.message}`;
+            } else if (tData && targetScholarId) {
                await supabase.from("task_assignments").insert({ task_id: tData.id, scholar_id: targetScholarId });
-               responseText = `Task "**${args.title}**" has been created.`;
+               responseText = `Task "**${args.title}**" has been created and assigned successfully!`;
             } else if (tData) {
-               responseText = `Global Task "**${args.title}**" has been created for your domain.`;
+               responseText = `Task "**${args.title}**" has been created. You can assign it to scholars from the Tasks page.`;
             }
           }
         } else if (toolCall.function.name === "schedule_meeting") {
+          // Only professors can schedule meetings
+          if (!isProfessor) {
+            responseText = "Sorry, only professors can schedule meetings. Please contact your professor to schedule a meeting.";
+            continue;
+          }
+
           const args = JSON.parse(toolCall.function.arguments);
           if (profId) {
              const dt = new Date(args.date);
@@ -202,7 +293,9 @@ Be extremely brief. Confirm success via text after any tool is called.`
         } else if (toolCall.function.name === "get_meetings") {
           const args = JSON.parse(toolCall.function.arguments);
           const limit = args.limit || 5;
-          if (profId) {
+
+          if (isProfessor && profId) {
+             // Professor: get all their meetings
              const { data: meetings, error } = await supabase
                .from("meetings")
                .select("id, meeting_title, meeting_date, duration_minutes, agenda, meeting_link")
@@ -222,13 +315,47 @@ Be extremely brief. Confirm success via text after any tool is called.`
                }).join("\n");
                responseText = `Here are your upcoming meetings:\n\n${meetingList}`;
              }
+          } else if (scholarId) {
+             // Scholar: get meetings they are invited to
+             const { data: participations } = await supabase
+               .from("meeting_participants")
+               .select("meeting_id")
+               .eq("user_id", appUser.id);
+
+             const meetingIds = participations?.map((p: any) => p.meeting_id) || [];
+
+             if (meetingIds.length === 0) {
+               responseText = "You don't have any upcoming meetings scheduled.";
+             } else {
+               const { data: meetings, error } = await supabase
+                 .from("meetings")
+                 .select("id, meeting_title, meeting_date, duration_minutes")
+                 .in("id", meetingIds)
+                 .gte("meeting_date", new Date().toISOString())
+                 .order("meeting_date", { ascending: true })
+                 .limit(limit);
+
+               if (error) {
+                 responseText = `Sorry, I couldn't fetch meetings: ${error.message}`;
+               } else if (!meetings || meetings.length === 0) {
+                 responseText = "You don't have any upcoming meetings scheduled.";
+               } else {
+                 const meetingList = meetings.map((m: any) => {
+                   const date = new Date(m.meeting_date);
+                   return `- **${m.meeting_title}** on ${date.toLocaleDateString()} at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                 }).join("\n");
+                 responseText = `Here are your upcoming meetings:\n\n${meetingList}`;
+               }
+             }
           } else {
-            responseText = "I couldn't find your professor profile to fetch meetings.";
+            responseText = "I couldn't find your profile to fetch meetings.";
           }
         } else if (toolCall.function.name === "get_tasks") {
           const args = JSON.parse(toolCall.function.arguments);
           const limit = args.limit || 10;
-          if (profId) {
+
+          if (isProfessor && profId) {
+             // Professor: get all tasks in their domain
              let query = supabase
                .from("tasks")
                .select("id, title, description, status, deadline, created_at")
@@ -254,6 +381,35 @@ Be extremely brief. Confirm success via text after any tool is called.`
                  return `- **${t.title}** [${t.status}]${deadlineStr}`;
                }).join("\n");
                responseText = `Here are your tasks:\n\n${taskList}`;
+             }
+          } else if (scholarId) {
+             // Scholar: get their assigned tasks
+             let query = supabase
+               .from("task_assignments")
+               .select("id, status, task:tasks(id, title, description, deadline)")
+               .eq("scholar_id", scholarId)
+               .order("id", { ascending: false })
+               .limit(limit);
+
+             if (args.status) {
+               query = query.eq("status", args.status);
+             }
+
+             const { data: assignments, error } = await query;
+
+             if (error) {
+               responseText = `Sorry, I couldn't fetch tasks: ${error.message}`;
+             } else if (!assignments || assignments.length === 0) {
+               responseText = args.status
+                 ? `You don't have any tasks with status "${args.status}".`
+                 : "You don't have any assigned tasks yet.";
+             } else {
+               const taskList = assignments.map((a: any) => {
+                 const t = a.task;
+                 const deadlineStr = t?.deadline ? ` (due: ${new Date(t.deadline).toLocaleDateString()})` : "";
+                 return `- **${t?.title || "Untitled"}** [${a.status}]${deadlineStr}`;
+               }).join("\n");
+               responseText = `Here are your assigned tasks:\n\n${taskList}`;
              }
           } else {
             responseText = "I couldn't find your profile to fetch tasks.";
