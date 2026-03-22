@@ -34,6 +34,8 @@ export default function MeetingDetailPage() {
   const [fathomError, setFathomError] = useState("");
   const [fathomConnected, setFathomConnected] = useState(true);
   const [autoTasks, setAutoTasks] = useState<any[]>([]);
+  const [fetchingTranscript, setFetchingTranscript] = useState(false);
+  const [actionItemsGenerated, setActionItemsGenerated] = useState(false);
   
   const [showManualUpload, setShowManualUpload] = useState(false);
   const [manualText, setManualText] = useState("");
@@ -122,6 +124,7 @@ export default function MeetingDetailPage() {
 
   async function generateSummary() {
     setGeneratingSummary(true);
+    setActionItemsGenerated(false);
     try {
       const res = await fetch(`/api/meetings/${params.id}/summarize`, {
         method: "POST",
@@ -130,6 +133,7 @@ export default function MeetingDetailPage() {
         const data = await res.json();
         if (data.autoCreatedTasks && data.autoCreatedTasks.length > 0) {
           setAutoTasks(data.autoCreatedTasks);
+          setActionItemsGenerated(true);
         }
         loadMeeting();
       }
@@ -140,7 +144,8 @@ export default function MeetingDetailPage() {
 
   async function fetchTranscript() {
     setFathomError("");
-    setLoading(true); // Using loading (or specific loading state)
+    setFetchingTranscript(true);
+    setActionItemsGenerated(false);
     try {
       const res = await fetch(`/api/meetings/${params.id}/transcript`, {
         method: "POST",
@@ -149,6 +154,7 @@ export default function MeetingDetailPage() {
         const data = await res.json();
         if (data.autoCreatedTasks && data.autoCreatedTasks.length > 0) {
           setAutoTasks(data.autoCreatedTasks);
+          setActionItemsGenerated(true);
         }
         loadMeeting();
       } else {
@@ -158,7 +164,7 @@ export default function MeetingDetailPage() {
     } catch (err: any) {
       setFathomError(err.message || "Failed to fetch transcript");
     } finally {
-      setLoading(false);
+      setFetchingTranscript(false);
     }
   }
 
@@ -173,6 +179,7 @@ export default function MeetingDetailPage() {
     if (!manualText.trim()) return;
     setProcessingManual(true);
     setFathomError("");
+    setActionItemsGenerated(false);
     try {
       const res = await fetch(`/api/meetings/${params.id}/transcript`, {
         method: "POST",
@@ -183,6 +190,7 @@ export default function MeetingDetailPage() {
         const data = await res.json();
         if (data.autoCreatedTasks && data.autoCreatedTasks.length > 0) {
           setAutoTasks(data.autoCreatedTasks);
+          setActionItemsGenerated(true);
         }
         setShowManualUpload(false);
         setManualText("");
@@ -447,9 +455,12 @@ export default function MeetingDetailPage() {
       <Dialog open={autoTasks.length > 0} onOpenChange={(open) => { if (!open) setAutoTasks([]); }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Automated Tasks Created</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              Action Items Generated Successfully!
+            </DialogTitle>
             <DialogDescription>
-              Based on the transcript&apos;s action items, the following tasks have been automatically created and assigned. You can delete any tasks that are unnecessary.
+              Based on the transcript, the following tasks have been automatically created and assigned. You can delete any that aren&apos;t needed or mark them as auto-generated.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
@@ -609,15 +620,40 @@ export default function MeetingDetailPage() {
               )}
               {isPast && userRole !== "scholar" && (
                 <div className="flex flex-col gap-2">
+                  {/* Loading Overlay for Fetching Transcript */}
+                  {fetchingTranscript && (
+                    <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg flex items-center gap-3">
+                      <div className="h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                      <div>
+                        <p className="text-sm font-medium text-primary">Fetching data from Fathom...</p>
+                        <p className="text-xs text-muted-foreground">This may take a moment. We&apos;ll generate action items automatically.</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Success Message */}
+                  {actionItemsGenerated && !fetchingTranscript && !generatingSummary && (
+                    <div className="p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 rounded-lg flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <div>
+                        <p className="text-sm font-medium text-green-800 dark:text-green-200">Action items generated successfully!</p>
+                        <p className="text-xs text-green-700 dark:text-green-300">Check the &quot;Action Items&quot; tab to review and manage them.</p>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => setActionItemsGenerated(false)} className="ml-auto">
+                        <XCircle className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+
                   <div className="flex gap-2 items-center flex-wrap">
-                    {!meeting.transcript && (
+                    {!meeting.transcript && !fetchingTranscript && (
                       <>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
                           <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                           Waiting for Fathom...
                         </div>
-                        <Button size="sm" variant="outline" onClick={fetchTranscript} disabled={loading}>
-                          {loading ? "Fetching..." : "Fetch Manually"}
+                        <Button size="sm" variant="outline" onClick={fetchTranscript} disabled={fetchingTranscript}>
+                          Fetch Manually
                         </Button>
                         <Button size="sm" variant="secondary" onClick={() => setShowManualUpload(!showManualUpload)}>
                           Manual Transcript

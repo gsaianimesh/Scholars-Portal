@@ -52,8 +52,10 @@ export function Chatbot() {
   };
 
   const quickActions = [
-    { label: "Create a Task", icon: <CheckSquare className="w-3 h-3" />, prompt: "Can you create a new task titled 'Literature Review Update' assigned to my scholars due next week?" },
-    { label: "Schedule Meeting", icon: <Calendar className="w-3 h-3" />, prompt: "Schedule a Weekly Sync meeting for tomorrow at 2 PM." }
+    { label: "Show Meetings", icon: <Calendar className="w-3 h-3" />, prompt: "Show me my upcoming meetings" },
+    { label: "Show Tasks", icon: <CheckSquare className="w-3 h-3" />, prompt: "What are my current tasks?" },
+    { label: "Create a Task", icon: <CheckSquare className="w-3 h-3" />, prompt: "Create a new task" },
+    { label: "Schedule Meeting", icon: <Calendar className="w-3 h-3" />, prompt: "Schedule a new meeting" }
   ];
 
   return (
