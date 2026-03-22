@@ -160,7 +160,7 @@ export default function LandingPage() {
             <div className="relative order-2 lg:order-2">
               <div className="relative mx-auto max-w-lg">
                 <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-[2.5rem] blur-xl opacity-20 animate-pulse duration-[4000ms]" />
-                <div className="relative bg-card/90 backdrop-blur-xl border border-border shadow-2xl rounded-[2rem] p-6 lg:p-8 overflow-hidden">
+                  <div className="relative bg-card/90 backdrop-blur-xl border border-border shadow-2xl rounded-[2rem] p-6 lg:p-8">
                   
                   {/* Floating Bot Button Mockup */}
                   <div className="absolute top-6 right-6 h-12 w-12 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-full shadow-lg flex items-center justify-center animate-bounce duration-[3000ms]">
@@ -198,7 +198,7 @@ export default function LandingPage() {
                   </div>
                   
                   {/* Floating Toggle elements */}
-                  <div className="absolute -left-6 bottom-8 bg-background border shadow-xl rounded-xl p-3 flex items-center gap-3 transform -rotate-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 pointer-events-none">
+                    <div className="absolute -left-6 -bottom-6 bg-background border shadow-xl rounded-xl p-3 flex items-center gap-3 transform -rotate-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 pointer-events-none z-10">
                      <BrainCircuit className="h-5 w-5 text-purple-500" />
                      <div className="text-xs pr-2">
                        <p className="font-bold">AI Tasks</p>
