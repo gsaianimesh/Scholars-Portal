@@ -13,7 +13,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { GraduationCap, AlertTriangle } from "lucide-react";
-import { Chatbot } from "@/components/layout/chatbot";
 
 export default function LoginPage() {
   const [error, setError] = useState("");
@@ -125,8 +124,6 @@ export default function LoginPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <Chatbot />
     </div>
   );
 }
