@@ -11,7 +11,8 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { getInitials, formatDateTime, formatDate } from "@/lib/utils";
 import { ArrowLeft, Calendar, Video, FileText, Users, Brain, CheckCircle, XCircle, CalendarClock, Clock } from "lucide-react";
 import Link from "next/link";
@@ -46,6 +47,13 @@ export default function MeetingDetailPage() {
   const [newTaskDescription, setNewTaskDescription] = useState("");
   const [newTaskAssignee, setNewTaskAssignee] = useState("");
   const [newTaskDeadline, setNewTaskDeadline] = useState("");
+
+  // Confirmation dialog states
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showCompleteConfirm, setShowCompleteConfirm] = useState(false);
+  const [showRemoveTaskConfirm, setShowRemoveTaskConfirm] = useState(false);
+  const [taskToRemove, setTaskToRemove] = useState<string | null>(null);
+
   const router = useRouter();
   const supabase = createClient();
 
@@ -259,13 +267,22 @@ export default function MeetingDetailPage() {
   }
 
   async function removeActionItem(itemId: string) {
-    if (!confirm("Are you sure you want to remove this task?")) return;
-    await supabase.from("tasks").delete().eq("id", itemId);
-    loadMeeting();
+    try {
+      const res = await fetch(`/api/tasks/${itemId}`, { method: "DELETE" });
+      if (res.ok) {
+        setActionItems(actionItems.filter(t => t.id !== itemId));
+      } else {
+        const data = await res.json();
+        alert("Failed to delete task: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      alert("Failed to delete task");
+    }
+    setTaskToRemove(null);
+    setShowRemoveTaskConfirm(false);
   }
 
   async function cancelMeeting() {
-    if (!confirm("Are you sure you want to cancel this meeting? This cannot be undone.")) return;
     setCancelling(true);
     try {
       const res = await fetch(`/api/meetings/${params.id}`, { method: "DELETE" });
@@ -275,11 +292,11 @@ export default function MeetingDetailPage() {
       }
     } finally {
       setCancelling(false);
+      setShowCancelConfirm(false);
     }
   }
 
   async function markCompleted() {
-    if (!confirm("Are you sure you want to mark this meeting as completed?")) return;
     setCompleting(true);
     try {
       const res = await fetch(`/api/meetings/${params.id}`, {
@@ -293,6 +310,7 @@ export default function MeetingDetailPage() {
       }
     } finally {
       setCompleting(false);
+      setShowCompleteConfirm(false);
     }
   }
 
@@ -398,7 +416,7 @@ export default function MeetingDetailPage() {
             )}
             {!isPast && userRole !== "scholar" && (
               <>
-                <Button variant="outline" size="sm" onClick={markCompleted} disabled={completing}>
+                <Button variant="outline" size="sm" onClick={() => setShowCompleteConfirm(true)} disabled={completing}>
                   <CheckCircle className="h-4 w-4 mr-1" />
                   {completing ? "Completing..." : "Mark Done"}
                 </Button>
@@ -409,7 +427,7 @@ export default function MeetingDetailPage() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={cancelMeeting}
+                  onClick={() => setShowCancelConfirm(true)}
                   disabled={cancelling}
                 >
                   <XCircle className="h-4 w-4 mr-1" />
@@ -450,6 +468,63 @@ export default function MeetingDetailPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Cancel Meeting Confirmation */}
+      <AlertDialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Meeting</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this meeting? This action cannot be undone and all participants will be notified.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>No, keep it</AlertDialogCancel>
+            <AlertDialogAction onClick={cancelMeeting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {cancelling ? "Cancelling..." : "Yes, cancel meeting"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Mark Complete Confirmation */}
+      <AlertDialog open={showCompleteConfirm} onOpenChange={setShowCompleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Mark Meeting as Complete</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to mark this meeting as completed? This will move it to your past meetings.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={markCompleted}>
+              {completing ? "Completing..." : "Yes, mark complete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Remove Task Confirmation */}
+      <AlertDialog open={showRemoveTaskConfirm} onOpenChange={setShowRemoveTaskConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Task</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove this task? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setTaskToRemove(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => taskToRemove && removeActionItem(taskToRemove)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Yes, remove task
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Auto-Created Tasks Dialog */}
       <Dialog open={autoTasks.length > 0} onOpenChange={(open) => { if (!open) setAutoTasks([]); }}>
@@ -839,8 +914,11 @@ export default function MeetingDetailPage() {
                             )}
                           </div>
                           {userRole !== "scholar" && (
-                            <button 
-                              onClick={() => removeActionItem(item.id)}
+                            <button
+                              onClick={() => {
+                                setTaskToRemove(item.id);
+                                setShowRemoveTaskConfirm(true);
+                              }}
                               className="text-xs text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                             >
                               Remove

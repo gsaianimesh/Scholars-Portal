@@ -19,14 +19,15 @@ export async function GET(
     return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
   }
 
-  // Get participants
+  // Get participants of this meeting
   const { data: participants } = await serviceClient
     .from("meeting_participants")
     .select("user_id")
     .eq("meeting_id", params.id);
 
   const userIds = participants?.map((p: any) => p.user_id) || [];
-  
+
+  // Get scholar IDs for the participants (for task fetching)
   let scholarIds: string[] = [];
   if (userIds.length > 0) {
     const { data: scholars } = await serviceClient
@@ -38,46 +39,47 @@ export async function GET(
     }
   }
 
-  // Get previous meeting summary involving these participants
-  // Since meetings are not directly linked to scholars simply, we get the professor's last meeting 
-  // that had these users. For simplicity, let's just get the last meeting between this professor and these scholars.
-  
-  // Get all previous meetings of this professor
-  const { data: previousMeetings } = await serviceClient
-    .from("meetings")
-    .select("id, summary, meeting_title, meeting_date")
-    .eq("professor_id", meeting.professor_id)
-    .not("summary", "is", null)
-    .neq("summary", "")
-    .lt("meeting_date", meeting.meeting_date)
-    .order("meeting_date", { ascending: false });
-
+  // Find the most recent previous meeting that shares at least one participant with this meeting
+  // This ensures we get context from meetings with the SAME people, not random meetings
   let previousMeeting = null;
-  
-  // Find the most recent meeting that shares at least one participant
-  if (previousMeetings && previousMeetings.length > 0 && userIds.length > 0) {
-    for (const pm of previousMeetings) {
-      const { data: pmParticipants } = await serviceClient
-        .from("meeting_participants")
-        .select("user_id")
-        .eq("meeting_id", pm.id);
-      
-      const pmUserIds = pmParticipants?.map((p: any) => p.user_id) || [];
-      const hasOverlap = userIds.some((uid: any) => pmUserIds.includes(uid));
-      if (hasOverlap) {
-        previousMeeting = pm;
-        break;
+
+  if (userIds.length > 0) {
+    // Get all previous meetings of this professor that have a summary
+    const { data: previousMeetings } = await serviceClient
+      .from("meetings")
+      .select("id, summary, meeting_title, meeting_date")
+      .eq("professor_id", meeting.professor_id)
+      .not("summary", "is", null)
+      .neq("summary", "")
+      .lt("meeting_date", meeting.meeting_date)
+      .order("meeting_date", { ascending: false });
+
+    if (previousMeetings && previousMeetings.length > 0) {
+      // Find a meeting that shares participants with the current one
+      for (const pm of previousMeetings) {
+        const { data: pmParticipants } = await serviceClient
+          .from("meeting_participants")
+          .select("user_id")
+          .eq("meeting_id", pm.id);
+
+        const pmUserIds = pmParticipants?.map((p: any) => p.user_id) || [];
+
+        // Check if any participants overlap between meetings
+        const hasOverlap = userIds.some((uid: string) => pmUserIds.includes(uid));
+
+        if (hasOverlap) {
+          previousMeeting = pm;
+          break;
+        }
       }
+
+      // If no meeting with overlapping participants found, don't use any previous meeting
+      // This prevents showing irrelevant meeting summaries
     }
   }
 
-  // Fallback to the professor's last meeting if no overlap or no participants
-  if (!previousMeeting && previousMeetings && previousMeetings.length > 0) {
-     previousMeeting = previousMeetings[0];
-  }
-
-  let pendingTasks = [];
-  let recentSubmissions = [];
+  let pendingTasks: any[] = [];
+  let recentSubmissions: any[] = [];
 
   // Get pending tasks & submissions for the scholars involved in this meeting
   if (scholarIds.length > 0) {
@@ -88,8 +90,7 @@ export async function GET(
 
     if (assignments) {
       const pendingAssignments = assignments.filter((a: any) => a.status === "not_started" || a.status === "in_progress");
-      // Map back to tasks
-      // Group by distinct tasks
+      // Map back to tasks - group by distinct tasks
       const taskMap = new Map();
       for (const a of pendingAssignments) {
         if (a.task && !taskMap.has(a.task.id)) {
@@ -124,7 +125,7 @@ export async function GET(
         pendingTasks,
         recentSubmissions
       );
-      
+
       // Save insights to DB
       await serviceClient
         .from("meetings")
