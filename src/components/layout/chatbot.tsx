@@ -1,42 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X, Send, Sparkles, Calendar, CheckSquare } from "lucide-react";
+import { X, Send, Sparkles, Calendar, CheckSquare, Bot, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
-
-// Cute Lumi face icon component
-function LumiIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 100 100" className={className} fill="none">
-      {/* Face */}
-      <circle cx="50" cy="50" r="45" fill="url(#lumiGradient)" />
-      {/* Left eye */}
-      <ellipse cx="35" cy="42" rx="8" ry="10" fill="white" />
-      <circle cx="37" cy="44" r="5" fill="#1e1b4b" />
-      <circle cx="39" cy="42" r="2" fill="white" />
-      {/* Right eye */}
-      <ellipse cx="65" cy="42" rx="8" ry="10" fill="white" />
-      <circle cx="67" cy="44" r="5" fill="#1e1b4b" />
-      <circle cx="69" cy="42" r="2" fill="white" />
-      {/* Smile */}
-      <path d="M 35 62 Q 50 75 65 62" stroke="white" strokeWidth="4" strokeLinecap="round" fill="none" />
-      {/* Blush */}
-      <circle cx="25" cy="55" r="6" fill="#ff9999" opacity="0.5" />
-      <circle cx="75" cy="55" r="6" fill="#ff9999" opacity="0.5" />
-      {/* Sparkle */}
-      <path d="M 78 20 L 80 25 L 85 27 L 80 29 L 78 34 L 76 29 L 71 27 L 76 25 Z" fill="#ffd700" />
-      <defs>
-        <linearGradient id="lumiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#818cf8" />
-          <stop offset="100%" stopColor="#a855f7" />
-        </linearGradient>
-      </defs>
-    </svg>
-  );
-}
 
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -89,56 +58,56 @@ export function Chatbot() {
 
   return (
     <>
+      {/* Floating Button - Simple Bot Icon */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 left-6 h-16 w-16 bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-400 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 animate-in fade-in zoom-in group ring-4 ring-white/30 hover:ring-white/50"
+          className="fixed bottom-6 left-6 h-14 w-14 bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50 hover:shadow-xl"
           title="Chat with Lumi"
         >
-          <LumiIcon className="h-12 w-12 drop-shadow-lg" />
-          <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-yellow-300 animate-pulse" />
+          <MessageCircle className="h-6 w-6" />
+          <span className="absolute -top-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white"></span>
         </button>
       )}
 
       {isOpen && (
-        <div className="fixed bottom-6 left-6 w-[350px] sm:w-[400px] h-[550px] max-h-[85vh] bg-background border shadow-2xl rounded-2xl flex flex-col z-50 overflow-hidden animate-in slide-in-from-bottom-8 duration-300">
+        <div className="fixed bottom-6 left-6 w-[360px] h-[500px] max-h-[80vh] bg-background border shadow-xl rounded-xl flex flex-col z-50 overflow-hidden animate-in slide-in-from-bottom-4 duration-200">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border-b">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <LumiIcon className="h-10 w-10 drop-shadow-md" />
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-background"></span>
+          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
+                <Bot className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-sm flex items-center gap-1.5">
+                <h3 className="font-medium text-sm flex items-center gap-1.5">
                   Lumi
-                  <span className="text-[10px] bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 px-1.5 py-0.5 rounded-full font-medium">BETA</span>
+                  <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded font-normal">BETA</span>
                 </h3>
-                <p className="text-xs text-muted-foreground">Your AI assistant</p>
+                <p className="text-[11px] text-white/70">AI Assistant</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-black/5" onClick={() => setIsOpen(false)}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-white hover:bg-white/20" onClick={() => setIsOpen(false)}>
               <X className="h-4 w-4" />
             </Button>
           </div>
 
           {/* Chat Area */}
-          <ScrollArea className="flex-1 p-4 bg-gradient-to-b from-muted/30 to-background">
-            <div className="space-y-4 pb-2">
+          <ScrollArea className="flex-1 p-3">
+            <div className="space-y-3 pb-2">
               {messages.map((msg, i) => {
                 const isUser = msg.role === "user";
                 return (
-                  <div key={i} className={`flex ${isUser ? "justify-end" : "justify-start"} items-end gap-2 group`}>
+                  <div key={i} className={`flex ${isUser ? "justify-end" : "justify-start"} items-end gap-2`}>
                     {!isUser && (
-                       <div className="w-7 h-7 rounded-full shrink-0 mb-1">
-                          <LumiIcon className="w-7 h-7" />
+                       <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shrink-0 mb-1">
+                          <Bot className="w-3.5 h-3.5 text-white" />
                        </div>
                     )}
                     <div
-                      className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm transition-all ${
+                      className={`max-w-[80%] rounded-xl px-3 py-2 text-sm ${
                         isUser
-                          ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-br-sm shadow-md"
-                          : "bg-card border shadow-sm text-foreground rounded-bl-sm prose prose-sm prose-p:leading-relaxed prose-p:my-1 prose-strong:text-indigo-600 prose-a:text-indigo-500"
+                          ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-br-sm"
+                          : "bg-muted text-foreground rounded-bl-sm prose prose-sm prose-p:leading-relaxed prose-p:my-1"
                       }`}
                     >
                       {isUser ? msg.content : <ReactMarkdown>{msg.content}</ReactMarkdown>}
@@ -150,14 +119,14 @@ export function Chatbot() {
               {messages.length === 1 && (
                   <div className="pt-2 flex flex-col gap-2">
                       <p className="text-xs text-muted-foreground font-medium flex items-center gap-1 px-1">
-                        <Sparkles className="w-3 h-3 text-purple-500" /> Quick Actions
+                        <Sparkles className="w-3 h-3 text-violet-500" /> Quick Actions
                       </p>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1.5">
                           {quickActions.map((action, idx) => (
                               <button
                                 key={idx}
                                 onClick={() => handleSubmit(undefined, action.prompt)}
-                                className="text-xs flex items-center gap-1.5 bg-background border px-3 py-1.5 rounded-full hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-300 dark:hover:border-purple-700 transition-colors shadow-sm"
+                                className="text-xs flex items-center gap-1 bg-muted px-2.5 py-1.5 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-900/30 transition-colors"
                               >
                                   {action.icon} {action.label}
                               </button>
@@ -167,14 +136,14 @@ export function Chatbot() {
               )}
 
               {isLoading && (
-                 <div className="flex justify-start items-end gap-2 animate-pulse">
-                    <div className="w-7 h-7 rounded-full shrink-0 mb-1">
-                        <LumiIcon className="w-7 h-7" />
+                 <div className="flex justify-start items-end gap-2">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shrink-0 mb-1">
+                        <Bot className="w-3.5 h-3.5 text-white" />
                     </div>
-                    <div className="bg-card border rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm flex gap-1">
-                       <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                       <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                       <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <div className="bg-muted rounded-xl rounded-bl-sm px-3 py-2 flex gap-1">
+                       <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                       <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                       <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                  </div>
               )}
@@ -183,20 +152,20 @@ export function Chatbot() {
           </ScrollArea>
 
           {/* Input Area */}
-          <div className="p-3 border-t bg-background">
+          <div className="p-3 border-t">
             <form onSubmit={handleSubmit} className="flex items-center gap-2">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask Lumi anything..."
-                className="flex-1 rounded-full bg-muted/50 focus-visible:ring-purple-500/30 border-primary/10 h-10"
+                className="flex-1 h-9 text-sm"
                 disabled={isLoading}
               />
-              <Button type="submit" size="icon" disabled={!input.trim() || isLoading} className="h-10 w-10 rounded-full shadow-md hover:scale-105 transition-all bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700">
+              <Button type="submit" size="icon" disabled={!input.trim() || isLoading} className="h-9 w-9 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700">
                 <Send className="h-4 w-4" />
               </Button>
             </form>
-            <p className="text-center text-[10px] text-muted-foreground mt-2 opacity-60">
+            <p className="text-center text-[10px] text-muted-foreground mt-2">
               Lumi may make mistakes. Always verify important info.
             </p>
           </div>

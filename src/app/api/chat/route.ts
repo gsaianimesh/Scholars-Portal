@@ -232,6 +232,14 @@ Be supportive and helpful!`
     if (msg?.tool_calls) {
       let responseText = "Action completed successfully!";
       for (const toolCall of msg.tool_calls) {
+        // Safely parse arguments with fallback to empty object
+        let args: any = {};
+        try {
+          args = JSON.parse(toolCall.function.arguments || "{}") || {};
+        } catch {
+          args = {};
+        }
+
         if (toolCall.function.name === "create_task") {
           // Only professors can create tasks
           if (!isProfessor) {
@@ -239,12 +247,11 @@ Be supportive and helpful!`
             continue;
           }
 
-          const args = JSON.parse(toolCall.function.arguments);
           const targetScholarId = args.scholar_id || null;
 
           if (profId) {
             const taskData: any = {
-               title: args.title,
+               title: args.title || "Untitled Task",
                description: args.description || "",
                professor_id: profId,
                created_by: appUser.id
@@ -273,12 +280,11 @@ Be supportive and helpful!`
             continue;
           }
 
-          const args = JSON.parse(toolCall.function.arguments);
-          if (profId) {
+          if (profId && args.date) {
              const dt = new Date(args.date);
              const durationMins = args.duration_minutes || 60;
              const { error } = await supabase.from("meetings").insert({
-                meeting_title: args.title,
+                meeting_title: args.title || "Untitled Meeting",
                 meeting_date: dt.toISOString(),
                 duration_minutes: durationMins,
                 agenda: args.agenda || null,
@@ -289,9 +295,10 @@ Be supportive and helpful!`
              } else {
                responseText = `Meeting "**${args.title}**" scheduled for **${dt.toLocaleString()}**!`;
              }
+          } else {
+            responseText = "I need a date and time to schedule the meeting. When would you like to schedule it?";
           }
         } else if (toolCall.function.name === "get_meetings") {
-          const args = JSON.parse(toolCall.function.arguments);
           const limit = args.limit || 5;
 
           if (isProfessor && profId) {
@@ -351,7 +358,6 @@ Be supportive and helpful!`
             responseText = "I couldn't find your profile to fetch meetings.";
           }
         } else if (toolCall.function.name === "get_tasks") {
-          const args = JSON.parse(toolCall.function.arguments);
           const limit = args.limit || 10;
 
           if (isProfessor && profId) {
