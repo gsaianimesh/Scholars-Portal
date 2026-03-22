@@ -6,12 +6,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDateTime } from "@/lib/utils";
-import { Plus, Calendar, Clock, Video, List, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Calendar, Clock, Video, List, ChevronLeft, ChevronRight, Brain } from "lucide-react";
 import Link from "next/link";
 
 export default function MeetingsPage() {
   const [meetings, setMeetings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fathomConnected, setFathomConnected] = useState(true);
   const [userRole, setUserRole] = useState("");
   const [view, setView] = useState<"list" | "calendar">("list");
   const [calMonth, setCalMonth] = useState(new Date());
@@ -46,10 +47,13 @@ export default function MeetingsPage() {
 
       const { data: prof } = await supabase
         .from("professors")
-        .select("id")
+        .select("id, fathom_api_key, fathom_access_token")
         .eq("user_id", appUser.id)
         .maybeSingle();
       professorId = prof?.id || null;
+      if (prof) {
+        setFathomConnected(!!prof.fathom_api_key || !!prof.fathom_access_token);
+      }
 
       if (!professorId) {
         const { data: coSup } = await supabase
@@ -87,6 +91,25 @@ export default function MeetingsPage() {
 
   return (
     <div className="space-y-6">
+      {!fathomConnected && userRole === "professor" && (
+        <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded-md p-4 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+          <div className="space-y-1">
+            <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 flex items-center gap-2">
+               <Brain className="w-4 h-4" /> Connect Fathom AI
+            </h4>
+            <p className="text-sm text-blue-800 dark:text-blue-300">
+              Automate your workflow. Connect Fathom to get your meeting transcripts, summaries, and action assignments tracked here automatically.
+            </p>
+          </div>
+          <Button 
+            size="sm" 
+            className="shrink-0 whitespace-nowrap"
+            onClick={() => { window.location.href = '/api/auth/fathom/login?returnTo=/dashboard/meetings' }}
+          >
+            Connect Fathom
+          </Button>
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Meetings</h1>
