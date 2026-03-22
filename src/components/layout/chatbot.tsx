@@ -6,8 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
+import { createClient } from "@/lib/supabase/client";
 
-export function Chatbot() {
+const HELP_MESSAGES = [
+  "This is Lumi, I can help figure out things! 👋",
+  "I'm Lumi, your AI assistant. Need help with anything? 🌟",
+  "It's Lumi! Let me help you stay organized and productive. ✨",
+  "Lumi here! Got questions about your tasks or meetings? 🚀",
+  "This is Lumi! I can assist you with scheduling and task management. 💡",
+];
+
+export function Chatbot({ requireAuth = false, disabledClick = false }: { requireAuth?: boolean, disabledClick?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{role: "user"|"assistant", content: string}[]>([
     { role: "assistant", content: "Hi! I'm Lumi, your Researchify assistant.\n\nI can help you view your meetings and tasks. What would you like to know?" }
@@ -16,7 +25,33 @@ export function Chatbot() {
   const [isLoading, setIsLoading] = useState(false);
   const [showBubble, setShowBubble] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Load user info
+  useEffect(() => {
+    const loadUser = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        setIsAuthenticated(true);
+        const { data: dbUser } = await supabase
+          .from("users")
+          .select("name")
+          .eq("auth_id", user.id)
+          .maybeSingle();
+
+        if (dbUser?.name) {
+          setUserName(dbUser.name.split(' ')[0]); // First name only
+        }
+      }
+    };
+
+    loadUser();
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -24,7 +59,7 @@ export function Chatbot() {
     }
   }, [messages, isOpen, isLoading]);
 
-  // Auto-popup bubble every 3 minutes
+  // Auto-popup bubble every 3 minutes with rotating messages
   useEffect(() => {
     if (!isOpen) {
       const showBubbleTimer = setTimeout(() => {
@@ -34,6 +69,7 @@ export function Chatbot() {
       }, 3000); // Show first bubble after 3 seconds
 
       const interval = setInterval(() => {
+        setCurrentMessageIndex((prev) => (prev + 1) % HELP_MESSAGES.length);
         setShowBubble(true);
         setTimeout(() => setShowBubble(false), 5000);
       }, 180000); // Every 3 minutes
@@ -79,6 +115,15 @@ export function Chatbot() {
     { label: "My Tasks", icon: <CheckSquare className="w-3 h-3" />, prompt: "What are my current tasks?" },
   ];
 
+  const handleChatClick = () => {
+    if (disabledClick && !isAuthenticated) {
+      setCurrentMessageIndex(0);
+      setShowBubble(true);
+      return;
+    }
+    setIsOpen(true);
+  };
+
   return (
     <>
       {/* Floating Button with Hover Effect & Blinking Indicator */}
@@ -94,8 +139,14 @@ export function Chatbot() {
                 >
                   <X className="h-3 w-3" />
                 </button>
-                <p className="text-xs font-medium text-foreground">
-                  Hey there! 👋 I&apos;m here if you need any help!
+                <p className="text-xs font-medium text-foreground text-center">
+                  {requireAuth && !isAuthenticated ? (
+                    "Please login to use Lumi! 🔒"
+                  ) : userName ? (
+                    `Hey ${userName}! ${HELP_MESSAGES[currentMessageIndex]}`
+                  ) : (
+                    `Hey! ${HELP_MESSAGES[currentMessageIndex]}`
+                  )}
                 </p>
               </div>
               {/* Pointer - pointing down at the bot */}
@@ -105,7 +156,7 @@ export function Chatbot() {
 
           {/* Floating Bot Button */}
           <button
-            onClick={() => setIsOpen(true)}
+            onClick={handleChatClick}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             className="relative h-14 w-14 bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all hover:shadow-xl group"

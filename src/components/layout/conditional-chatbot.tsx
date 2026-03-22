@@ -11,5 +11,7 @@ export function ConditionalChatbot() {
     return null;
   }
 
-  return <Chatbot />;
+  const isAuthRequired = pathname === "/" || pathname === "/login" || pathname === "/signup";
+
+  return <Chatbot requireAuth={isAuthRequired} disabledClick={isAuthRequired} />;
 }
