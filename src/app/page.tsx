@@ -45,7 +45,7 @@ export default function LandingPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue-600 text-white shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform duration-300">
               <GraduationCap className="h-5 w-5" />
             </div>
-            <span className="text-lg font-bold tracking-tight">Scholar Portal</span>
+            <span className="text-lg font-bold tracking-tight">Researchify</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 font-medium text-sm">
@@ -554,7 +554,7 @@ export default function LandingPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white shadow-md">
                 <GraduationCap className="h-4 w-4" />
               </div>
-              <span className="text-xl font-bold tracking-tight text-foreground">Scholar Portal</span>
+              <span className="text-xl font-bold tracking-tight text-foreground">Researchify</span>
             </Link>
             
             <div className="flex gap-8 text-sm font-semibold text-muted-foreground">
@@ -565,7 +565,7 @@ export default function LandingPage() {
           </div>
           
           <div className="border-t border-border/50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-semibold text-muted-foreground text-center md:text-left">
-            <p>© {new Date().getFullYear()} Scholar Portal. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Researchify. All rights reserved.</p>
             <p className="flex items-center gap-1">Built with <Heart className="h-3 w-3 text-red-500 fill-red-500" /> for Academic Research</p>
           </div>
         </div>

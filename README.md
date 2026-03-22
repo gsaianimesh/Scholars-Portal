@@ -1,4 +1,4 @@
-# Scholar Portal
+# Researchify
 
 A production-ready Research Supervision Management System built with Next.js 14, Supabase, and AI-powered meeting summarization.
 

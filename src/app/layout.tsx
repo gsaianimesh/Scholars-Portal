@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Scholar Portal — Research Supervision Platform",
+  title: "Researchify — Research Supervision Platform",
   description: "Streamline research supervision with meetings, tasks, and collaboration tools.",
 };
 

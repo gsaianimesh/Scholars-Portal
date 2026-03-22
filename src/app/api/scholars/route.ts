@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
   // Create notification for the scholar
   await serviceClient.rpc("create_notification", {
     p_user_id: scholarUser.id,
-    p_title: "Welcome to Scholar Portal",
+    p_title: "Welcome to Researchify",
     p_message: "You've been added as a research scholar. Please update your password in settings.",
     p_type: "scholar_added",
   });

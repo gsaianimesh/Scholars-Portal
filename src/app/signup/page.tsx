@@ -100,7 +100,7 @@ export default function SignupPage() {
               App Verification in Progress
             </DialogTitle>
             <DialogDescription>
-              Scholar Portal is currently undergoing Google&apos;s app verification process. To sign up, please follow these steps:
+              Researchify is currently undergoing Google&apos;s app verification process. To sign up, please follow these steps:
             </DialogDescription>
           </DialogHeader>
           <div className="py-2">

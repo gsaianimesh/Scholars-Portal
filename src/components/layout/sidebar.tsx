@@ -17,6 +17,7 @@ import {
   GraduationCap,
   ClipboardList,
   Megaphone,
+  MessageSquare,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -29,6 +30,7 @@ const professorLinks = [
   { href: "/dashboard/scholars", label: "Scholars", icon: Users },
   { href: "/dashboard/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/dashboard/meetings", label: "Meetings", icon: Calendar },
+  { href: "/dashboard/chat", label: "Chat", icon: MessageSquare },
   { href: "/dashboard/announcements", label: "Announcements", icon: Megaphone },
   { href: "/dashboard/submissions", label: "Submissions", icon: FileText },
   { href: "/dashboard/activity", label: "Activity", icon: Activity },
@@ -39,6 +41,7 @@ const scholarLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/tasks", label: "My Tasks", icon: CheckSquare },
   { href: "/dashboard/meetings", label: "Meetings", icon: Calendar },
+  { href: "/dashboard/chat", label: "Chat", icon: MessageSquare },
   { href: "/dashboard/announcements", label: "Announcements", icon: Megaphone },
   { href: "/dashboard/submissions", label: "My Submissions", icon: FileText },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
@@ -49,6 +52,7 @@ const coSupervisorLinks = [
   { href: "/dashboard/scholars", label: "Scholars", icon: Users },
   { href: "/dashboard/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/dashboard/meetings", label: "Meetings", icon: Calendar },
+  { href: "/dashboard/chat", label: "Chat", icon: MessageSquare },
   { href: "/dashboard/announcements", label: "Announcements", icon: Megaphone },
   { href: "/dashboard/submissions", label: "Submissions", icon: FileText },
   { href: "/dashboard/activity", label: "Activity", icon: Activity },
@@ -202,7 +206,7 @@ export function Sidebar({ role }: SidebarProps) {
         {/* Logo */}
         <div className="flex items-center gap-2 px-6 py-5 border-b">
           <GraduationCap className="h-6 w-6 text-primary" />
-          <span className="font-semibold text-lg">Scholar Portal</span>
+          <span className="font-semibold text-lg">Researchify</span>
         </div>
 
         {/* Navigation */}

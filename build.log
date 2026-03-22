@@ -51,6 +51,11 @@ warn - If this is content and not a class, replace it with `duration-&lsqb;5000m
 31:6  Warning: React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
 315:3  Warning: 'existingEmojis' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
 
+./src/app/dashboard/chat/page.tsx
+5:16  Warning: 'CardContent' is defined but never used.  @typescript-eslint/no-unused-vars
+9:34  Warning: 'AvatarImage' is defined but never used.  @typescript-eslint/no-unused-vars
+23:6  Warning: React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
 ./src/app/dashboard/meetings/[id]/page.tsx
 16:38  Warning: 'FileText' is defined but never used.  @typescript-eslint/no-unused-vars
 16:48  Warning: 'Users' is defined but never used.  @typescript-eslint/no-unused-vars
@@ -71,6 +76,17 @@ warn - If this is content and not a class, replace it with `duration-&lsqb;5000m
 ./src/app/dashboard/page.tsx
 2:26  Warning: 'getProfessorProfile' is defined but never used.  @typescript-eslint/no-unused-vars
 
+./src/app/dashboard/settings/page.tsx
+11:10  Warning: 'Switch' is defined but never used.  @typescript-eslint/no-unused-vars
+21:10  Warning: 'autoMeetingSync' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+21:27  Warning: 'setAutoMeetingSync' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+22:10  Warning: 'aiInsights' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+22:22  Warning: 'setAiInsights' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+23:10  Warning: 'autoTaskGen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+23:23  Warning: 'setAutoTaskGen' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+24:10  Warning: 'emailNotifs' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+24:23  Warning: 'setEmailNotifs' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
 ./src/components/dashboard/co-supervisor-dashboard.tsx
 56:11  Warning: 'profRes' is assigned a value but never used.  @typescript-eslint/no-unused-vars
 62:11  Warning: 'scholarUserIds' is assigned a value but never used.  @typescript-eslint/no-unused-vars
@@ -79,17 +95,11 @@ warn - If this is content and not a class, replace it with `duration-&lsqb;5000m
 72:11  Warning: 'scholarUserIds' is assigned a value but never used.  @typescript-eslint/no-unused-vars
 
 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
-Failed to compile.
-
-./src/app/page.tsx:144:17
-Type error: Type '{ src: string; frameBorder: string; webkitallowfullscreen: string; mozallowfullscreen: string; allowFullScreen: true; className: string; }' is not assignable to type 'DetailedHTMLProps<IframeHTMLAttributes<HTMLIFrameElement>, HTMLIFrameElement>'.
-  Property 'webkitallowfullscreen' does not exist on type 'DetailedHTMLProps<IframeHTMLAttributes<HTMLIFrameElement>, HTMLIFrameElement>'. Did you mean 'allowFullScreen'?
-
-[0m [90m 142 |[39m                 src[33m=[39m[32m"https://www.loom.com/embed/9e589b374568469d9c1395a2882500d6?sid=5ef57ba2-7db5-4e78-bad6-8b3684bcbefb&hide_owner=true&hide_share=true&hide_title=true&hideEmbedTopBar=true"[39m[0m
-[0m [90m 143 |[39m                 frameBorder[33m=[39m[32m"0"[39m[0m
-[0m[31m[1m>[22m[39m[90m 144 |[39m                 webkitallowfullscreen[33m=[39m[32m"true"[39m[0m
-[0m [90m     |[39m                 [31m[1m^[22m[39m[0m
-[0m [90m 145 |[39m                 mozallowfullscreen[33m=[39m[32m"true"[39m[0m
-[0m [90m 146 |[39m                 allowFullScreen[33m=[39m{[36mtrue[39m}[0m
-[0m [90m 147 |[39m                 className[33m=[39m[32m"absolute top-0 left-0 w-full h-full"[39m[0m
-Next.js build worker exited with code: 1 and signal: null
+   Collecting page data ...
+   Generating static pages (0/42) ...
+   Generating static pages (10/42) 
+   Generating static pages (20/42) 
+   Generating static pages (31/42) 
+ ✓ Generating static pages (42/42)
+   Finalizing page optimization ...
+   Collecting build traces ...

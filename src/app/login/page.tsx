@@ -49,7 +49,7 @@ export default function LoginPage() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <GraduationCap className="h-6 w-6 text-primary" />
           </div>
-          <CardTitle className="text-2xl">Scholar Portal</CardTitle>
+          <CardTitle className="text-2xl">Researchify</CardTitle>
           <CardDescription>
             Research Supervision Management System
           </CardDescription>
@@ -100,7 +100,7 @@ export default function LoginPage() {
               App Verification in Progress
             </DialogTitle>
             <DialogDescription>
-              Scholar Portal is currently undergoing Google&apos;s app verification process. To log in, please follow these steps:
+              Researchify is currently undergoing Google&apos;s app verification process. To log in, please follow these steps:
             </DialogDescription>
           </DialogHeader>
           <div className="py-2">

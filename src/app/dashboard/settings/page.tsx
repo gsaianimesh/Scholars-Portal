@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Copy, Check, Link as LinkIcon } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 export default function SettingsPage() {
   const [name, setName] = useState("");
@@ -17,6 +18,10 @@ export default function SettingsPage() {
   const [role, setRole] = useState("");
   const [inviteCode, setInviteCode] = useState("");
   const [fathomApiKey, setFathomApiKey] = useState("");
+  const [autoMeetingSync, setAutoMeetingSync] = useState(true);
+  const [aiInsights, setAiInsights] = useState(true);
+  const [autoTaskGen, setAutoTaskGen] = useState(true);
+  const [emailNotifs, setEmailNotifs] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
