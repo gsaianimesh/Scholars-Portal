@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Bell, LogOut, Settings, Menu, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { PageGuide } from "@/components/page-guide";
 import { getInitials } from "@/lib/utils";
 import type { User } from "@/lib/types";
 import Link from "next/link";
@@ -86,6 +87,9 @@ export function Header({ user }: HeaderProps) {
         <div className="flex-1" />
 
         <div className="flex items-center gap-3">
+          {/* Page Guide */}
+          <PageGuide />
+
           {/* Theme toggle */}
           <ThemeToggle />
 
