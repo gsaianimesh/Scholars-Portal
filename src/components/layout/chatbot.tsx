@@ -83,14 +83,14 @@ export function Chatbot() {
     <>
       {/* Floating Button with Hover Effect & Blinking Indicator */}
       {!isOpen && (
-        <div className="fixed bottom-6 left-6 z-50 flex items-end gap-3">
+        <div className="fixed bottom-6 right-6 z-50 flex items-end gap-3 flex-row-reverse">
           {/* Help Bubble */}
           {showBubble && (
-            <div className="relative animate-in slide-in-from-left-2 duration-300 mb-2">
-              <div className="bg-background border shadow-lg rounded-2xl rounded-bl-sm px-4 py-2.5 max-w-[200px]">
+            <div className="relative animate-in slide-in-from-right-2 duration-300 mb-2">
+              <div className="bg-background border shadow-lg rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[200px]">
                 <button
                   onClick={() => setShowBubble(false)}
-                  className="absolute -top-1.5 -right-1.5 h-5 w-5 bg-muted hover:bg-destructive hover:text-destructive-foreground rounded-full flex items-center justify-center text-muted-foreground transition-colors"
+                  className="absolute -top-1.5 -left-1.5 h-5 w-5 bg-muted hover:bg-destructive hover:text-destructive-foreground rounded-full flex items-center justify-center text-muted-foreground transition-colors"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -99,7 +99,7 @@ export function Chatbot() {
                 </p>
               </div>
               {/* Pointer */}
-              <div className="absolute -bottom-1 left-4 w-3 h-3 bg-background border-r border-b rotate-45 transform"></div>
+              <div className="absolute -bottom-1 right-4 w-3 h-3 bg-background border-l border-b -rotate-45 transform"></div>
             </div>
           )}
 
@@ -140,7 +140,7 @@ export function Chatbot() {
       )}
 
       {isOpen && (
-        <div className="fixed bottom-6 left-6 w-[360px] h-[500px] max-h-[80vh] bg-background border shadow-xl rounded-xl flex flex-col z-50 overflow-hidden animate-in slide-in-from-bottom-4 duration-200">
+        <div className="fixed bottom-6 right-6 w-[360px] h-[500px] max-h-[80vh] bg-background border shadow-xl rounded-xl flex flex-col z-50 overflow-hidden animate-in slide-in-from-bottom-4 duration-200">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white">
             <div className="flex items-center gap-2">
