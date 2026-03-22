@@ -556,7 +556,7 @@ export default function MeetingDetailPage() {
                     {preMeetingContext.recentSubmissions.map((sub: any) => (
                       <li key={sub.id} className="text-sm flex items-center p-2 rounded-md bg-background/50 border border-primary/5 gap-2">
                         <span className="h-2 w-2 rounded-full bg-green-500 shrink-0" />
-                        <span className="truncate">{sub.scholar_name} submitted "{sub.task_title}"</span>
+                        <span className="truncate">{sub.scholar_name} submitted &quot;{sub.task_title}&quot;</span>
                       </li>
                     ))}
                   </ul>
