@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { getInitials, formatDateTime, formatDate } from "@/lib/utils";
-import { ArrowLeft, Calendar, Video, FileText, Users, Brain, CheckCircle, XCircle, CalendarClock } from "lucide-react";
+import { ArrowLeft, Calendar, Video, FileText, Users, Brain, CheckCircle, XCircle, CalendarClock, Clock } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 
@@ -349,61 +349,67 @@ export default function MeetingDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href="/dashboard/meetings">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+      <div>
+        <Link href="/dashboard/meetings" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4 transition-colors">
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back to Meetings
         </Link>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold tracking-tight">{meeting.meeting_title}</h1>
-          <div className="flex items-center gap-3 mt-1">
-            <span className="flex items-center gap-1 text-sm text-muted-foreground">
-              <Calendar className="h-3.5 w-3.5" />
-              {formatDateTime(meeting.meeting_date)}
-            </span>
-            {isPast ? (
-              <Badge variant="secondary">Past</Badge>
+        
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold tracking-tight">{meeting.meeting_title}</h1>
+              {isPast ? (
+                <Badge variant="secondary">Past</Badge>
+              ) : (
+                <Badge className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-none">Upcoming</Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              <span>{formatDateTime(meeting.meeting_date)}</span>
+              <span className="text-muted-foreground/30">•</span>
+              <Clock className="h-4 w-4" />
+              <span>{meeting.duration_minutes || 60} min</span>
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-2">
+            {meeting.meeting_link ? (
+              <a href={meeting.meeting_link} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline">
+                  <Video className="h-4 w-4 mr-1" />
+                  Join Meeting
+                </Button>
+              </a>
             ) : (
-              <Badge variant="info">Upcoming</Badge>
+              <Button disabled variant="outline">
+                <Video className="h-4 w-4 mr-1" />
+                Join (No Link Added)
+              </Button>
+            )}
+            {!isPast && userRole !== "scholar" && (
+              <>
+                <Button variant="outline" size="sm" onClick={markCompleted} disabled={completing}>
+                  <CheckCircle className="h-4 w-4 mr-1" />
+                  {completing ? "Completing..." : "Mark Done"}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setShowReschedule(true)}>
+                  <CalendarClock className="h-4 w-4 mr-1" />
+                  Reschedule
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={cancelMeeting}
+                  disabled={cancelling}
+                >
+                  <XCircle className="h-4 w-4 mr-1" />
+                  {cancelling ? "Cancelling..." : "Cancel"}
+                </Button>
+              </>
             )}
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {meeting.meeting_link ? (
-            <a href={meeting.meeting_link} target="_blank" rel="noopener noreferrer">
-              <Button variant="outline">
-                <Video className="h-4 w-4 mr-1" />
-                Join Meeting
-              </Button>
-            </a>
-          ) : (
-            <Button disabled variant="outline">
-              <Video className="h-4 w-4 mr-1" />
-              Join (No Link Added)
-            </Button>
-          )}
-          {!isPast && userRole !== "scholar" && (
-            <>
-              <Button variant="outline" size="sm" onClick={markCompleted} disabled={completing}>
-                <CheckCircle className="h-4 w-4 mr-1" />
-                {completing ? "Completing..." : "Mark Done"}
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setShowReschedule(true)}>
-                <CalendarClock className="h-4 w-4 mr-1" />
-                Reschedule
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={cancelMeeting}
-                disabled={cancelling}
-              >
-                <XCircle className="h-4 w-4 mr-1" />
-                {cancelling ? "Cancelling..." : "Cancel"}
-              </Button>
-            </>
-          )}
         </div>
       </div>
 
@@ -477,60 +483,32 @@ export default function MeetingDetailPage() {
 
       {/* Pre-meeting context (for upcoming meetings) */}
       {!isPast && preMeetingContext && (
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Brain className="h-4 w-4" />
+        <Card className="border-primary/20 bg-primary/5 shadow-md">
+          <CardHeader className="pb-3 border-b border-primary/10">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Brain className="h-5 w-5 text-primary" />
               Pre-Meeting Briefing
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6 pt-5">
             {preMeetingContext.insights && (
-              <div className="mb-6 pb-6 border-b border-primary/20">
-                <div className="flex items-center gap-2 text-primary font-medium mb-2">
-                  <Brain className="h-4 w-4" />
-                  <span>Probable things to discuss</span>
+              <div className="pb-5 border-b border-primary/10">
+                <div className="flex items-center gap-2 text-primary font-semibold mb-3">
+                  <span>Suggested Meeting Agenda</span>
                 </div>
                 {preMeetingContext.insights.briefSummary && (
-                  <p className="text-sm mb-3 text-muted-foreground">
+                  <p className="text-sm mb-4 text-muted-foreground leading-relaxed">
                     {preMeetingContext.insights.briefSummary}
                   </p>
                 )}
                 {preMeetingContext.insights.talkingPoints?.length > 0 && (
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Suggested Discussion Points</p>
-                    <ul className="space-y-1.5">
+                  <div className="bg-background/50 rounded-lg p-4 border border-primary/5">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Discussion Topics</p>
+                    <ul className="space-y-3">
                       {preMeetingContext.insights.talkingPoints.map((point: string, idx: number) => (
-                        <li key={idx} className="text-sm flex items-start gap-2">
+                        <li key={idx} className="text-sm flex items-start gap-3">
                           <span className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                          <span className="text-muted-foreground">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {preMeetingContext.insights && (
-              <div className="mb-6 pb-6 border-b border-primary/20">
-                <div className="flex items-center gap-2 text-primary font-medium mb-2">
-                  <Brain className="h-4 w-4" />
-                  <span>Probable things to discuss</span>
-                </div>
-                {preMeetingContext.insights.briefSummary && (
-                  <p className="text-sm mb-3 text-muted-foreground">
-                    {preMeetingContext.insights.briefSummary}
-                  </p>
-                )}
-                {preMeetingContext.insights.talkingPoints?.length > 0 && (
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Suggested Discussion Points</p>
-                    <ul className="space-y-1.5">
-                      {preMeetingContext.insights.talkingPoints.map((point: string, idx: number) => (
-                        <li key={idx} className="text-sm flex items-start gap-2">
-                          <span className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                          <span className="text-muted-foreground">{point}</span>
+                          <span className="text-foreground/90 leading-relaxed">{point}</span>
                         </li>
                       ))}
                     </ul>
@@ -541,8 +519,8 @@ export default function MeetingDetailPage() {
 
             {preMeetingContext.lastMeetingSummary ? (
               <div>
-                <p className="text-xs font-medium text-muted-foreground">Last Meeting Summary</p>
-                <div className="prose prose-sm dark:prose-invert max-w-none mt-1">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Last Meeting Summary</p>
+                <div className="prose prose-sm dark:prose-invert max-w-none p-4 rounded-lg bg-background/50 border border-primary/5">
                   <ReactMarkdown>
                     {getParsedSummary(preMeetingContext.lastMeetingSummary)}
                   </ReactMarkdown>
@@ -550,38 +528,41 @@ export default function MeetingDetailPage() {
               </div>
             ) : (
               <div>
-                <p className="text-xs font-medium text-muted-foreground">Last Meeting Summary</p>
-                <p className="text-sm text-muted-foreground italic mt-1">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Last Meeting Summary</p>
+                <p className="text-sm text-muted-foreground italic p-4 rounded-lg bg-background/50 border border-primary/5">
                   No chronological previous meeting summary found.
                 </p>
               </div>
             )}
-            {preMeetingContext.pendingTasks?.length > 0 && (
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">Pending Tasks</p>
-                <ul className="mt-1 space-y-1">
-                  {preMeetingContext.pendingTasks.map((task: any) => (
-                    <li key={task.id} className="text-sm flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                      {task.title} — due {task.deadline ? formatDate(task.deadline) : "no deadline"}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {preMeetingContext.recentSubmissions?.length > 0 && (
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">Recent Submissions</p>
-                <ul className="mt-1 space-y-1">
-                  {preMeetingContext.recentSubmissions.map((sub: any) => (
-                    <li key={sub.id} className="text-sm flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                      {sub.scholar_name} submitted &quot;{sub.task_title}&quot;
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {preMeetingContext.pendingTasks?.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Pending Tasks</p>
+                  <ul className="space-y-2">
+                    {preMeetingContext.pendingTasks.map((task: any) => (
+                      <li key={task.id} className="text-sm flex items-center p-2 rounded-md bg-background/50 border border-primary/5 gap-2">
+                        <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                        <span className="truncate">{task.title}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {preMeetingContext.recentSubmissions?.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Recent Submissions</p>
+                  <ul className="space-y-2">
+                    {preMeetingContext.recentSubmissions.map((sub: any) => (
+                      <li key={sub.id} className="text-sm flex items-center p-2 rounded-md bg-background/50 border border-primary/5 gap-2">
+                        <span className="h-2 w-2 rounded-full bg-green-500 shrink-0" />
+                        <span className="truncate">{sub.scholar_name} submitted "{sub.task_title}"</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
