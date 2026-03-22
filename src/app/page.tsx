@@ -92,7 +92,6 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        {/* Dynamic Background Patterns */}
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
         <div className="absolute top-0 left-0 right-0 h-[500px] bg-gradient-to-b from-primary/10 via-background to-background -z-10 blur-3xl"></div>
         <div className="absolute top-40 -left-40 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] -z-10"></div>
@@ -101,20 +100,19 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2.5 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-medium text-primary mb-8 backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-1000">
             <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse"></span>
-            Now With Fathom AI & automated task extraction
+            Now With AI Meeting Note-Taker & Auto-Task Assignment
           </div>
 
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.1] mb-8 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-150">
-            Research Management,<br className="hidden md:block" />
+            The One-Stop Solution<br className="hidden md:block" />
             <span className="bg-gradient-to-r from-primary via-blue-500 to-purple-600 bg-clip-text text-transparent">
-              Supercharged by AI.
+              For Your Professor Needs.
             </span>
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
-            The intelligent operating system for your research lab. Automate meeting notes, 
-            extract action items with Groq AI, track scholar progress, and synchronize everything 
-            with Google Calendar.
+            A single platform to manage your entire lab. Share a simple code for students to join in. 
+            Schedule automatically emailed meetings, assign tasks, evaluate submissions, and let our AI note-taker record and extract assignments seamlessly.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
@@ -143,16 +141,16 @@ export default function LandingPage() {
           {/* Feature Pills */}
           <div className="mt-20 flex flex-wrap justify-center gap-4 md:gap-8 opacity-70 animate-in fade-in duration-1000 delay-700">
             <div className="flex items-center gap-2 text-sm font-semibold">
-              <Bot className="h-5 w-5 text-purple-500" /> Fathom AI Integrated
+              <Bot className="h-5 w-5 text-purple-500" /> AI Meeting Bot
             </div>
             <div className="flex items-center gap-2 text-sm font-semibold">
-              <BrainCircuit className="h-5 w-5 text-blue-500" /> Groq Smart Extraction
+              <BrainCircuit className="h-5 w-5 text-blue-500" /> Smart Action Item Extraction
             </div>
             <div className="flex items-center gap-2 text-sm font-semibold">
-              <Calendar className="h-5 w-5 text-green-500" /> Google Meet Sync
+              <Calendar className="h-5 w-5 text-green-500" /> Automated Email Invites
             </div>
             <div className="flex items-center gap-2 text-sm font-semibold">
-              <Activity className="h-5 w-5 text-rose-500" /> Real-time Tracking
+              <UserPlus className="h-5 w-5 text-rose-500" /> simple 1-Click Join
             </div>
           </div>
         </div>
@@ -180,10 +178,10 @@ export default function LandingPage() {
                   
                   <div className="space-y-4 pl-4 border-l-2 border-primary/20 relative">
                     <div className="absolute -left-[9px] top-0 h-4 w-4 rounded-full bg-background border-2 border-primary" />
-                    <p className="text-sm font-medium">Fathom AI generates transcript...</p>
+                    <p className="text-sm font-medium">Your Bot generates transcript...</p>
                     
                     <div className="absolute -left-[9px] top-1/2 h-4 w-4 rounded-full bg-background border-2 border-primary" />
-                    <p className="text-sm font-medium text-muted-foreground">Groq LLM extracts action items...</p>
+                    <p className="text-sm font-medium text-muted-foreground">Smart AI Engine extracts tasks...</p>
                     
                     <div className="bg-primary/5 rounded-xl p-4 border border-primary/10 mt-4">
                       <div className="flex items-center gap-2 mb-2">
@@ -203,27 +201,27 @@ export default function LandingPage() {
 
             <div className="order-1 lg:order-2">
               <div className="inline-flex items-center gap-2 rounded-full bg-purple-500/10 px-4 py-1.5 text-sm font-medium text-purple-500 mb-6">
-                <Sparkles className="h-4 w-4" /> The future of meetings
+                <Sparkles className="h-4 w-4" /> Your Personal AI Notetaker
               </div>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 leading-tight">
-                Never lose a task in translation again.
+                Never lose a decision or task in translation again.
               </h2>
               <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                Connect your Fathom account once, and watch the magic happen. Every Google Meet you host is automatically recorded, transcribed, and summarized.
+                Once integrated, your own personalized bot will automatically join all your meetings. It records everything, takes meticulous notes, and organizes the details directly on your dashboard.
               </p>
               
               <ul className="space-y-4">
                 {[
-                  "Automatic transcript fetching via Fathom webhooks",
-                  "Groq AI parses conversation context intelligently",
-                  "Tasks are instantly mapped to your lab's scholars",
-                  "Action items populate directly in the scholar's dashboard"
+                  "Automated Note-Taking: Transcripts and summaries are instantly generated and visible directly on the platform.",
+                  "Smart Task Extraction: Our smart AI engine picks out clear action items and automatically assigns tasks to the relevant students.",
+                  "Contextual Next Meetings: Keep continuity. When scheduling a follow-up, our AI gives you a smart summary of past discussions.",
+                  "Automated Follow-ups: The AI checks if students have completed the tasks assigned in your last meeting."
                 ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-base font-medium">
-                    <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
+                  <li key={i} className="flex gap-4 text-base font-medium">
+                    <div className="flex-shrink-0 h-6 w-6 mt-0.5 rounded-full bg-primary/10 flex items-center justify-center">
                       <CheckSquare className="h-3.5 w-3.5 text-primary" />
                     </div>
-                    {item}
+                    <span className="leading-snug">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -236,53 +234,53 @@ export default function LandingPage() {
       <section id="features" className="py-24 bg-muted/30 border-y border-border/50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">Everything you need, beautifully designed.</h2>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">Everything you need, in one place.</h2>
             <p className="text-lg text-muted-foreground">
-              A comprehensive suite of tools built specifically for the demanding workflow of modern academic research labs.
+              A single, beautifully designed platform built entirely around making a professor&apos;s life infinitely easier.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                icon: LayoutDashboard,
-                title: "Unified Dashboards",
-                desc: "Distinct, purpose-built interfaces for Professors, Scholars, and Co-Supervisors ensuring everyone sees exactly what they need.",
+                icon: UserPlus,
+                title: "Simple Onboarding",
+                desc: "Add any number of students effortlessly. Just share a simple code or link, and they join your lab securely with a single login.",
                 color: "text-blue-500",
                 bg: "bg-blue-500/10",
               },
               {
                 icon: Video,
-                title: "Google Meet Native",
-                desc: "Schedule meetings directly from the portal. Invites are sent and Google Meet links generated instantly.",
+                title: "Smart Meeting Scheduler",
+                desc: "Schedule all your meetings here. Students instantly get email invites. Need to reschedule or cancel? Automated emails keep everyone updated.",
                 color: "text-emerald-500",
                 bg: "bg-emerald-500/10",
               },
               {
                 icon: FileText,
-                title: "Submission Workflows",
-                desc: "Scholars submit research drafts natively. Professors can review, request revisions, and approve seamlessly.",
+                title: "Complete Task Management",
+                desc: "A single platform to assign all tasks. Students receive automated reminders, while you can evaluate submissions and easily keep track of progress.",
                 color: "text-violet-500",
                 bg: "bg-violet-500/10",
               },
               {
-                icon: Megaphone,
-                title: "Lab Announcements",
-                desc: "Broadcast important updates to your entire research group. Complete with read receipts and emoji reactions.",
+                icon: LayoutDashboard,
+                title: "Unified Dashboards",
+                desc: "Everyone gets exactly what they need. Dedicated views for Professors to oversee everything, and concise hubs for Scholars.",
                 color: "text-pink-500",
                 bg: "bg-pink-500/10",
               },
               {
-                icon: UserPlus,
-                title: "Invite-Code Onboarding",
-                desc: "Generate secure, single-use or reusable invite links to securely onboard scholars directly into your supervision.",
+                icon: Megaphone,
+                title: "Lab Announcements",
+                desc: "Send fast broadcast notices to the entire lab at once. Let students react with emojis so you know they saw it.",
                 color: "text-orange-500",
                 bg: "bg-orange-500/10",
               },
               {
-                icon: ShieldCheck,
-                title: "Admin Oversight",
-                desc: "System administrators have a high-level overview of total university activity, cross-lab tasks, and user role management.",
+                icon: Activity,
+                title: "Complete Activity Tracking",
+                desc: "Never lose track of what happened when. Every submission, calendar change, and feedback note is neatly logged for your records.",
                 color: "text-red-500",
                 bg: "bg-red-500/10",
               },
@@ -325,26 +323,26 @@ export default function LandingPage() {
             {[
               {
                 role: "Professor",
-                tagline: "The Command Center",
-                desc: "Manage your entire research group. Orchestrate meetings, review submissions, analyze activity metrics, and guide your scholars to success.",
-                features: ["Fathom AI integration", "Task assignment", "Submission grading"],
+                tagline: "Your Mission Control",
+                desc: "Manage your entire research group seamlessly. Orchestrate meetings, review submissions, easily assign tasks, and track every student's progress effortlessly.",
+                features: ["AI note-taker assistant", "Effortless task assigning", "Evaluate student submissions"],
                 color: "from-blue-600 to-indigo-600",
                 shadow: "shadow-blue-500/20",
                 icon: GraduationCap,
               },
               {
                 role: "Scholar",
-                tagline: "The Execution Hub",
-                desc: "Your personal research headquarters. Access your tasks, view AI-generated meeting summaries, submit papers, and track your deadlines.",
-                features: ["AI task extraction", "One-click meetings", "Progress tracking"],
+                tagline: "The Focus Hub",
+                desc: "Your personal research headquarters. See exactly what you need to do, get friendly reminders, view AI meeting summaries, and submit your tasks directly.",
+                features: ["Automatic reminders", "1-click meeting joins", "Direct file submissions"],
                 color: "from-emerald-500 to-teal-600",
                 shadow: "shadow-emerald-500/20",
                 icon: CheckSquare,
               },
               {
                 role: "Co-Supervisor",
-                tagline: "The Collaborative Wing",
-                desc: "Assist seamlessly. Access shared scholars, participate in meetings, monitor task completion, and provide secondary review feedback.",
+                tagline: "The Support Wing",
+                desc: "Assist seamlessly. Access shared scholars, participate in meetings, monitor student task completion, and provide secondary review feedback effortlessly.",
                 features: ["Shared visibility", "Secondary reviews", "Activity monitoring"],
                 color: "from-orange-500 to-rose-500",
                 shadow: "shadow-orange-500/20",
@@ -396,13 +394,12 @@ export default function LandingPage() {
             <div>
               <h3 className="text-3xl font-bold mb-4">Enterprise-grade Security</h3>
               <p className="text-background/80 text-lg leading-relaxed mb-6">
-                Built rigidly on Supabase with uncompromising Row-Level Security (RLS). 
-                Authentication flows via standard OAuth2 protocols—absolutely zero passwords stored.
+                Your data is securely isolated for your lab only. Secure student login happens safely with standard trusted protocols, meaning absolutely no passwords need to be memorized or stored improperly.
               </p>
               <div className="flex flex-wrap gap-3">
-                <span className="px-3 py-1 rounded-full bg-white/10 text-sm backdrop-blur-sm border border-white/5">Supabase RLS</span>
-                <span className="px-3 py-1 rounded-full bg-white/10 text-sm backdrop-blur-sm border border-white/5">Google OAuth2</span>
-                <span className="px-3 py-1 rounded-full bg-white/10 text-sm backdrop-blur-sm border border-white/5">Strict Webhooks</span>
+                <span className="px-3 py-1 rounded-full bg-white/10 text-sm backdrop-blur-sm border border-white/5">Strict Data Isolation</span>
+                <span className="px-3 py-1 rounded-full bg-white/10 text-sm backdrop-blur-sm border border-white/5">Simple Secure Login</span>
+                <span className="px-3 py-1 rounded-full bg-white/10 text-sm backdrop-blur-sm border border-white/5">Verified Connectors</span>
               </div>
             </div>
           </div>
@@ -414,10 +411,10 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-primary/5 -z-10"></div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-5xl md:text-6xl font-black tracking-tight mb-6">
-            Ready to upgrade your lab?
+            Ready to simplify your research workflow?
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-            Automate the busywork. Focus entirely on the breakthroughs. Join Scholar Portal today.
+            Let the AI handle the busywork so you can focus entirely on the breakthroughs.
           </p>
           {loggedIn ? (
             <Link href="/dashboard">
@@ -457,8 +454,8 @@ export default function LandingPage() {
             
             <div className="flex gap-8 text-sm font-medium text-muted-foreground">
               <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-              <a href="#ai-integration" className="hover:text-foreground transition-colors">AI Processing</a>
-              <a href="#roles" className="hover:text-foreground transition-colors">Workflows</a>
+              <a href="#ai-integration" className="hover:text-foreground transition-colors">AI Assistants</a>
+              <a href="#roles" className="hover:text-foreground transition-colors">Lab Workflow</a>
             </div>
           </div>
           
