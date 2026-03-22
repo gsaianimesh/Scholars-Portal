@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { getInitials, formatDate } from "@/lib/utils";
 import { ArrowLeft, Mail, Calendar } from "lucide-react";
+import { LoadingState } from "@/components/loading-screen";
 import Link from "next/link";
 
 export default function ScholarProfilePage() {
@@ -58,11 +59,7 @@ export default function ScholarProfilePage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
+    return <LoadingState layout="dashboard" />;
   }
 
   if (!scholar) {

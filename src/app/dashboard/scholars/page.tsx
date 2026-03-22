@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { getInitials, formatDate } from "@/lib/utils";
 import { Plus, Search } from "lucide-react";
+import { LoadingState } from "@/components/loading-screen";
 import Link from "next/link";
 
 export default function ScholarsPage() {
@@ -109,7 +110,7 @@ export default function ScholarsPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading...</div>
+        <LoadingState layout="list"/>
       ) : filtered.length === 0 ? (
         <Card>
           <CardContent className="text-center py-12">

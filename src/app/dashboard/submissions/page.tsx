@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getInitials, formatDate } from "@/lib/utils";
 import { ExternalLink } from "lucide-react";
+import { LoadingState } from "@/components/loading-screen";
 import Link from "next/link";
 
 export default function SubmissionsPage() {
@@ -93,7 +94,7 @@ export default function SubmissionsPage() {
   const reviewed = submissions.filter((s) => s.submission_status && s.submission_status !== "pending");
 
   if (loading) {
-    return <div className="text-center py-12 text-muted-foreground">Loading...</div>;
+    return <LoadingState layout="list" />;
   }
 
   return (

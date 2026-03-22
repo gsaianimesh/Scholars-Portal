@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDateTime } from "@/lib/utils";
 import { Plus, Calendar, Clock, Video, List, ChevronLeft, ChevronRight, Brain } from "lucide-react";
+import { LoadingState } from "@/components/loading-screen";
 import Link from "next/link";
 
 export default function MeetingsPage() {
@@ -145,7 +146,7 @@ export default function MeetingsPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading...</div>
+        <LoadingState layout="list"/>
       ) : view === "list" ? (
         <div className="space-y-8">
           {/* Upcoming */}

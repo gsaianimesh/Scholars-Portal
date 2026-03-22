@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { getInitials, formatDate } from "@/lib/utils";
 import { ArrowLeft, Clock, ExternalLink, Upload } from "lucide-react";
+import { LoadingState } from "@/components/loading-screen";
 import Link from "next/link";
 
 export default function TaskDetailPage() {
@@ -137,7 +138,7 @@ export default function TaskDetailPage() {
   };
 
   if (loading) {
-    return <div className="text-center py-12 text-muted-foreground">Loading...</div>;
+    return <LoadingState layout="dashboard" />;
   }
 
   if (!task) {

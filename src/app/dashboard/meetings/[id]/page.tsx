@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { getInitials, formatDateTime, formatDate } from "@/lib/utils";
 import { ArrowLeft, Calendar, Video, FileText, Users, Brain, CheckCircle, XCircle, CalendarClock, Clock } from "lucide-react";
+import { LoadingState } from "@/components/loading-screen";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 
@@ -361,7 +362,7 @@ export default function MeetingDetailPage() {
   }
 
   if (loading) {
-    return <div className="text-center py-12 text-muted-foreground">Loading...</div>;
+    return <LoadingState layout="dashboard" />;
   }
 
   if (!meeting) {

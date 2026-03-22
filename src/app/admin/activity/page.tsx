@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getInitials, formatDateTime } from "@/lib/utils";
+import { LoadingState } from "@/components/loading-screen";
 import {
   Activity,
   Search,
@@ -156,7 +157,7 @@ export default function AdminActivityPage() {
       <Card>
         <CardContent className="p-0">
           {loading ? (
-            <div className="text-center py-12 text-muted-foreground">Loading...</div>
+            <LoadingState layout="list"/>
           ) : filtered.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">No activity logs found</div>
           ) : (

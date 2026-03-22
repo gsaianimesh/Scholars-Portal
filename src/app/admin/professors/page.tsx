@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getInitials, formatDate, formatDateTime } from "@/lib/utils";
+import { LoadingState } from "@/components/loading-screen";
 import {
   Users,
   GraduationCap,
@@ -91,7 +92,7 @@ export default function AdminProfessorsPage() {
   }
 
   if (loading) {
-    return <div className="text-center py-12 text-muted-foreground">Loading professors...</div>;
+    return <LoadingState layout="list"/>;
   }
 
   return (

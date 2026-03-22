@@ -15,6 +15,7 @@ import {
   Upload,
   MessageSquare,
 } from "lucide-react";
+import { LoadingState } from "@/components/loading-screen";
 
 const activityIcons: Record<string, any> = {
   task_created: CheckSquare,
@@ -67,7 +68,7 @@ export default function ActivityPage() {
   }
 
   if (loading) {
-    return <div className="text-center py-12 text-muted-foreground">Loading...</div>;
+    return <LoadingState layout="list" />;
   }
 
   return (

@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Send, Hash, Bot, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { LoadingState } from "@/components/loading-screen";
 
 // Lumi AI Contact
 const LUMI_CONTACT = {
@@ -224,7 +225,7 @@ export default function ChatPage() {
   };
 
   if (loading) {
-    return <div className="p-8 text-center text-muted-foreground animate-pulse flex items-center justify-center h-full"><Hash className="w-5 h-5 mr-2 animate-spin"/> Loading Workspace...</div>;
+    return <LoadingState layout="dashboard" />;
   }
 
   return (

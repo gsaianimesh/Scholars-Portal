@@ -117,11 +117,7 @@ export function ProfessorDashboard({ userId }: ProfessorDashboardProps) {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-pulse text-muted-foreground">Loading dashboard...</div>
-      </div>
-    );
+    return <LoadingState layout="dashboard" />;
   }
 
   return (

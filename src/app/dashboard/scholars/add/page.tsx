@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Copy, Check, Share2 } from "lucide-react";
 import Link from "next/link";
+import { LoadingState } from "@/components/loading-screen";
 
 export default function AddScholarPage() {
   const [inviteCode, setInviteCode] = useState("");
@@ -59,7 +60,7 @@ export default function AddScholarPage() {
     : "";
 
   if (loading) {
-    return <div className="text-center py-12 text-muted-foreground">Loading...</div>;
+    return <LoadingState layout="dashboard" />;
   }
 
   return (

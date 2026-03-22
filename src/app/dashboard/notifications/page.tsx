@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDateTime } from "@/lib/utils";
 import { Bell, Check, CheckCheck } from "lucide-react";
+import { LoadingState } from "@/components/loading-screen";
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -76,7 +77,7 @@ export default function NotificationsPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading...</div>
+        <LoadingState layout="list"/>
       ) : notifications.length === 0 ? (
         <Card>
           <CardContent className="text-center py-12">

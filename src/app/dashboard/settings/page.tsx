@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Copy, Check, Link as LinkIcon, Zap, Brain, ListChecks, Bell } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { LoadingState } from "@/components/loading-screen";
 
 export default function SettingsPage() {
   const [name, setName] = useState("");
@@ -135,7 +136,7 @@ export default function SettingsPage() {
     : "";
 
   if (loading) {
-    return <div className="text-center py-12 text-muted-foreground">Loading...</div>;
+    return <LoadingState layout="dashboard" />;
   }
 
   return (

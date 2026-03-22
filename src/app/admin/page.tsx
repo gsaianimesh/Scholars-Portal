@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials, formatDateTime } from "@/lib/utils";
+import { LoadingState } from "@/components/loading-screen";
 import {
   Users,
   GraduationCap,
@@ -53,7 +54,7 @@ export default function AdminOverviewPage() {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-12 text-muted-foreground">Loading admin dashboard...</div>;
+    return <LoadingState layout="dashboard"/>;
   }
 
   if (!stats) {

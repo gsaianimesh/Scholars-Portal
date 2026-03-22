@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { getInitials, formatDateTime } from "@/lib/utils";
+import { LoadingState } from "@/components/loading-screen";
 import {
   Calendar,
   Clock,
@@ -73,7 +74,7 @@ export default function AdminMeetingsPage() {
   const past = filtered.filter((m) => new Date(m.meeting_date) < now);
 
   if (loading) {
-    return <div className="text-center py-12 text-muted-foreground">Loading meetings...</div>;
+    return <LoadingState layout="list"/>;
   }
 
   return (

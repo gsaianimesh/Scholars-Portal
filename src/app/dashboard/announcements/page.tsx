@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { getInitials } from "@/lib/utils";
 import { Megaphone, Plus, Trash2 } from "lucide-react";
+import { LoadingState } from "@/components/loading-screen";
 
 const REACTION_EMOJIS = ["👍", "❤️", "🎉", "🔥", "👀", "💡"];
 
@@ -178,7 +179,7 @@ export default function AnnouncementsPage() {
 
       {/* Announcements List */}
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading...</div>
+        <LoadingState layout="list" />
       ) : announcements.length === 0 ? (
         <Card>
           <CardContent className="text-center py-12">
