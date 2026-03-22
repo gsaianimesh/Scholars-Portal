@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Chatbot } from "@/components/layout/chatbot";
 import {
   GraduationCap,
   Calendar,
@@ -570,6 +571,8 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      <Chatbot />
     </div>
   );
 }
