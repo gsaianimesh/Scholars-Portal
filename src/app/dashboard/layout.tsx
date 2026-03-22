@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { Chatbot } from "@/components/layout/chatbot";
 
 export default async function DashboardLayout({
   children,
@@ -21,6 +22,7 @@ export default async function DashboardLayout({
         <Header user={user} />
         <main className="p-6">{children}</main>
       </div>
+      <Chatbot />
     </div>
   );
 }

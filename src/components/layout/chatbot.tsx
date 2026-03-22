@@ -14,6 +14,8 @@ export function Chatbot() {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showBubble, setShowBubble] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -21,6 +23,27 @@ export function Chatbot() {
         scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isOpen, isLoading]);
+
+  // Auto-popup bubble every 3 minutes
+  useEffect(() => {
+    if (!isOpen) {
+      const showBubbleTimer = setTimeout(() => {
+        setShowBubble(true);
+        // Auto-hide bubble after 5 seconds
+        setTimeout(() => setShowBubble(false), 5000);
+      }, 3000); // Show first bubble after 3 seconds
+
+      const interval = setInterval(() => {
+        setShowBubble(true);
+        setTimeout(() => setShowBubble(false), 5000);
+      }, 180000); // Every 3 minutes
+
+      return () => {
+        clearTimeout(showBubbleTimer);
+        clearInterval(interval);
+      };
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e?: React.FormEvent, customInput?: string) => {
     if (e) e.preventDefault();
@@ -58,16 +81,62 @@ export function Chatbot() {
 
   return (
     <>
-      {/* Floating Button - Simple Bot Icon */}
+      {/* Floating Button with Hover Effect & Blinking Indicator */}
       {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 left-6 h-14 w-14 bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50 hover:shadow-xl"
-          title="Chat with Lumi"
-        >
-          <MessageCircle className="h-6 w-6" />
-          <span className="absolute -top-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white"></span>
-        </button>
+        <div className="fixed bottom-6 left-6 z-50 flex items-end gap-3">
+          {/* Help Bubble */}
+          {showBubble && (
+            <div className="relative animate-in slide-in-from-left-2 duration-300 mb-2">
+              <div className="bg-background border shadow-lg rounded-2xl rounded-bl-sm px-4 py-2.5 max-w-[200px]">
+                <button
+                  onClick={() => setShowBubble(false)}
+                  className="absolute -top-1.5 -right-1.5 h-5 w-5 bg-muted hover:bg-destructive hover:text-destructive-foreground rounded-full flex items-center justify-center text-muted-foreground transition-colors"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+                <p className="text-xs font-medium text-foreground">
+                  Hey there! 👋 I'm here if you need any help!
+                </p>
+              </div>
+              {/* Pointer */}
+              <div className="absolute -bottom-1 left-4 w-3 h-3 bg-background border-r border-b rotate-45 transform"></div>
+            </div>
+          )}
+
+          {/* Floating Bot Button */}
+          <button
+            onClick={() => setIsOpen(true)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className="relative h-14 w-14 bg-gradient-to-br from-violet-600 to-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all hover:shadow-xl group"
+            title="Chat with Lumi"
+          >
+            {/* Icon transitions */}
+            <MessageCircle
+              className={`h-6 w-6 absolute transition-all duration-300 ${
+                isHovered ? 'opacity-0 scale-50' : 'opacity-100 scale-100'
+              }`}
+            />
+
+            {/* Bot with blinking eyes on hover */}
+            <div className={`absolute transition-all duration-300 ${
+              isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+            }`}>
+              <Bot className="h-6 w-6" />
+              {/* Blinking eyes animation */}
+              {isHovered && (
+                <>
+                  <span className="absolute top-[9px] left-[11px] w-[3px] h-[3px] bg-white rounded-full animate-pulse"></span>
+                  <span className="absolute top-[9px] right-[11px] w-[3px] h-[3px] bg-white rounded-full animate-pulse"></span>
+                </>
+              )}
+            </div>
+
+            {/* Blinking online indicator */}
+            <span className="absolute -top-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></span>
+            <span className="absolute -top-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white animate-ping"></span>
+          </button>
+        </div>
       )}
 
       {isOpen && (
