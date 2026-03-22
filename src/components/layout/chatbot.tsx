@@ -58,7 +58,7 @@ export function Chatbot() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 bg-primary text-primary-foreground rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 animate-in fade-in zoom-in group"
+          className="fixed bottom-6 left-6 h-14 w-14 bg-primary text-primary-foreground rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 animate-in fade-in zoom-in group"
         >
           <Sparkles className="absolute top-1 right-1 w-3 h-3 text-yellow-300 animate-pulse" />
           <MessageCircle className="h-6 w-6 group-hover:hidden" />
@@ -68,7 +68,7 @@ export function Chatbot() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-[350px] sm:w-[400px] h-[500px] max-h-[80vh] bg-background border shadow-2xl rounded-2xl flex flex-col z-50 overflow-hidden animate-in slide-in-from-bottom-5">
+        <div className="fixed bottom-6 left-6 w-[350px] sm:w-[400px] h-[500px] max-h-[80vh] bg-background border shadow-2xl rounded-2xl flex flex-col z-50 overflow-hidden animate-in slide-in-from-bottom-5">
           {/* Header */}
           <div className="flex items-center justify-between p-4 bg-primary/10 border-b">
             <div className="flex items-center gap-2">
