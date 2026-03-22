@@ -74,7 +74,12 @@ export function Header({ user }: HeaderProps) {
     <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-md">
       <div className="flex h-16 items-center justify-between px-6">
         {/* Mobile menu */}
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="md:hidden"
+          onClick={() => window.dispatchEvent(new Event('toggle-sidebar'))}
+        >
           <Menu className="h-5 w-5" />
         </Button>
 

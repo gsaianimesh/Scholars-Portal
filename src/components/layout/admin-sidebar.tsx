@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -22,11 +23,35 @@ const adminLinks = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const handleToggle = () => setIsOpen((prev) => !prev);
+    window.addEventListener('toggle-sidebar', handleToggle);
+    return () => window.removeEventListener('toggle-sidebar', handleToggle);
+  }, []);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   return (
-    <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
-      <div className="flex flex-col flex-grow border-r bg-slate-900 text-white">
-        {/* Logo */}
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Container */}
+      <div className={cn(
+        "fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r transition-transform duration-200 ease-in-out md:flex md:flex-col md:inset-y-0",
+        isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      )}>
+        <div className="flex flex-col flex-grow border-r bg-slate-900 text-white h-full">
+          {/* Logo */}
         <div className="flex items-center gap-2 px-6 py-5 border-b border-slate-700">
           <ShieldCheck className="h-6 w-6 text-amber-400" />
           <span className="font-semibold text-lg">Admin Panel</span>
@@ -70,5 +95,6 @@ export function AdminSidebar() {
         </div>
       </div>
     </div>
+    </>
   );
 }

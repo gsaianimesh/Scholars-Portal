@@ -61,10 +61,21 @@ const coSupervisorLinks = [
 
 export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
   const [announcementCount, setAnnouncementCount] = useState(0);
   const [taskCount, setTaskCount] = useState(0);
   const [meetingCount, setMeetingCount] = useState(0);
   const supabase = createClient();
+
+  useEffect(() => {
+    const handleToggle = () => setIsOpen((prev) => !prev);
+    window.addEventListener('toggle-sidebar', handleToggle);
+    return () => window.removeEventListener('toggle-sidebar', handleToggle);
+  }, []);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     async function fetchData() {
@@ -201,9 +212,22 @@ export function Sidebar({ role }: SidebarProps) {
       : coSupervisorLinks;
 
   return (
-    <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
-      <div className="flex flex-col flex-grow border-r bg-card">
-        {/* Logo */}
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Container */}
+      <div className={cn(
+        "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r transition-transform duration-200 ease-in-out md:flex md:flex-col md:inset-y-0",
+        isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      )}>
+        <div className="flex flex-col flex-grow border-r bg-card h-full">
+          {/* Logo */}
         <div className="flex items-center gap-2 px-6 py-5 border-b">
           <GraduationCap className="h-6 w-6 text-primary" />
           <span className="font-semibold text-lg">Researchify</span>
@@ -264,5 +288,6 @@ export function Sidebar({ role }: SidebarProps) {
         </div>
       </div>
     </div>
+    </>
   );
 }

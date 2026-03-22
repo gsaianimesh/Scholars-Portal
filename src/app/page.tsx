@@ -39,7 +39,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20">
+    <div className="min-h-screen overflow-x-hidden w-full bg-background text-foreground selection:bg-primary/20">
       {/* Navbar */}
       <header className="fixed top-0 w-full z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -163,9 +163,9 @@ export default function LandingPage() {
                   <div className="relative bg-card/90 backdrop-blur-xl border border-border shadow-2xl rounded-[2rem] p-6 lg:p-8">
                   
                   {/* Floating Bot Button Mockup */}
-                  <div className="absolute top-6 right-6 h-12 w-12 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-full shadow-lg flex items-center justify-center animate-bounce duration-[3000ms]">
-                    <span className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full border-2 border-white"></span>
-                    <Bot className="h-6 w-6 text-white" />
+                  <div className="absolute top-4 right-4 sm:top-6 sm:right-6 h-10 w-10 sm:h-12 sm:w-12 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-full shadow-lg flex items-center justify-center animate-bounce duration-[3000ms]">
+                    <span className="absolute -top-1 -right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 bg-green-500 rounded-full border-2 border-white"></span>
+                    <Bot className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
 
                   {/* Fake Chat Window Elements */}
@@ -198,8 +198,8 @@ export default function LandingPage() {
                   </div>
                   
                   {/* Floating Toggle elements */}
-                    <div className="absolute -left-6 -bottom-6 bg-background border shadow-xl rounded-xl p-3 flex items-center gap-3 transform -rotate-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 pointer-events-none z-10">
-                     <BrainCircuit className="h-5 w-5 text-purple-500" />
+                    <div className="absolute -left-2 sm:-left-6 -bottom-4 sm:-bottom-6 scale-90 sm:scale-100 bg-background border shadow-xl rounded-xl p-2 sm:p-3 flex items-center gap-2 sm:gap-3 transform -rotate-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 pointer-events-none z-10">
+                       <BrainCircuit className="h-4 sm:h-5 w-4 sm:w-5 text-purple-500" />
                      <div className="text-xs pr-2">
                        <p className="font-bold">AI Tasks</p>
                        <p className="text-muted-foreground scale-90 origin-left">Auto-Generate</p>

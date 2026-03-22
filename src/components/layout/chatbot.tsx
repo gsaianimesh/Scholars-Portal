@@ -191,7 +191,7 @@ export function Chatbot({ requireAuth = false, disabledClick = false }: { requir
       )}
 
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-[360px] h-[500px] max-h-[80vh] bg-background border shadow-xl rounded-xl flex flex-col z-50 overflow-hidden animate-in slide-in-from-bottom-4 duration-200">
+        <div className="fixed bottom-6 right-6 w-[calc(100vw-3rem)] sm:w-[360px] h-[500px] max-h-[80vh] bg-background border shadow-xl rounded-xl flex flex-col z-50 overflow-hidden animate-in slide-in-from-bottom-4 duration-200">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white">
             <div className="flex items-center gap-2">
