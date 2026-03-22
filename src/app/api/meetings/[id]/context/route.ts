@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/server";
+import { generateMeetingInsights } from "@/lib/services/ai-summarization";
 
 export async function GET(
   request: NextRequest,
@@ -115,11 +116,25 @@ export async function GET(
     }
   }
 
+  let insights = null;
+  if (previousMeeting?.summary || pendingTasks.length > 0) {
+    try {
+      insights = await generateMeetingInsights(
+        previousMeeting?.summary || "",
+        pendingTasks,
+        recentSubmissions
+      );
+    } catch (e) {
+      console.error("Failed to generate meeting insights via Groq:", e);
+    }
+  }
+
   return NextResponse.json({
     lastMeetingSummary: previousMeeting?.summary || null,
     lastMeetingTitle: previousMeeting?.meeting_title || null,
     lastMeetingDate: previousMeeting?.meeting_date || null,
     pendingTasks: pendingTasks || [],
     recentSubmissions: recentSubmissions || [],
+    insights: insights || null,
   });
 }

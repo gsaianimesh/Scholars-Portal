@@ -186,3 +186,82 @@ export async function extractActionItems(
   const parsed: ActionItemsResult = JSON.parse(content);
   return parsed;
 }
+
+const INSIGHTS_SYSTEM_PROMPT = `You are an expert academic advisor. Your role is to suggest talking points and a brief summary for an upcoming meeting between a professor and their research scholars.
+
+You will be given the summary of the previous meeting and the status of recent tasks assigned to the scholars. 
+
+You must return a JSON object with the following structure:
+{
+  "talkingPoints": ["Array of 3-5 specific, actionable points to discuss in the upcoming meeting"],
+  "briefSummary": "A very short (1-2 sentences) overview of where the project currently stands based on the provided context."
+}
+`;
+
+export interface MeetingInsightsResult {
+  talkingPoints: string[];
+  briefSummary: string;
+}
+
+export async function generateMeetingInsights(
+  previousSummary: string,
+  pendingTasks: any[],
+  recentSubmissions: any[]
+): Promise<MeetingInsightsResult> {
+  const apiKey = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("No AI API key configured. Set GROQ_API_KEY or OPENAI_API_KEY.");
+  }
+
+  const isGroq = !!process.env.GROQ_API_KEY;
+  const baseUrl = isGroq
+    ? "https://api.groq.com/openai/v1"
+    : "https://api.openai.com/v1";
+  const model = isGroq ? "llama-3.3-70b-versatile" : "gpt-4o-mini";
+
+  let userContent = "";
+  if (previousSummary) {
+    userContent += `Previous Meeting Summary:\n${previousSummary}\n\n`;
+  }
+  if (pendingTasks && pendingTasks.length > 0) {
+    userContent += `Pending Tasks:\n${JSON.stringify(pendingTasks, null, 2)}\n\n`;
+  }
+  if (recentSubmissions && recentSubmissions.length > 0) {
+    userContent += `Recent Submissions/Completed Tasks:\n${JSON.stringify(recentSubmissions, null, 2)}\n\n`;
+  }
+
+  if (!userContent) {
+    userContent = "No previous context available. Just suggest general checking-in points.";
+  }
+
+  const response = await fetch(`${baseUrl}/chat/completions`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: INSIGHTS_SYSTEM_PROMPT },
+        { role: "user", content: userContent },
+      ],
+      temperature: 0.5,
+      response_format: { type: "json_object" },
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`AI API error: ${response.status} - ${errText}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new Error("No content in AI response");
+  }
+
+  const parsed: MeetingInsightsResult = JSON.parse(content);
+  return parsed;
+}
