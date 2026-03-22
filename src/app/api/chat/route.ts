@@ -9,19 +9,9 @@ function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options });
-          } catch {}
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: "", ...options });
-          } catch {}
-        },
+        get(name: string) { return cookieStore.get(name)?.value; },
+        set(name: string, value: string, options: CookieOptions) { try { cookieStore.set({ name, value, ...options }); } catch {} },
+        remove(name: string, options: CookieOptions) { try { cookieStore.set({ name, value: "", ...options }); } catch {} },
       },
     }
   );
@@ -34,7 +24,7 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
+    
     const { data: appUser } = await supabase
       .from("users")
       .select("*")
@@ -43,57 +33,38 @@ export async function POST(req: Request) {
 
     if (!appUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    // Fetch context data
-    let contextData = "";
+    // Ensure we know the user's relational ID
+    let profId = null;
+    let scholarId = null;
+    let scholarOptionsStr = "";
+
     if (appUser.role === "professor") {
       const { data: prof } = await supabase.from("professors").select("id").eq("user_id", appUser.id).single();
       if (prof) {
-        const [scholars, meetings, tasks] = await Promise.all([
-          supabase.from("scholars").select("users(name, email)").eq("professor_id", prof.id),
-          supabase.from("meetings").select("meeting_title, meeting_date, format").eq("professor_id", prof.id).order("meeting_date", { ascending: false }).limit(5),
-          supabase.from("tasks").select("title, status, deadline").eq("professor_id", prof.id).limit(10)
-        ]);
-        contextData = `
-User Role: Professor (Supervisor)
-Name: ${appUser.name}
-Your Scholars: ${scholars.data?.map(s => (s.users as any)?.name).join(', ') || 'None'}
-Your Recent/Upcoming Meetings: ${JSON.stringify(meetings.data || [])}
-Your Recent Tasks: ${JSON.stringify(tasks.data || [])}
-        `;
+        profId = prof.id;
+        const { data: scholars } = await supabase.from("scholars").select("id, users(name)").eq("professor_id", profId);
+        if (scholars) {
+          scholarOptionsStr = scholars.map((s:any) => `ID: ${s.id}, Name: ${s.users.name}`).join(" | ");
+        }
       }
     } else {
       const { data: scholar } = await supabase.from("scholars").select("id, professor_id").eq("user_id", appUser.id).single();
       if (scholar) {
-        const [meetings, tasks] = await Promise.all([
-          supabase.from("meeting_participants").select("meetings(meeting_title, meeting_date)").eq("user_id", appUser.id).limit(5),
-          supabase.from("task_assignments").select("tasks(title, deadline), status").eq("scholar_id", scholar.id).limit(10)
-        ]);
-        contextData = `
-User Role: Scholar (Student/Researcher)
-Name: ${appUser.name}
-Your Recent/Upcoming Meetings: ${JSON.stringify(meetings.data?.map((m: any) => m.meetings) || [])}
-Your Assigned Tasks: ${JSON.stringify(tasks.data?.map((t: any) => ({...t.tasks, status: t.status})) || [])}
-        `;
+        scholarId = scholar.id;
+        profId = scholar.professor_id;
       }
     }
 
     const systemPrompt = {
       role: "system",
-      content: `You are Lumi, a cute, helpful, friendly, and highly intelligent AI lab assistant for the Researchify platform.
-You help researchers (professors) and scholars manage their academic workflow seamlessly.
-Use the following real-time database context about the current user to answer their questions accurately. If they ask about their tasks, scholars, or meetings, use this provided JSON data to answer them factually.
-Be concise. Keep output to short, readable plain-text markdown. Don't invent tasks or meetings that aren't in the provided context, but be friendly and polite.
-
---- CURRENT USER DB CONTEXT ---
-${contextData}
---- END CONTEXT ---`
+      content: `You are Lumi, a brilliant and friendly AI lab assistant for Researchify.
+If the user asks you to create a task, schedule a meeting, assign something, DO NOT output plain text confirming it—you MUST use the provided tool!
+For professors, you can assign tools to scholars using their IDs. Available Scholars:\n${scholarOptionsStr || "None"}.
+For scholars, the task or meeting is assigned to themselves or their professor.
+Be extremely brief. Confirm success via text after the tool is called.`
     };
 
     const apiKey = process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: "No API key configured" }, { status: 500 });
-    }
-
     const isGroq = !!process.env.GROQ_API_KEY;
     const baseUrl = isGroq
       ? "https://api.groq.com/openai/v1/chat/completions"
@@ -109,21 +80,94 @@ ${contextData}
       body: JSON.stringify({
         model,
         messages: [systemPrompt, ...messages],
-        temperature: 0.7,
+        temperature: 0.5,
         max_tokens: 500,
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "create_task",
+              description: "Creates a new task in the database.",
+              parameters: {
+                type: "object",
+                properties: {
+                  title: { type: "string", description: "The title of the task" },
+                  description: { type: "string", description: "Task details" },
+                  scholar_id: { type: "string", description: "The ID of the scholar this belongs to. If scholar, leave empty (auto resolved)" }
+                },
+                required: ["title"]
+              }
+            }
+          },
+          {
+            type: "function",
+            function: {
+              name: "schedule_meeting",
+              description: "Creates a new meeting.",
+              parameters: {
+                type: "object",
+                properties: {
+                  title: { type: "string", description: "Title of the meeting" },
+                  date: { type: "string", description: "Date/Time in ISO format" }
+                },
+                required: ["title", "date"]
+              }
+            }
+          }
+        ],
+        tool_choice: "auto"
       }),
     });
 
-    if (!response.ok) {
-       const text = await response.text();
-       throw new Error(`Groq API Error: ${text}`);
+    const data = await response.json();
+    const msg = data.choices[0]?.message;
+
+    if (msg?.tool_calls) {
+      let responseText = "Action completed successfully!";
+      for (const toolCall of msg.tool_calls) {
+        if (toolCall.function.name === "create_task") {
+          const args = JSON.parse(toolCall.function.arguments);
+          const targetScholarId = args.scholar_id || scholarId;
+          
+          if (profId) {
+            const { data: tData, error } = await supabase.from("tasks").insert({
+               title: args.title,
+               description: args.description || "",
+               professor_id: profId,
+               created_by: appUser.id
+            }).select().single();
+            
+            if (tData && targetScholarId) {
+               await supabase.from("task_assignments").insert({ task_id: tData.id, scholar_id: targetScholarId });
+               responseText = `Task "**${args.title}**" has been created.`;
+            } else if (tData) {
+               responseText = `Global Task "**${args.title}**" has been created for your domain.`;
+            }
+          }
+        } else if (toolCall.function.name === "schedule_meeting") {
+          const args = JSON.parse(toolCall.function.arguments);
+          if (profId) {
+             const dt = new Date(args.date);
+             const endDt = new Date(dt.getTime() + 60*60*1000); // +1 hr
+             await supabase.from("meetings").insert({
+                meeting_title: args.title,
+                meeting_date: dt.toISOString(),
+                start_time: dt.toISOString(),
+                end_time: endDt.toISOString(),
+                format: "online",
+                professor_id: profId,
+                created_by: appUser.id
+             });
+             responseText = `Meeting "**${args.title}**" scheduled!`;
+          }
+        }
+      }
+      return NextResponse.json({ text: responseText + " Is there anything else you need?" });
     }
 
-    const data = await response.json();
-    return NextResponse.json({ text: data.choices[0]?.message?.content || "" });
-
+    return NextResponse.json({ text: msg?.content || "" });
   } catch (error: any) {
     console.error(error);
-    return NextResponse.json({ error: error.message || "Failed to generate reply" }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
