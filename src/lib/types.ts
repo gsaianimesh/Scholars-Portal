@@ -11,6 +11,10 @@ export interface User {
   email: string;
   role: UserRole;
   is_admin?: boolean;
+  auto_meeting_sync?: boolean;
+  ai_insights?: boolean;
+  auto_task_gen?: boolean;
+  email_notifs?: boolean;
   created_at: string;
 }
 

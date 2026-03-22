@@ -13,7 +13,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { name, department, institution, fathomApiKey } = body;
+  const { name, department, institution, fathomApiKey, autoMeetingSync, aiInsights, autoTaskGen, emailNotifs } = body;
 
   const serviceClient = createServiceRoleClient();
 
@@ -27,9 +27,16 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  // Update user name
-  if (name) {
-    await serviceClient.from("users").update({ name }).eq("id", currentUser.id);
+  // Update user specific fields
+  const userUpdates: any = {};
+  if (name !== undefined) userUpdates.name = name;
+  if (autoMeetingSync !== undefined) userUpdates.auto_meeting_sync = autoMeetingSync;
+  if (aiInsights !== undefined) userUpdates.ai_insights = aiInsights;
+  if (autoTaskGen !== undefined) userUpdates.auto_task_gen = autoTaskGen;
+  if (emailNotifs !== undefined) userUpdates.email_notifs = emailNotifs;
+
+  if (Object.keys(userUpdates).length > 0) {
+    await serviceClient.from("users").update(userUpdates).eq("id", currentUser.id);
   }
 
   // Update professor-specific fields

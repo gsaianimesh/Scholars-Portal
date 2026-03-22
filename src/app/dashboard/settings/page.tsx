@@ -60,6 +60,12 @@ export default function SettingsPage() {
       setName(appUser.name);
       setEmail(appUser.email);
       setRole(appUser.role);
+      
+      // Load user preferences
+      if (appUser.auto_meeting_sync !== undefined) setAutoMeetingSync(appUser.auto_meeting_sync);
+      if (appUser.ai_insights !== undefined) setAiInsights(appUser.ai_insights);
+      if (appUser.auto_task_gen !== undefined) setAutoTaskGen(appUser.auto_task_gen);
+      if (appUser.email_notifs !== undefined) setEmailNotifs(appUser.email_notifs);
 
       if (appUser.role === "professor") {
         const { data: prof } = await supabase
@@ -86,7 +92,16 @@ export default function SettingsPage() {
       const res = await fetch("/api/user/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, department, institution, fathomApiKey }),
+        body: JSON.stringify({ 
+          name, 
+          department, 
+          institution, 
+          fathomApiKey,
+          autoMeetingSync,
+          aiInsights,
+          autoTaskGen,
+          emailNotifs
+        }),
       });
 
       if (res.ok) {
@@ -300,19 +315,18 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Automation Settings for Professors */}
-      {role === "professor" && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Zap className="h-4 w-4 text-yellow-500" />
-              Automation Settings
-            </CardTitle>
-            <CardDescription>
-              Configure automated features powered by Lumi AI
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+      {/* Automation Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Zap className="h-4 w-4 text-yellow-500" />
+            Automation Settings
+          </CardTitle>
+          <CardDescription>
+            Configure automated features powered by Lumi AI
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div className="flex items-start gap-3">
                 <Brain className="h-5 w-5 text-purple-500 mt-0.5" />
@@ -388,7 +402,6 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
-      )}
     </div>
   );
 }

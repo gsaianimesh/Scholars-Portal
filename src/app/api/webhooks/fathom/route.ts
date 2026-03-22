@@ -59,12 +59,32 @@ export async function POST(request: NextRequest) {
     // Look up secret
     const { data: prof } = await serviceClient
       .from("professors")
-      .select("fathom_webhook_secret, fathom_api_key")
+      .select("fathom_webhook_secret, fathom_api_key, user_id")
       .eq("id", profId)
       .maybeSingle();
 
     if (!prof || !prof.fathom_webhook_secret) {
       return NextResponse.json({ error: "Webhook secret not configured for this professor" }, { status: 401 });
+    }
+    
+    // Look up professor user preferences
+    const { data: userPrefs } = await serviceClient
+      .from("users")
+      .select("auto_meeting_sync, ai_insights, auto_task_gen, email_notifs")
+      .eq("id", prof.user_id)
+      .maybeSingle();
+      
+    // Default to true if somehow null
+    const prefs = {
+      autoMeetingSync: userPrefs?.auto_meeting_sync !== false, // Use true as default unless explicitly false
+      aiInsights: userPrefs?.ai_insights !== false,
+      autoTaskGen: userPrefs?.auto_task_gen !== false,
+      emailNotifs: userPrefs?.email_notifs !== false,
+    };
+
+    if (!prefs.autoMeetingSync) {
+      console.log(`[Fathom Webhook] Auto-meeting sync is disabled for prof ${profId}. Skipping.`);
+      return NextResponse.json({ success: true, message: "Sync paused by user preference" });
     }
 
     // Read the raw body as text for signature verification
@@ -202,7 +222,7 @@ export async function POST(request: NextRequest) {
 
     // Extract action items directly from AI summary and transcript
     let extractedActionItems: any[] = [];
-    if (transcript || summary) {
+    if ((transcript || summary) && prefs.autoTaskGen) {
       try {
         console.log("[Fathom Webhook] Extracting action items using Groq AI...");
         const aiResult = await extractActionItems(transcript, summary, matchedMeeting.agenda, new Date().toISOString());
@@ -212,6 +232,8 @@ export async function POST(request: NextRequest) {
       } catch (err) {
         console.error("[Fathom Webhook] Failed to extract AI action items:", err);
       }
+    } else if (!prefs.autoTaskGen) {
+      console.log(`[Fathom Webhook] Auto-task generation is disabled for prof ${profId}. Skipping action item extraction.`);
     }
 
     if (extractedActionItems.length > 0) {

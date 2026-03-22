@@ -119,20 +119,44 @@ export async function GET(
 
   let insights = meeting.pre_meeting_insights || null;
   if (!insights && (previousMeeting?.summary || pendingTasks.length > 0)) {
-    try {
-      insights = await generateMeetingInsights(
-        previousMeeting?.summary || "",
-        pendingTasks,
-        recentSubmissions
-      );
+    // Check if professor has AI insights enabled
+    const { data: profData } = await serviceClient
+      .from("professors")
+      .select("user_id")
+      .eq("id", meeting.professor_id)
+      .maybeSingle();
 
-      // Save insights to DB
-      await serviceClient
-        .from("meetings")
-        .update({ pre_meeting_insights: insights })
-        .eq("id", params.id);
-    } catch (e) {
-      console.error("Failed to generate meeting insights:", e);
+    let aiInsightsEnabled = true;
+    if (profData?.user_id) {
+      const { data: userData } = await serviceClient
+        .from("users")
+        .select("ai_insights")
+        .eq("id", profData.user_id)
+        .maybeSingle();
+      
+      if (userData && userData.ai_insights === false) {
+        aiInsightsEnabled = false;
+      }
+    }
+
+    if (aiInsightsEnabled) {
+      try {
+        insights = await generateMeetingInsights(
+          previousMeeting?.summary || "",
+          pendingTasks,
+          recentSubmissions
+        );
+
+        // Save insights to DB
+        await serviceClient
+          .from("meetings")
+          .update({ pre_meeting_insights: insights })
+          .eq("id", params.id);
+      } catch (e) {
+        console.error("Failed to generate meeting insights:", e);
+      }
+    } else {
+      console.log(`[Meeting Insights] Generation disabled for professor ${meeting.professor_id}`);
     }
   }
 
