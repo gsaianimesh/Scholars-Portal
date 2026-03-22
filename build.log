@@ -6,6 +6,7 @@
   - Environments: .env.local
 
    Creating an optimized production build ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (140kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
 
 warn - The class `duration-[5000ms]` is ambiguous and matches multiple utilities.
 warn - If this is content and not a class, replace it with `duration-&lsqb;5000ms&rsqb;` to silence this warning.
@@ -52,9 +53,8 @@ warn - If this is content and not a class, replace it with `duration-&lsqb;5000m
 315:3  Warning: 'existingEmojis' is defined but never used. Allowed unused args must match /^_/u.  @typescript-eslint/no-unused-vars
 
 ./src/app/dashboard/chat/page.tsx
-5:16  Warning: 'CardContent' is defined but never used.  @typescript-eslint/no-unused-vars
-9:34  Warning: 'AvatarImage' is defined but never used.  @typescript-eslint/no-unused-vars
-23:6  Warning: React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+24:6  Warning: React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+34:6  Warning: React Hook useEffect has a missing dependency: 'loadMessages'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
 
 ./src/app/dashboard/meetings/[id]/page.tsx
 16:38  Warning: 'FileText' is defined but never used.  @typescript-eslint/no-unused-vars
@@ -95,11 +95,3 @@ warn - If this is content and not a class, replace it with `duration-&lsqb;5000m
 72:11  Warning: 'scholarUserIds' is assigned a value but never used.  @typescript-eslint/no-unused-vars
 
 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
-   Collecting page data ...
-   Generating static pages (0/42) ...
-   Generating static pages (10/42) 
-   Generating static pages (20/42) 
-   Generating static pages (31/42) 
- ✓ Generating static pages (42/42)
-   Finalizing page optimization ...
-   Collecting build traces ...
