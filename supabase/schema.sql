@@ -122,6 +122,7 @@ CREATE TABLE meetings (
   fathom_meeting_id TEXT,
   transcript TEXT,
   summary TEXT,
+  pre_meeting_insights JSONB,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

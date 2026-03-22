@@ -11,7 +11,7 @@ export async function GET(
   // Get the meeting
   const { data: meeting } = await serviceClient
     .from("meetings")
-    .select("professor_id, meeting_date")
+    .select("*")
     .eq("id", params.id)
     .maybeSingle();
 
@@ -116,16 +116,22 @@ export async function GET(
     }
   }
 
-  let insights = null;
-  if (previousMeeting?.summary || pendingTasks.length > 0) {
+  let insights = meeting.pre_meeting_insights || null;
+  if (!insights && (previousMeeting?.summary || pendingTasks.length > 0)) {
     try {
       insights = await generateMeetingInsights(
         previousMeeting?.summary || "",
         pendingTasks,
         recentSubmissions
       );
+      
+      // Save insights to DB
+      await serviceClient
+        .from("meetings")
+        .update({ pre_meeting_insights: insights })
+        .eq("id", params.id);
     } catch (e) {
-      console.error("Failed to generate meeting insights via Groq:", e);
+      console.error("Failed to generate meeting insights:", e);
     }
   }
 
