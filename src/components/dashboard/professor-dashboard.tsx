@@ -17,6 +17,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
+import { LoadingState } from "@/components/loading-screen";
 
 interface ProfessorDashboardProps {
   userId: string;
@@ -69,7 +70,7 @@ export function ProfessorDashboard({ userId }: ProfessorDashboardProps) {
       .select("*, user:users(*)")
       .eq("professor_id", prof.id);
 
-    const scholarUserIds = (scholarsRes.data || []).map((s: any) => s.user_id).filter(Boolean);
+    const _scholarUserIds = (scholarsRes.data || []).map((s: any) => s.user_id).filter(Boolean);
     const [tasksRes, assignmentsRes, meetingsRes, activityRes] =
       await Promise.all([
         supabase

@@ -14,6 +14,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
+import { LoadingState } from "@/components/loading-screen";
 
 interface CoSupervisorDashboardProps {
   userId: string;
@@ -53,13 +54,13 @@ export function CoSupervisorDashboard({ userId }: CoSupervisorDashboardProps) {
       .eq("professor_id", coSup.professor_id)
       .eq("status", "active");
 
-    const profRes = await supabase
+    const _profRes = await supabase
       .from("professors")
       .select("user_id")
       .eq("id", coSup.professor_id)
       .maybeSingle();
 
-    const scholarUserIds = (scholarsRes.data || []).map((s: any) => s.user_id).filter(Boolean);
+    const _scholarUserIds = (scholarsRes.data || []).map((s: any) => s.user_id).filter(Boolean);
     const [tasksRes, meetingsRes, activityRes] = await Promise.all([
       supabase
         .from("tasks")

@@ -15,6 +15,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
+import { LoadingState } from "@/components/loading-screen";
 
 interface ScholarDashboardProps {
   userId: string;
