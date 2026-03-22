@@ -1,0 +1,26 @@
+--- src/app/api/meetings/[id]/context/route.ts
++++ src/app/api/meetings/[id]/context/route.ts
+@@ -17,21 +17,39 @@
+     return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
+   }
+ 
++  // Get participants
++  const { data: participants } = await serviceClient
++    .from("meeting_participants")
++    .select("user_id")
++    .eq("meeting_id", params.id);
++
++  const userIds = participants?.map(p => p.user_id) || [];
++  
++  let scholarIds: string[] = [];
++  let coSupervisorsProfIds: string[] = [];
++  if (userIds.length > 0) {
++    const { data: scholars } = await serviceClient
++      .from("scholars")
++      .select("id")
++      .in("user_id", userIds);
++    if (scholars) scholarIds = scholars.map(s => s.id);
++  }
++
+   // Get previous meeting summary
+   // Get pending tasks
