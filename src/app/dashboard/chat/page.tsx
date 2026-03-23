@@ -171,11 +171,13 @@ export default function ChatPage() {
 
         if (unreadMe && unreadMe.length > 0) {
           const ids = unreadMe.map(m => m.id);
-          // Wait, supabase update over multiple items requires .in('id', ids)
-          await supabase.from('activity_logs')
-            .update({ metadata: { receiver_id: currentUser.id, read: true } })
-            .in('id', ids);
-            
+          // Bypass RLS via backend route to mark as read
+          await fetch('/api/chat/read', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids })
+          });
+          
           setUnreadCounts(prev => ({...prev, [activeContact.id]: 0}));
         }
      }
