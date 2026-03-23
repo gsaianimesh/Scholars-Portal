@@ -24,6 +24,7 @@ export default function ChatPage() {
   const [contacts, setContacts] = useState<any[]>([]);
   const [activeContact, setActiveContact] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [isAILoading, setIsAILoading] = useState(false);
@@ -94,6 +95,22 @@ export default function ChatPage() {
     // Add Lumi AI as the first contact
     const allContacts = [LUMI_CONTACT, ...userContacts];
     setContacts(allContacts);
+    
+    // Fetch unread messages for all contacts
+    const { data: unreadMsgs } = await supabase
+      .from('activity_logs')
+      .select('user_id')
+      .eq('activity_type', 'direct_message')
+      .eq('metadata->>receiver_id', dbUser.id)
+      .eq('metadata->>read', 'false');
+
+    if (unreadMsgs) {
+      const counts: Record<string, number> = {};
+      unreadMsgs.forEach(msg => {
+        counts[msg.user_id] = (counts[msg.user_id] || 0) + 1;
+      });
+      setUnreadCounts(counts);
+    }
     setActiveContact(allContacts[0]);
 
     setLoading(false);
@@ -140,6 +157,27 @@ export default function ChatPage() {
             timestamp: new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
          }));
          setMessages(filteredMsgs);
+     }
+
+     // Mark messages as read
+     if (activeContact.id !== 'lumi-ai') {
+        const { data: unreadMe } = await supabase
+          .from('activity_logs')
+          .select('id')
+          .eq('activity_type', 'direct_message')
+          .eq('user_id', activeContact.id)
+          .eq('metadata->>receiver_id', currentUser.id)
+          .eq('metadata->>read', 'false');
+
+        if (unreadMe && unreadMe.length > 0) {
+          const ids = unreadMe.map(m => m.id);
+          // Wait, supabase update over multiple items requires .in('id', ids)
+          await supabase.from('activity_logs')
+            .update({ metadata: { receiver_id: currentUser.id, read: true } })
+            .in('id', ids);
+            
+          setUnreadCounts(prev => ({...prev, [activeContact.id]: 0}));
+        }
      }
   }
 
@@ -217,7 +255,7 @@ export default function ChatPage() {
        user_id: currentUser.id,
        activity_type: 'direct_message',
        description: msgText,
-       metadata: { receiver_id: activeContact.id }
+       metadata: { receiver_id: activeContact.id, read: false }
     });
 
     // Hard refresh to ensure consistency
@@ -253,10 +291,17 @@ export default function ChatPage() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 overflow-hidden">
-                    <h4 className="text-sm font-semibold truncate flex items-center gap-2">
-                      {contact.name}
-                      {contact.isAI && (
-                        <span className="text-[9px] bg-violet-600 text-white px-1.5 py-0.5 rounded font-normal">AI</span>
+                    <h4 className="text-sm font-semibold truncate flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        {contact.name}
+                        {contact.isAI && (
+                          <span className="text-[9px] bg-violet-600 text-white px-1.5 py-0.5 rounded font-normal">AI</span>
+                        )}
+                      </div>
+                      {unreadCounts[contact.id] > 0 && contact.id !== activeContact?.id && (
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                          {unreadCounts[contact.id]}
+                        </span>
                       )}
                     </h4>
                     <p className="text-xs text-muted-foreground truncate capitalize">
