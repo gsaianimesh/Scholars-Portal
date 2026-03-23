@@ -231,7 +231,7 @@ export function Sidebar({ role }: SidebarProps) {
             filter: `user_id=eq.${appUser.id}`,
           },
           (payload) => {
-            const type = payload.new.type;
+            const type = (payload.new as any).type;
             if (
               [
                 "task_assigned",
@@ -250,8 +250,8 @@ export function Sidebar({ role }: SidebarProps) {
             }
             if (
               pathname !== "/dashboard/chat" &&
-              payload.new.activity_type === "direct_message" &&
-              payload.new.metadata?.receiver_id === appUser.id
+              (payload.new as any).activity_type === "direct_message" &&
+              (payload.new as any).metadata?.receiver_id === appUser.id
             ) {
               setChatCount((prev) => prev + 1);
             }
@@ -278,8 +278,8 @@ export function Sidebar({ role }: SidebarProps) {
           (payload) => {
             if (
               pathname !== "/dashboard/chat" &&
-              payload.new.activity_type === "direct_message" &&
-              payload.new.metadata?.receiver_id === appUser.id
+              (payload.new as any).activity_type === "direct_message" &&
+              (payload.new as any).metadata?.receiver_id === appUser.id
             ) {
               setChatCount((prev) => prev + 1);
             }
