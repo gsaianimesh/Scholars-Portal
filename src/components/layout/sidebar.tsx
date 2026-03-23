@@ -65,6 +65,7 @@ export function Sidebar({ role }: SidebarProps) {
   const [announcementCount, setAnnouncementCount] = useState(0);
   const [taskCount, setTaskCount] = useState(0);
   const [meetingCount, setMeetingCount] = useState(0);
+  const [chatCount, setChatCount] = useState(0);
   const supabase = createClient();
 
   useEffect(() => {
@@ -150,13 +151,27 @@ export function Sidebar({ role }: SidebarProps) {
           setMeetingCount(meetingNotifs?.length || 0);
         }
 
+        const { data: chatNotifs } = await supabase
+          .from("activity_logs")
+          .select("id")
+          .eq("activity_type", "direct_message")
+          .eq("metadata->>receiver_id", appUser.id)
+          .eq("metadata->>read", "false");
+
+        if (pathname === "/dashboard/chat" || pathname.startsWith("/dashboard/chat/")) {
+          // If on chat page, assumed we are handling read logic inside chat page.
+          // In real code we'd need to sync it, but for now we set it initially
+        }
+        setChatCount(chatNotifs?.length || 0);
+
       } catch (e) {
         console.error(e);
       }
     }
     fetchData();
 
-    let channel: any = null;
+    let notifChannel: any = null;
+    let activityChannel: any = null;
 
     // Setup realtime subscription
     supabase.auth.getUser().then(async ({ data: { user: authUser } }) => {
@@ -170,7 +185,7 @@ export function Sidebar({ role }: SidebarProps) {
         
       if (!appUser) return;
       
-      channel = supabase
+      notifChannel = supabase
         .channel('sidebar-notifications')
         .on(
           'postgres_changes',
@@ -188,6 +203,9 @@ export function Sidebar({ role }: SidebarProps) {
             if (type === 'meeting_scheduled' && !pathname.startsWith('/dashboard/meetings')) {
               setMeetingCount(prev => prev + 1);
             }
+            if (pathname !== '/dashboard/chat' && payload.new.activity_type === 'direct_message' && payload.new.metadata?.receiver_id === appUser.id) {
+              setChatCount(prev => prev + 1);
+            }
             // For announcements, we just re-fetch to get the list and update if it's not authored by us
             if (type === 'announcement' && !pathname.startsWith('/dashboard/announcements')) {
               fetchData(); 
@@ -195,12 +213,30 @@ export function Sidebar({ role }: SidebarProps) {
           }
         )
         .subscribe();
+        
+      activityChannel = supabase
+        .channel('sidebar-activity-logs')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'activity_logs'
+          },
+          (payload) => {
+            if (pathname !== '/dashboard/chat' && 
+                payload.new.activity_type === 'direct_message' && 
+                payload.new.metadata?.receiver_id === appUser.id) {
+              setChatCount((prev) => prev + 1);
+            }
+          }
+        )
+        .subscribe();
     });
 
     return () => {
-      if (channel) {
-        supabase.removeChannel(channel);
-      }
+      if (notifChannel) supabase.removeChannel(notifChannel);
+      if (activityChannel) supabase.removeChannel(activityChannel);
     };
   }, [pathname, supabase]);
 
@@ -269,6 +305,11 @@ export function Sidebar({ role }: SidebarProps) {
                   {link.label === "Meetings" && meetingCount > 0 && (
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                       {meetingCount}
+                    </span>
+                  )}
+                  {link.label === "Chat" && chatCount > 0 && (
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                      {chatCount}
                     </span>
                   )}
                 </Link>

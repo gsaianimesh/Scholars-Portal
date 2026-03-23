@@ -71,8 +71,7 @@ export function ScholarDashboard({ userId }: ScholarDashboardProps) {
         .select("*, task:tasks(*)")
         .eq("scholar_id", scholar.id)
         .not("submitted_at", "is", null)
-        .order("submitted_at", { ascending: false })
-        .limit(5),
+        .order("submitted_at", { ascending: false }),
     ]);
 
     const nowTime = new Date().getTime();
@@ -267,7 +266,7 @@ export function ScholarDashboard({ userId }: ScholarDashboardProps) {
             <p className="text-sm text-muted-foreground">No submissions yet</p>
           ) : (
             <div className="space-y-3">
-              {submissions.map((sub: any) => (
+              {submissions.slice(0, 5).map((sub: any) => (
                 <div
                   key={sub.id}
                   className="flex items-center gap-3 p-3 rounded-lg border"
