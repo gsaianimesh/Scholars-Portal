@@ -353,7 +353,7 @@ Be supportive and helpful!`
                    const date = new Date(m.meeting_date);
                    const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                   return `${idx + 1}. **${m.meeting_title}**\n   - Date: ${dateStr} at ${timeStr}\n   - Duration: ${m.duration_minutes || 60} mins`;
+                   return `${idx + 1}. [${m.meeting_title}](/dashboard/meetings/${m.id})\n   📅 ${dateStr} at ${timeStr} · ${m.duration_minutes || 60} mins`;
                  }).join("\n\n");
                  responseText = `Here are your upcoming meetings:\n\n${meetingList}`;
                }
