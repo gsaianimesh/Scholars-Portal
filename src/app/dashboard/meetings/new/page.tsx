@@ -76,7 +76,7 @@ export default function NewMeetingPage() {
 
     // Validate meeting link requirement
     if (!hasGoogleAuth && !useCustomLink) {
-      setError("Please connect your Google Calendar to auto-generate a meeting link, or select 'Meeting Link' and provide a manual URL.");
+      setError("Please connect your Google Calendar so Lumi can generate a meeting link, or select 'Meeting Link' and provide a manual URL.");
       setLoading(false);
       return;
     }
@@ -212,9 +212,9 @@ export default function NewMeetingPage() {
                   />
                   <Video className="h-4 w-4 text-blue-600" />
                   <div>
-                    <p className="text-sm font-medium">Auto-create Google Meet</p>
+                    <p className="text-sm font-medium">Lumi Creates Google Meet</p>
                     <p className="text-xs text-muted-foreground">
-                      A Meet link will be generated and added to your Google Calendar
+                      Lumi will generate a Meet link and add it to your Google Calendar
                     </p>
                   </div>
                 </label>
@@ -264,7 +264,7 @@ export default function NewMeetingPage() {
               )}
               {!hasGoogleAuth && !useCustomLink && (
                 <p className="text-xs text-muted-foreground">
-                  Sign in with Google to auto-create Google Meet links and Calendar events.
+                  Sign in with Google so Lumi can create Google Meet links and Calendar events.
                 </p>
               )}
             </div>

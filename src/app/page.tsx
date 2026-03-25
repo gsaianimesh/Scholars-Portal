@@ -201,8 +201,8 @@ export default function LandingPage() {
                     <div className="absolute -left-2 sm:-left-6 -bottom-4 sm:-bottom-6 scale-90 sm:scale-100 bg-background border shadow-xl rounded-xl p-2 sm:p-3 flex items-center gap-2 sm:gap-3 transform -rotate-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 pointer-events-none z-10">
                        <BrainCircuit className="h-4 sm:h-5 w-4 sm:w-5 text-purple-500" />
                      <div className="text-xs pr-2">
-                       <p className="font-bold">AI Tasks</p>
-                       <p className="text-muted-foreground scale-90 origin-left">Auto-Generate</p>
+                       <p className="font-bold">Lumi Tasks</p>
+                       <p className="text-muted-foreground scale-90 origin-left">AI-Generated</p>
                      </div>
                      <div className="w-8 h-4 rounded-full bg-primary relative">
                         <div className="absolute right-0.5 top-[1.5px] w-3 h-3 rounded-full bg-white shadow-sm" />
@@ -240,7 +240,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <strong className="block text-foreground font-bold mb-1 text-lg">Total Automation Control</strong>
-                    <span className="text-muted-foreground leading-relaxed">You stay entirely in control. Toggle automatic meeting syncing, AI task generation, or email notifications explicitly on or off from your settings.</span>
+                    <span className="text-muted-foreground leading-relaxed">You stay entirely in control. Toggle Lumi&apos;s meeting syncing, task generation, or email notifications explicitly on or off from your settings.</span>
                   </div>
                 </div>
               </div>
@@ -261,7 +261,7 @@ export default function LandingPage() {
                 Your Personal AI Notetaker.
               </h2>
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Connect once, and our bot will automatically join all your scheduled meetings. It reliably records the meeting, types out all the notes, and meticulously documents the full transcript.
+                Connect once, and Lumi will join all your scheduled meetings. It reliably records the meeting, types out all the notes, and meticulously documents the full transcript.
               </p>
               <ul className="space-y-4">
                 <li className="flex gap-4 items-start">
@@ -279,7 +279,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <strong className="block text-lg mb-1">Smart Action Item Extraction</strong>
-                    <span className="text-muted-foreground text-sm">The best part: our smart AI engine listens for action items and directly assigns clear tasks to the relevant students automatically!</span>
+                    <span className="text-muted-foreground text-sm">The best part: Lumi listens for action items and directly assigns clear tasks to the relevant students!</span>
                   </div>
                 </li>
               </ul>
@@ -309,7 +309,7 @@ export default function LandingPage() {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <CheckSquare className="h-4 w-4 text-primary" />
-                          <span className="font-bold text-sm text-primary">Task Auto-Assigned</span>
+                          <span className="font-bold text-sm text-primary">Lumi Task Assigned</span>
                         </div>
                       </div>
                       <p className="text-sm text-foreground/90 font-medium">&quot;Alex, please do a literature update by Friday.&quot;</p>
@@ -352,7 +352,7 @@ export default function LandingPage() {
                      <div className="flex items-center gap-4 bg-background p-3 rounded-xl border shadow-sm">
                         <Mail className="h-5 w-5 text-muted-foreground"/>
                         <div>
-                          <p className="text-sm font-semibold">Automated Emails Sent</p>
+                          <p className="text-sm font-semibold">Lumi Sent Emails</p>
                           <p className="text-xs text-muted-foreground">All students received invitations</p>
                         </div>
                      </div>
@@ -383,7 +383,7 @@ export default function LandingPage() {
               </p>
               <ul className="space-y-4">
                 <li className="flex gap-3 text-lg text-foreground/90 font-medium">
-                  <CheckCircle2 className="h-6 w-6 text-emerald-500 shrink-0" /> Automatically emails invites.
+                  <CheckCircle2 className="h-6 w-6 text-emerald-500 shrink-0" /> Lumi emails invites automatically.
                 </li>
                 <li className="flex gap-3 text-lg text-foreground/90 font-medium">
                   <CheckCircle2 className="h-6 w-6 text-emerald-500 shrink-0" /> Seamless reschedules? Everyone gets updated.
@@ -409,7 +409,7 @@ export default function LandingPage() {
                 Unmatched Task Continuity.
               </h2>
               <p className="text-xl text-muted-foreground leading-relaxed">
-                A single platform to assign all tasks. Your students get consistent automated reminders to complete their work, while you get an easy interface to evaluate or comment on their progress.
+                A single platform to assign all tasks. Lumi sends consistent reminders to your students to complete their work, while you get an easy interface to evaluate or comment on their progress.
               </p>
               <div className="bg-card border shadow-sm rounded-2xl p-6 relative overflow-hidden">
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500" />
@@ -493,7 +493,7 @@ export default function LandingPage() {
                   Add Students in Seconds.
                 </h2>
                 <p className="text-xl text-muted-foreground leading-relaxed">
-                  We built our onboarding to be entirely frictionless. You can safely add any number of students to your lab group just by sharing a simple automated code or link.
+                  We built our onboarding to be entirely frictionless. You can safely add any number of students to your lab group just by sharing a simple code or link that Lumi manages.
                 </p>
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-4 bg-card border rounded-2xl p-4 shadow-sm">
@@ -538,8 +538,8 @@ export default function LandingPage() {
               {
                 role: "Scholar",
                 tagline: "The Focus Hub",
-                desc: "Your personal headquarters. You see exactly what you need to do, receive automatic email schedules, read AI meeting sumaries, and submit your evaluation tasks directly.",
-                features: ["Simple Code Join Base", "Automatic Due Reminders", "Direct Direct File Attachments"],
+                desc: "Your personal headquarters. You see exactly what you need to do, receive Lumi email schedules, read AI meeting summaries, and submit your evaluation tasks directly.",
+                features: ["Simple Code Join Base", "Lumi Due Reminders", "Direct Direct File Attachments"],
                 color: "from-emerald-500 to-teal-600 text-emerald-600",
                 shadow: "shadow-emerald-500/10",
                 icon: CheckSquare,
@@ -619,7 +619,7 @@ export default function LandingPage() {
             Ready to upgrade your lab?
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-            Automate the busywork. Focus entirely on the breakthroughs.
+            Let Lumi handle the busywork. Focus entirely on the breakthroughs.
           </p>
           {loggedIn ? (
             <Link href="/dashboard">

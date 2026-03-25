@@ -34,7 +34,7 @@ const PAGE_GUIDES: Record<string, { title: string; steps: string[] }> = {
     steps: [
       "This is your task management board.",
       "You can manually create new tracking action items using the 'New Task' button.",
-      "Tasks are automatically generated here by Lumi AI after meetings.",
+      "Lumi AI automatically generates tasks here after your meetings end.",
       "Mark items as 'In Progress' or 'Done' to keep everyone synced."
     ]
   },
@@ -42,8 +42,8 @@ const PAGE_GUIDES: Record<string, { title: string; steps: string[] }> = {
     title: "Meetings & AI Transcripts",
     steps: [
       "Schedule new meetings by clicking the 'New Meeting' button.",
-      "Lumi AI will automatically join your scheduled call to record it.",
-      "After the meeting finishes, click on the meeting row to view the full auto-generated transcript, summary, and action items."
+      "Lumi AI will automatically join your scheduled calls to record them.",
+      "After each meeting, Lumi generates transcripts, summaries, and action items for you."
     ]
   },
   "/dashboard/chat": {
@@ -74,15 +74,15 @@ const PAGE_GUIDES: Record<string, { title: string; steps: string[] }> = {
     title: "Activity Logs",
     steps: [
       "This page tracks the entire audit log of your lab.",
-      "Every time a task is completed, a meeting is held, or a document is submitted, it is logged here.",
+      "Every time a task is completed, a meeting is held, or a document is submitted, Lumi logs it here.",
       "Use the filters to find specific events."
     ]
   },
   "/dashboard/settings": {
-    title: "Settings & AI Automation",
+    title: "Settings & Lumi AI",
     steps: [
       "Configure your personal profile and lab preferences here.",
-      "Toggle AI automation features such as Auto-Task Generation and AI Meeting Summaries on or off.",
+      "Toggle Lumi AI features such as Task Generation and Meeting Summaries on or off.",
       "Manage your active integrations like Google Calendar."
     ]
   }

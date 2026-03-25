@@ -272,13 +272,13 @@ export default function OnboardingPage(): React.ReactElement | null {
         return (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
              <CardHeader className="text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-100 shadow-inner">
-                <BrainCircuit className="h-8 w-8 text-purple-600" />
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-100 shadow-inner">
+                <BrainCircuit className="h-8 w-8 text-violet-600" />
               </div>
-              <CardTitle className="text-xl">Automate Your Meetings</CardTitle>
+              <CardTitle className="text-xl">Let Lumi Handle Your Meetings</CardTitle>
             </CardHeader>
             <CardContent className="text-center text-muted-foreground pb-2">
-              <p>Link your Fathom AI account to automatically sync your Zoom/Meet recordings! The portal leverages AI to generate meeting minutes, summaries, and action items effortlessly.</p>
+              <p>Link your Fathom AI account and Lumi will sync your Zoom/Meet recordings! Lumi generates meeting minutes, summaries, and action items effortlessly.</p>
             </CardContent>
             <CardFooter className="flex justify-between border-t p-4">
                <div className="flex gap-2 items-center">
@@ -298,20 +298,20 @@ export default function OnboardingPage(): React.ReactElement | null {
         return (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
              <CardHeader className="text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-600 shadow-lg text-white">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-violet-600 shadow-lg text-white">
                 <Video className="h-8 w-8" />
               </div>
               <CardTitle className="text-2xl">Connect Fathom AI</CardTitle>
-              <CardDescription>Almost done! Complete the setup to enable automated transcripts.</CardDescription>
+              <CardDescription>Almost done! Enable Lumi to handle your meeting transcripts.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-center">
               <div className="bg-muted p-4 rounded-lg text-sm text-left space-y-2 mb-4">
                 <p><strong>Step 1:</strong> Click &apos;Connect Fathom&apos; below.</p>
                 <p><strong>Step 2:</strong> Authorize access in the external popup.</p>
-                <p><strong>Step 3:</strong> You&apos;ll be securely redirected to your new dashboard!</p>
+                <p><strong>Step 3:</strong> Lumi will start processing your meetings!</p>
               </div>
-              
-              <Button onClick={handleFathomConnect} className="w-full h-12 text-lg bg-purple-600 hover:bg-purple-700 text-white font-medium">
+
+              <Button onClick={handleFathomConnect} className="w-full h-12 text-lg bg-violet-600 hover:bg-violet-700 text-white font-medium">
                 Connect Fathom <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
               <Button variant="ghost" className="w-full text-muted-foreground" onClick={finishOnboarding}>

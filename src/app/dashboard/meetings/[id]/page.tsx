@@ -533,10 +533,10 @@ export default function MeetingDetailPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-green-500" />
-              Action Items Generated Successfully!
+              Lumi Generated Action Items!
             </DialogTitle>
             <DialogDescription>
-              Based on the transcript, the following tasks have been automatically created and assigned. You can delete any that aren&apos;t needed or mark them as auto-generated.
+              Based on the transcript, Lumi AI has created the following tasks and assigned them. You can delete any that aren&apos;t needed.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
@@ -683,7 +683,7 @@ export default function MeetingDetailPage() {
                      <Brain className="w-4 h-4" /> Connect Fathom for AI Transcripts
                   </h4>
                   <p className="text-sm text-blue-800 dark:text-blue-300">
-                    Connect Fathom to automatically get your meeting summaries, action items, and task assignments directly processed into this portal post-call.
+                    Connect Fathom so Lumi can automatically process your meeting summaries, action items, and task assignments.
                   </p>
                   <Button 
                     size="sm" 
@@ -895,7 +895,7 @@ export default function MeetingDetailPage() {
                              {item.title}
                            </p>
                            {item.is_auto_generated && (
-                             <span className="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Auto-generated</span>
+                             <span className="text-[10px] bg-violet-100 text-violet-800 dark:bg-violet-900/50 dark:text-violet-300 px-2 py-0.5 rounded-full">Lumi-generated</span>
                            )}
                         </div>
                         {item.description && (

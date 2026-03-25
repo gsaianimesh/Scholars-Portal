@@ -99,7 +99,7 @@ export default function MeetingsPage() {
                <Brain className="w-4 h-4" /> Connect Fathom AI
             </h4>
             <p className="text-sm text-blue-800 dark:text-blue-300">
-              Automate your workflow. Connect Fathom to get your meeting transcripts, summaries, and action assignments tracked here automatically.
+              Let Lumi handle your workflow. Connect Fathom so Lumi can process your meeting transcripts, summaries, and action assignments.
             </p>
           </div>
           <Button 

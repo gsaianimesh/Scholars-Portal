@@ -316,25 +316,27 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Automation Settings */}
-      <Card>
-        <CardHeader>
+      {/* Lumi AI Settings */}
+      <Card className="border-violet-200 dark:border-violet-800/50">
+        <CardHeader className="bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/30 dark:to-indigo-950/30 rounded-t-lg">
           <CardTitle className="text-base flex items-center gap-2">
-            <Zap className="h-4 w-4 text-yellow-500" />
-            Automation Settings
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
+              <Zap className="h-4 w-4 text-white" />
+            </div>
+            Lumi AI Settings
           </CardTitle>
           <CardDescription>
-            Configure automated features powered by Lumi AI
+            Configure what Lumi AI handles for you automatically
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+        <CardContent className="space-y-6 pt-6">
+            <div className="flex items-center justify-between p-4 border border-violet-100 dark:border-violet-900/50 rounded-lg bg-violet-50/50 dark:bg-violet-950/20">
               <div className="flex items-start gap-3">
-                <Brain className="h-5 w-5 text-purple-500 mt-0.5" />
+                <Brain className="h-5 w-5 text-violet-500 mt-0.5" />
                 <div>
-                  <Label className="font-medium">AI Meeting Insights</Label>
+                  <Label className="font-medium">Lumi Meeting Insights</Label>
                   <p className="text-sm text-muted-foreground">
-                    Generate pre-meeting briefings and talking points automatically
+                    Lumi generates pre-meeting briefings and talking points for you
                   </p>
                 </div>
               </div>
@@ -344,13 +346,13 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex items-center justify-between p-4 border border-violet-100 dark:border-violet-900/50 rounded-lg bg-violet-50/50 dark:bg-violet-950/20">
               <div className="flex items-start gap-3">
-                <ListChecks className="h-5 w-5 text-green-500 mt-0.5" />
+                <ListChecks className="h-5 w-5 text-violet-500 mt-0.5" />
                 <div>
-                  <Label className="font-medium">Auto-Generate Tasks</Label>
+                  <Label className="font-medium">Lumi Task Generation</Label>
                   <p className="text-sm text-muted-foreground">
-                    Automatically create tasks from meeting action items
+                    Lumi creates and assigns tasks from meeting action items
                   </p>
                 </div>
               </div>
@@ -360,13 +362,13 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex items-center justify-between p-4 border border-violet-100 dark:border-violet-900/50 rounded-lg bg-violet-50/50 dark:bg-violet-950/20">
               <div className="flex items-start gap-3">
-                <LinkIcon className="h-5 w-5 text-blue-500 mt-0.5" />
+                <LinkIcon className="h-5 w-5 text-violet-500 mt-0.5" />
                 <div>
-                  <Label className="font-medium">Auto Meeting Sync</Label>
+                  <Label className="font-medium">Lumi Meeting Sync</Label>
                   <p className="text-sm text-muted-foreground">
-                    Automatically sync meetings from Fathom when available
+                    Lumi syncs your meetings from Fathom automatically
                   </p>
                 </div>
               </div>
@@ -376,13 +378,13 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex items-center justify-between p-4 border border-violet-100 dark:border-violet-900/50 rounded-lg bg-violet-50/50 dark:bg-violet-950/20">
               <div className="flex items-start gap-3">
-                <Bell className="h-5 w-5 text-orange-500 mt-0.5" />
+                <Bell className="h-5 w-5 text-violet-500 mt-0.5" />
                 <div>
-                  <Label className="font-medium">Email Notifications</Label>
+                  <Label className="font-medium">Lumi Notifications</Label>
                   <p className="text-sm text-muted-foreground">
-                    Receive email updates about tasks and meetings
+                    Lumi sends you email updates about tasks and meetings
                   </p>
                 </div>
               </div>
@@ -392,13 +394,12 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="rounded-md bg-purple-50 dark:bg-purple-900/20 p-4 text-sm text-purple-800 dark:text-purple-200 border border-purple-100 dark:border-purple-800">
-              <p className="font-semibold mb-1 flex items-center gap-1.5">
-                <Zap className="h-4 w-4" /> Powered by Lumi AI
+            <div className="rounded-lg bg-gradient-to-r from-violet-100 to-indigo-100 dark:from-violet-900/40 dark:to-indigo-900/40 p-4 text-sm border border-violet-200 dark:border-violet-800">
+              <p className="font-semibold mb-1 flex items-center gap-1.5 text-violet-800 dark:text-violet-200">
+                <Zap className="h-4 w-4" /> Lumi AI is your lab assistant
               </p>
-              <p className="text-purple-700 dark:text-purple-300">
-                These features use AI to help you manage your research lab more efficiently.
-                Automation settings are saved automatically.
+              <p className="text-violet-700 dark:text-violet-300">
+                Lumi handles all the automated tasks for your research lab — from generating meeting summaries to creating tasks and sending reminders. Your settings are saved automatically.
               </p>
             </div>
           </CardContent>
