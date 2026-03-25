@@ -366,7 +366,7 @@ export default function ChatPage() {
                            }`}
                                 ref={isLast ? scrollRef : null}>
                               {isAI ? (
-                                <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-p:my-1">
+                                <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-p:my-1 prose-strong:text-violet-700 dark:prose-strong:text-violet-300 prose-li:my-0.5 prose-ol:my-2 prose-ul:my-2">
                                   <ReactMarkdown>{msg.text}</ReactMarkdown>
                                 </div>
                               ) : (

@@ -316,10 +316,12 @@ Be supportive and helpful!`
              } else if (!meetings || meetings.length === 0) {
                responseText = "You don't have any upcoming meetings scheduled.";
              } else {
-               const meetingList = meetings.map((m: any) => {
+               const meetingList = meetings.map((m: any, idx: number) => {
                  const date = new Date(m.meeting_date);
-                 return `- **${m.meeting_title}** on ${date.toLocaleDateString()} at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-               }).join("\n");
+                 const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                 const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                 return `${idx + 1}. **${m.meeting_title}**\n   - Date: ${dateStr} at ${timeStr}\n   - Duration: ${m.duration_minutes || 60} mins`;
+               }).join("\n\n");
                responseText = `Here are your upcoming meetings:\n\n${meetingList}`;
              }
           } else if (scholarId) {
@@ -347,10 +349,12 @@ Be supportive and helpful!`
                } else if (!meetings || meetings.length === 0) {
                  responseText = "You don't have any upcoming meetings scheduled.";
                } else {
-                 const meetingList = meetings.map((m: any) => {
+                 const meetingList = meetings.map((m: any, idx: number) => {
                    const date = new Date(m.meeting_date);
-                   return `- **${m.meeting_title}** on ${date.toLocaleDateString()} at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-                 }).join("\n");
+                   const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                   const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                   return `${idx + 1}. **${m.meeting_title}**\n   - Date: ${dateStr} at ${timeStr}\n   - Duration: ${m.duration_minutes || 60} mins`;
+                 }).join("\n\n");
                  responseText = `Here are your upcoming meetings:\n\n${meetingList}`;
                }
              }
@@ -359,6 +363,17 @@ Be supportive and helpful!`
           }
         } else if (toolCall.function.name === "get_tasks") {
           const limit = args.limit || 10;
+
+          // Helper to format status nicely
+          const formatStatus = (status: string) => {
+            const statusMap: Record<string, string> = {
+              'not_started': 'Not Started',
+              'in_progress': 'In Progress',
+              'completed': 'Completed',
+              'submitted': 'Submitted'
+            };
+            return statusMap[status] || status;
+          };
 
           if (isProfessor && profId) {
              // Professor: get all tasks in their domain
@@ -382,10 +397,12 @@ Be supportive and helpful!`
                  ? `You don't have any tasks with status "${args.status}".`
                  : "You don't have any tasks yet.";
              } else {
-               const taskList = tasks.map((t: any) => {
-                 const deadlineStr = t.deadline ? ` (due: ${new Date(t.deadline).toLocaleDateString()})` : "";
-                 return `- **${t.title}** [${t.status}]${deadlineStr}`;
-               }).join("\n");
+               const taskList = tasks.map((t: any, idx: number) => {
+                 const deadlineStr = t.deadline
+                   ? new Date(t.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                   : 'No deadline';
+                 return `${idx + 1}. **${t.title}**\n   - Status: ${formatStatus(t.status)}\n   - Due: ${deadlineStr}`;
+               }).join("\n\n");
                responseText = `Here are your tasks:\n\n${taskList}`;
              }
           } else if (scholarId) {
@@ -410,11 +427,13 @@ Be supportive and helpful!`
                  ? `You don't have any tasks with status "${args.status}".`
                  : "You don't have any assigned tasks yet.";
              } else {
-               const taskList = assignments.map((a: any) => {
+               const taskList = assignments.map((a: any, idx: number) => {
                  const t = a.task;
-                 const deadlineStr = t?.deadline ? ` (due: ${new Date(t.deadline).toLocaleDateString()})` : "";
-                 return `- **${t?.title || "Untitled"}** [${a.status}]${deadlineStr}`;
-               }).join("\n");
+                 const deadlineStr = t?.deadline
+                   ? new Date(t.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                   : 'No deadline';
+                 return `${idx + 1}. **${t?.title || "Untitled"}**\n   - Status: ${formatStatus(a.status)}\n   - Due: ${deadlineStr}`;
+               }).join("\n\n");
                responseText = `Here are your assigned tasks:\n\n${taskList}`;
              }
           } else {
