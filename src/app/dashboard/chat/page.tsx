@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Send, Hash, Bot, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { LoadingState } from "@/components/loading-screen";
+import Link from "next/link";
 
 // Lumi AI Contact
 const LUMI_CONTACT = {
@@ -366,8 +367,39 @@ export default function ChatPage() {
                            }`}
                                 ref={isLast ? scrollRef : null}>
                               {isAI ? (
-                                <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-p:my-1 prose-strong:text-violet-700 dark:prose-strong:text-violet-300 prose-li:my-0.5 prose-ol:my-2 prose-ul:my-2">
-                                  <ReactMarkdown>{msg.text}</ReactMarkdown>
+                                <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-p:my-1 prose-li:my-0.5 prose-ol:my-2 prose-ul:my-2 text-gray-800 dark:text-gray-100">
+                                  <ReactMarkdown
+                                    components={{
+                                      a: ({ href, children }) => {
+                                        if (href?.startsWith('/')) {
+                                          return (
+                                            <Link
+                                              href={href}
+                                              className="text-violet-600 dark:text-violet-400 font-semibold hover:underline no-underline"
+                                            >
+                                              {children}
+                                            </Link>
+                                          );
+                                        }
+                                        return (
+                                          <a href={href} className="text-violet-600 dark:text-violet-400 font-semibold hover:underline" target="_blank" rel="noopener noreferrer">
+                                            {children}
+                                          </a>
+                                        );
+                                      },
+                                      strong: ({ children }) => (
+                                        <strong className="text-gray-900 dark:text-white font-semibold">{children}</strong>
+                                      ),
+                                      p: ({ children }) => (
+                                        <p className="text-gray-700 dark:text-gray-200 my-1">{children}</p>
+                                      ),
+                                      li: ({ children }) => (
+                                        <li className="text-gray-700 dark:text-gray-200">{children}</li>
+                                      ),
+                                    }}
+                                  >
+                                    {msg.text}
+                                  </ReactMarkdown>
                                 </div>
                               ) : (
                                 <p className="text-sm leading-relaxed">{msg.text}</p>

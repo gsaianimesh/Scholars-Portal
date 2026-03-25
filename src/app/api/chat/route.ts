@@ -320,7 +320,7 @@ Be supportive and helpful!`
                  const date = new Date(m.meeting_date);
                  const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                  const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                 return `${idx + 1}. **${m.meeting_title}**\n   - Date: ${dateStr} at ${timeStr}\n   - Duration: ${m.duration_minutes || 60} mins`;
+                 return `${idx + 1}. [${m.meeting_title}](/dashboard/meetings/${m.id})\n   📅 ${dateStr} at ${timeStr} · ${m.duration_minutes || 60} mins`;
                }).join("\n\n");
                responseText = `Here are your upcoming meetings:\n\n${meetingList}`;
              }
@@ -401,7 +401,8 @@ Be supportive and helpful!`
                  const deadlineStr = t.deadline
                    ? new Date(t.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                    : 'No deadline';
-                 return `${idx + 1}. **${t.title}**\n   - Status: ${formatStatus(t.status)}\n   - Due: ${deadlineStr}`;
+                 const statusEmoji = t.status === 'completed' ? '✅' : t.status === 'in_progress' ? '🔄' : '📋';
+                 return `${idx + 1}. [${t.title}](/dashboard/tasks/${t.id})\n   ${statusEmoji} ${formatStatus(t.status)} · Due: ${deadlineStr}`;
                }).join("\n\n");
                responseText = `Here are your tasks:\n\n${taskList}`;
              }
@@ -432,7 +433,8 @@ Be supportive and helpful!`
                  const deadlineStr = t?.deadline
                    ? new Date(t.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                    : 'No deadline';
-                 return `${idx + 1}. **${t?.title || "Untitled"}**\n   - Status: ${formatStatus(a.status)}\n   - Due: ${deadlineStr}`;
+                 const statusEmoji = a.status === 'completed' ? '✅' : a.status === 'in_progress' ? '🔄' : '📋';
+                 return `${idx + 1}. [${t?.title || "Untitled"}](/dashboard/tasks/${t?.id})\n   ${statusEmoji} ${formatStatus(a.status)} · Due: ${deadlineStr}`;
                }).join("\n\n");
                responseText = `Here are your assigned tasks:\n\n${taskList}`;
              }
